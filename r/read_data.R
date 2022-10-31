@@ -14,3 +14,5 @@ sub.df <- sub.df[,c("Latitude","Longitude",'LeafN','Leaf15N','Year')]
 # names(sub.df) <- c('lat','lon')
 write.csv(sub.df,'coord_nature_n.csv',row.names = F)
 
+# 
+x <- get_worldclim_prectemp(data.frame(longitude = 120,latitude = 30))
