@@ -6,7 +6,7 @@ reflectance.df.sub <- reflectance.df.sub[reflectance.df.sub$ndvi>0.3,]
 library(randomForest)
 library(caret)
 # can bands evaluation 
-neon.sc.aus.df <- read.csv('data/landsat_bands_additionalEvaluation.csv',na.strings = 'n/a')
+neon.sc.aus.df <- read.csv('landsat_bands_additionalEvaluation.csv',na.strings = 'n/a')
 # 
 neon.sc.aus.df <- neon.sc.aus.df[!is.na(neon.sc.aus.df$imaging_time),]
 
