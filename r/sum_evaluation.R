@@ -52,19 +52,19 @@ fit.can <- fit.rf.func(craine.can.combined.df[craine.can.combined.df$id == 'CAN'
 fit.can$importance
 
 # evaluate the craine fit with can data########
-dat.1$pred.global <- predict(fit.craine, dat.1[,predictor.vec])
-dat.1$pred.all <- predict(fit.all, dat.1)
-dat.1$pred.can <- predict(fit.can, dat.1)
-summary(lm(Leaf15N~pred.global,data = dat.1))
-summary(lm(Leaf15N~pred.all,data = dat.1))
-summary(lm(Leaf15N~pred.can,data = dat.1))
+craine.can.combined.df$pred.global <- predict(fit.craine, craine.can.combined.df)
+craine.can.combined.df$pred.all <- predict(fit.all, craine.can.combined.df)
+craine.can.combined.df$pred.can <- predict(fit.can, craine.can.combined.df)
+summary(lm(Leaf15N~pred.global,data = craine.can.combined.df[craine.can.combined.df$id=='CAN',]))
+summary(lm(Leaf15N~pred.all,data = craine.can.combined.df[craine.can.combined.df$id=='CAN',]))
+summary(lm(Leaf15N~pred.can,data = craine.can.combined.df[craine.can.combined.df$id=='CAN',]))
 # 
 plot(Leaf15N~pred.global,
-     data = dat.1,pch=16,col='grey')
+     data = craine.can.combined.df[craine.can.combined.df$id=='CAN',],pch=16,col='grey')
 plot(Leaf15N~pred.all,
-     data = dat.1,col='red')
+     data = craine.can.combined.df[craine.can.combined.df$id=='CAN',],col='red')
 plot(Leaf15N~pred.can,
-     data = dat.1,col='green')
+     data = craine.can.combined.df[craine.can.combined.df$id=='CAN',],col='green')
 
 
 
