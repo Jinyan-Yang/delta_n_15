@@ -1,6 +1,7 @@
 #read data#### 
 all.df <- read.csv('additionalEvaluation.csv')
 reflectance.df.sub <- read.csv('craine.csv')
+reflectance.df.sub <- reflectance.df.sub[reflectance.df.sub$ndvi>0.3,]
 # mode fit#########
 library(randomForest)
 library(caret)
@@ -67,8 +68,11 @@ plot(Leaf15N~pred.can,
      data = craine.can.combined.df[craine.can.combined.df$id=='CAN',],col='green')
 
 
-
-
+library(CAST)
+aoa.sub.df <- craine.can.combined.df[craine.can.combined.df$id=='Craine',c("blue","green","red","nir","swir1","swir2")]
+aoa.can.df <- craine.can.combined.df[craine.can.combined.df$id=='CAN',c("blue","green","red","nir","swir1","swir2")]
+AOA_can <- aoa(newdata = aoa.can.df, 
+               train = aoa.sub.df)
 
 
 
