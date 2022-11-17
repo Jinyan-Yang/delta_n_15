@@ -3,6 +3,7 @@ library(jsonlite)
 get.ndvi.func <- function(nir.in,red.in){
   (nir.in - red.in) / (nir.in + red.in)
 }
+# ts.df.in <- sample.yr.df[11,]
 get.slope.func <- function(ts.df.in){
   ts.sub.df <- data.frame(Longitude = ts.df.in[1],
                           Latitude = ts.df.in[2],
@@ -32,8 +33,10 @@ get.slope.func <- function(ts.df.in){
     
     land.sat.df <- rbind(land.sat.old,land.sat.new)
     land.sat.df$date <- as.Date(strptime(substr(land.sat.df$id,15,22),'%Y%m%d',tz = "GMT"))
-    land.sat.df[,1:5] <- land.sat.df[,1:5]/66045
+    land.sat.df[,c("blue","green","red","nir","swir1","swir2")] <- 
+      land.sat.df[,c("blue","green","red","nir","swir1","swir2")]* 0.0000275 - 0.2#/66045
     
+    land.sat.df <- land.sat.df[complete.cases(land.sat.df),]
     pred.val <- try(predict(fit.rf.n15,newdata = land.sat.df))
     
     if(class(pred.val) == 'try-error'){
@@ -95,7 +98,7 @@ get.landsatTS.func <- function(ts.df.in,
     
     land.sat.df <- rbind(land.sat.old,land.sat.new)
     land.sat.df$date <- as.Date(strptime(substr(land.sat.df$id,15,22),'%Y%m%d',tz = "GMT"))
-    land.sat.df[,1:5] <- land.sat.df[,1:5]/66045
+    land.sat.df[,c("blue","green","red","nir","swir1","swir2")] <- land.sat.df[,c("blue","green","red","nir","swir1","swir2")]* 0.0000275 - 0.2#/66045
     
     pred.val <- try(predict(fit.rf.n15,newdata = land.sat.df))
     

@@ -2,34 +2,23 @@
 library(randomForest)
 library(caret)
 source('r/evaluation_process.R')
-#  function for fit
-fit.rf.func <- function(df,x.nm=c("blue","green","red","nir","swir1","swir2")){
-  
-  df <- df[,c(x.nm,'Leaf15N')]
-  df <- df[complete.cases(df),]
-  set.seed(1935)
-  trani.index <- sample(1:nrow(df),round(nrow(df)*0.7))
-  train.df.noClim <- df[trani.index,]
-  # evalu.df.noClim <- df.sub.15.noClim[-trani.index,]
-  set.seed(1935)
-  fit.test <- randomForest(Leaf15N~., 
-                           data = train.df.noClim[,c(x.nm,'Leaf15N')])
-  return(fit.test)
-}
-# 
-fit.all <- fit.rf.func(combined.df)
+source('r/functions_rf.R')
+
+# fit to each dataset####
+fit.all <- readRDS('cache/rf.fit.landsatBand.rds')
+fit.all.kFold <- readRDS('cache/rf.kFold.n15Old.rds')
 fit.leave.neon <- fit.rf.func(combined.df[combined.df$id != 'neon',])
 fit.leave.craine <- fit.rf.func(combined.df[combined.df$id != 'Craine',])
 fit.leave.sc <- fit.rf.func(combined.df[combined.df$id != 'sc',])
 fit.leave.au <- fit.rf.func(combined.df[combined.df$id != 'au',])
 
-# 
+# predict
 combined.df$pred <- NA
-combined.df$pred[combined.df$id == 'sc']  <- predict(fit.leave.au, combined.df[combined.df$id == 'sc',])
+combined.df$pred[combined.df$id == 'sc']  <- predict(fit.leave.sc, combined.df[combined.df$id == 'sc',])
 combined.df$pred[combined.df$id == 'au']  <- predict(fit.leave.au, combined.df[combined.df$id == 'au',])
 combined.df$pred[combined.df$id == 'Craine']  <- predict(fit.leave.craine, combined.df[combined.df$id == 'Craine',])
 combined.df$pred[combined.df$id == 'neon']  <- predict(fit.leave.neon, combined.df[combined.df$id == 'neon',])
-combined.df$pred.all <- predict(fit.all, combined.df)
+combined.df$pred.all <- predict(fit.all.kFold.old, combined.df)
 # neon
 plot(Leaf15N~pred,data = combined.df[combined.df$id == 'neon',])
 summary(lm(Leaf15N~pred,data = combined.df[combined.df$id == 'neon',]))
@@ -48,10 +37,8 @@ plot(Leaf15N~pred,data = combined.df[combined.df$id == 'sc',])
 summary(lm(Leaf15N~pred,data = combined.df[combined.df$id == 'sc',]))
 
 # evaluate all
-df <- combined.df[complete.cases(combined.df),]
-set.seed(1935)
-trani.index <- sample(1:nrow(df),round(nrow(df)*0.7))
-df.evaluate <- df[-trani.index,]
+trani.index <- get.train.eval.func(combined.df)
+df.evaluate <- get.train.eval.func(combined.df,giveTrain=FALSE)
 # 
 df.evaluate$pred <- predict(fit.all, df.evaluate)
 plot(Leaf15N~pred,data = df.evaluate[df.evaluate$id =='neon',])
@@ -91,24 +78,9 @@ summary(lm(Leaf15N~pred,data = dat.AU.tmp))
 
 
 #performance by region########
-set.seed(1935)
-trani.index <- sample(1:nrow(combined.df),round(nrow(combined.df)*0.7))
-df.evaluate <- combined.df[-trani.index,]
-df.evaluate$pred.all
+df.evaluate <- get.train.eval.func(combined.df,giveTrain=FALSE)
 # global######
 pdf('performanceByRegion.pdf',width = 4*2,height = 4*3)
-plot.fit.region.func <- function(df.evaluate){
-  plot(Leaf15N~pred.all,
-       data = df.evaluate,
-       xlim=c(-12,15),ylim=c(-15,15),
-       pch=16,col=rgb(0.9,0.1,0.1,0.08),
-       xlab='Prediction',ylab='Observation')
-  abline(a=0,b=1)
-  mylabel = bquote(italic(R)^2 == .(format(summary(lm(Leaf15N~pred.all,data = df.evaluate))$r.squared, digits = 3)))
-  n.obs = bquote(n == .(format(nrow(df.evaluate), digits = 1)))
-  text(x = 11, y = -13, labels = n.obs)
-  text(x = 11, y = -10, labels = mylabel)
-}
 par(mfrow=c(3,2),mar=c(4,4,1,1))
 plot.fit.region.func(df.evaluate)
 legend('topleft',legend = '(a) Global',bty='n')
@@ -159,9 +131,9 @@ df.asia.all <- combined.df[combined.df$lon >70 &
 fit.region.func <- function(df.asia.all){
   fit.asia <- fit.rf.func(df.asia.all)
   df.asia.all$pred.all <- predict(fit.asia,df.asia.all)
-  set.seed(1935)
-  trani.index <- sample(1:nrow(df.asia.all),round(nrow(df.asia.all)*0.7))
-  df.asia.eval <- df.asia.all[-trani.index,]
+ 
+  
+  df.asia.eval <- get.train.eval.func(df.asia.all,giveTrain=F)
   plot.fit.region.func(df.asia.eval) 
 }
 
