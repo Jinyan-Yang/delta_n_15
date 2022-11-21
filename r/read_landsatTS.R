@@ -26,8 +26,6 @@ library(randomForest)
 landsat.ls <- apply(sample.yr.df, 1, get.slope.func)
 saveRDS(landsat.ls,'cache/landsat.slope.ls.rds')
 
-
-
 # ############
 landsat.ts.ls <- apply(sample.yr.df, 1, get.landsatTS.func)
 saveRDS(landsat.ts.ls,'cache/landsatTSBysite.rds')

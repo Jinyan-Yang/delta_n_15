@@ -1,7 +1,12 @@
 library(raster)
-source('r/evaluation_process.R')
+# source('r/evaluation_process.R')
+if(!file.exists('cache/groundDN15.rds')){
+  source('r/processTSGound.R')
+}else{
+  combined.df <- readRDS('cache/groundDN15.rds')
+}
 source('r/functions_rf.R')
-
+combined.df <- combined.df[complete.cases(combined.df),]
 # data from 
 # Hengl, T.(2018). Global mapping of potential natural vegetation: 
 # An assessment of machine learning algorithms for estimating land potential. 

@@ -1,13 +1,19 @@
 # mode fit#########
 library(randomForest)
 library(caret)
-source('r/evaluation_process.R')
+if(!file.exists('cache/groundDN15.rds')){
+  source('r/processTSGound.R')
+}else{
+  combined.df <- readRDS('cache/groundDN15.rds')
+  
+}
 source('r/functions_rf.R')
 
 # fit to each dataset####
 fit.all.kFold <- readRDS('cache/rf.kFold.n15.rds')
 
 # predict
+combined.df <- combined.df[complete.cases(combined.df),]
 combined.df$pred.all <- predict(fit.all.kFold, combined.df)
 
 # evaluate all
