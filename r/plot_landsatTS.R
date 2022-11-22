@@ -2,7 +2,7 @@
 landsat.slope.ls <- readRDS('cache/landsat.slope.ls.rds')
 landsat.df <- do.call(rbind,landsat.slope.ls)
 landsat.df <- landsat.df[!duplicated(landsat.df[,c("lon","lat")]),]
-landsat.ls <- readRDS('cache/landsat.ts.rds')
+landsat.ls <- readRDS('cache/landsat.ts.noDup.rds')
 
 # check slope of change####
 landsat.df.narm <- landsat.df[complete.cases(landsat.df),]

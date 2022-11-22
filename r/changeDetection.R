@@ -18,9 +18,9 @@ plot.change.mean.func <- function(df,col.i = rgb(1,0.1,0.1,0.5)){
 }
 # 
 change.ls <- list()
-pdf('figures/change.pdf',width = 5,height = 5*.618)
+pdf('figures/change.gap5.pdf',width = 10,height = 5*.618)
 par(mar=c(3,5,1,1))
-for (i in 3844:length(landsat.ls)){
+for (i in 1:length(landsat.ls)){
   if(!is.null(landsat.ls[[i]])){
     ts.point <- landsat.ls[[i]]
     ts.point$n15.pred.raw <- predict(fit.rf.n15,ts.point)
@@ -29,10 +29,10 @@ for (i in 3844:length(landsat.ls)){
     ts.point <- ts.point[order(ts.point$date),]
     ts.point <- ts.point[!is.na(ts.point$n15.pred),]
     # 
-    if(nrow(ts.point)>40){
+    if(nrow(ts.point)>120){
       # cd.point <- cpt.mean(ts.point$n15.pred,penalty="SIC",pen.value=0.05,method="PELT",Q=5,test.stat="Normal",
       #                      class=F,minseglen=12)
-      cd.point <- cpt.mean(ts.point$n15.pred,penalty="MBIC",method="PELT",Q=5,minseglen=12,class=F)
+      cd.point <- (cpt.mean(ts.point$n15.pred,penalty="MBIC",method="PELT",Q=5,minseglen=12*5,class=F))
     }else{
       cd.point <- nrow(ts.point)
     }
@@ -85,5 +85,5 @@ for (i in 3844:length(landsat.ls)){
 }
 dev.off()
 
-saveRDS(change.ls,'cache/changeDates.rds')
+saveRDS(change.ls,'cache/changeDates.gap5.rds')
 

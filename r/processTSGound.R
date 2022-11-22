@@ -27,7 +27,7 @@ get.band4obs.func <- function(tmp.df){
     if(nrow(tmp.df)>2){
       # define time range for different regions$$$
       year.in <- unique(tmp.df$date.obs)
-      if(tmp.df$lat[1] < 30){
+      # if(tmp.df$lat[1] < 30){
         index.chosen <- c()
         for (i in seq_along(year.in)) {
           index.chosen <- c(index.chosen,
@@ -36,10 +36,10 @@ get.band4obs.func <- function(tmp.df){
         }
         
         tmp.df <- tmp.df[index.chosen,]
-        # print(index.chosen)
-      }else{
-        tmp.df <- tmp.df[year(tmp.df$date) %in% unique(tmp.df$date.obs),]
-      }
+      #   # print(index.chosen)
+      # }else{
+      #   tmp.df <- tmp.df[year(tmp.df$date) %in% unique(tmp.df$date.obs),]
+      # }
       # filter for the highest plant cover
       tmp.df$gcc <- tmp.df$green / with(tmp.df,blue+green+red)
       tmp.df <- tmp.df[order(tmp.df$ndvi,decreasing = T),]
