@@ -179,7 +179,7 @@ get.TS.func <- function(ts.df.in){
     
   }
  
-}♦
+}
 # 
 get.slope.new.func <- function(land.sat.df){
   
@@ -209,6 +209,22 @@ get.slope.new.func <- function(land.sat.df){
     return(ts.sub.df)
     
     
+  }
+  
+}
+# 
+get.dn154ts.new.func <- function(land.sat.df){
+  
+  if(!is.null(landsat.ts.ls[[i]])){
+    pred.val <- try(predict(fit.rf.n15,newdata = land.sat.df))
+    
+    if(class(pred.val) == 'try-error'){
+      land.sat.df$n15.pred <- NA
+    }else{
+      land.sat.df$n15.pred <- pred.val
+    }
+    
+    return(land.sat.df)
   }
   
 }
