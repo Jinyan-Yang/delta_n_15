@@ -97,3 +97,10 @@ fit.lm <- lm(dn15.pred~yr,
   legend('topleft',legend = sprintf('(%s) %s',letters[i],bio.vec.nm[i]),bty='n')
 }
 dev.off()
+
+# 
+
+# library(strucchange)
+# bk.p <- breakpoints(dn15.smooth~yr,data = landsat.annual.df.global)
+# landsat.annual.df.global$yr[28]
+# plot()

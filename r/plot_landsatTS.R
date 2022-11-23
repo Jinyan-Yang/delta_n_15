@@ -57,8 +57,8 @@ nm.vec[nm.vec%%10 != 0] <- NA
 axis(side = 1,at = number.vec, labels =nm.vec,lwd.ticks=1,tick=4)
 axis(side = 1,at = number.vec[!is.na(nm.vec)], labels = NA,lwd.ticks=3)
 legend('bottomleft',
-       legend = paste0(c('Decreased: ','Increased: ','No change: '),
-                       format(c(de.f,in.f,no.f),digits = 2)),
+       legend = paste0(c('Increased: ','Decreased: ','No change: '),
+                       format(c(in.f,de.f,no.f),digits = 2)),
        lty=c('solid','solid','dashed'),
        col= c(rgb(0.25,0.8784,0.81569,1),
               rgb(0.854902,0.6470588,0.1254902,1),

@@ -2,6 +2,7 @@
 landsat.ls <- readRDS('cache/landsat.ts.noDup.rds')
 # 
 fit.rf.n15 <- readRDS('cache/rf.kFold.n15.rds')
+plot(fit.rf.n15, metric = "Kappa")
 # ts.point <- landsat.ls[[200]]
 # ts.point <- ts.point[order(ts.point$date),]
 library(changepoint)
