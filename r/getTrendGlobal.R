@@ -33,30 +33,36 @@ library(raster)
 library(rasterize)
 
 # Suppose you have a dataframe like this
-df <- landsat.ts.slope.g.df[,c('lon','lat',"slope.fit","slope.p")]
+df <- landsat.ts.slope.g.df[,c('lon','lat',"slope.fit","slope.p","slope.se")]
 
 # will need to rename colnames for raster
-colnames(df) <- c('x', 'y', 'vals','p')
+colnames(df) <- c('x', 'y', 'vals','p','se')
 
 # create a raster object
 r_obj <- raster(xmn=-180, xmx=180, ymn=-90, ymx=90, resolution=c(1,1))
 
 # use rasterize to create desired raster
-r_slope <- rasterize(x=df[,1:2], # lon-lat data
+r_slope <- rasterize(x=df[,c("x","y")], # lon-lat data
                     y=r_obj, # raster object
-                    field=df[,3], # vals to fill raster with
+                    field=df$vals, # vals to fill raster with
                     fun=mean) # aggregate function
 
-r_p <- rasterize(x=df[, 1:2], # lon-lat data
+r_p <- rasterize(x=df[,c("x","y")], # lon-lat data
                      y=r_obj, # raster object
-                     field=df[, 4], # vals to fill raster with
+                     field=df$p, # vals to fill raster with
                      fun=mean)
 
+r_se <- rasterize(x=df[,c("x","y")], # lon-lat data
+                 y=r_obj, # raster object
+                 field=df$se, # vals to fill raster with
+                 fun=mean)
+r_se.frac <- r_se/r_slope
+r_se.frac[r_se.frac<0] <- abs(r_se.frac[r_se.frac<0])
 
 r_p[r_p>0.05] <- NA
 
 r_out <- mask(r_slope, r_p,method='ngb')
-
+r_se.frac <- mask(r_slope, r_p,method='ngb')
 # rgb(0.25,0.8784,0.81569,1),
 # rgb(0.854902,0.6470588,0.1254902,1)
 col.vec <- c(rgb(0.854902,0.6470588,0.1254902,1),
@@ -69,4 +75,12 @@ par(mar=c(3,3,1,1))
 plot(r_slope,col='grey',legend=F)
 plot(r_out,add=T,legend=F,breaks = c(1,5e-4,0,-5e-4,-1e-3),col=col.vec)
 legend('bottom',legend = c('> -0.001','> -0.0005','> 0.0005','> 0.001','NS'),pch=15,col=c(col.vec,'grey'),horiz = T,bty='n',cex=2)
+dev.off()
+
+tiff('figures/mapGlobalTrendSE.tif',height = 1000,width = 2000)
+par(mar=c(3,3,1,1))
+col.vec <- c('lightskyblue','blue','navy')
+plot(r_slope,col='grey',legend=F)
+plot(r_se.frac,breaks = seq(0,0.0015,length.out=4),col=col.vec,legend=F)
+legend('bottom',legend = c('<0.0005','<0.001','<0.0015','NS'),pch=15,col=col.vec,horiz = T,bty='n',cex=2)
 dev.off()

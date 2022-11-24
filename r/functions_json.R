@@ -194,9 +194,9 @@ get.slope.new.func <- function(land.sat.df,lon.col = 9,lat.col=10){
       land.sat.df <- get.dn154ts.new.func(land.sat.df)
       
       # remove outlier for lm
-      x <- tsclean(land.sat.df$n15.pred,replace.missing = F)
-      land.sat.df$n15.pred[!land.sat.df$n15.pred %in% x] <- NA
-      
+      x <- tsoutliers(land.sat.df$n15.pred)
+      land.sat.df$n15.pred[x$index] <- NA
+ 
       # lm fit
       print('predicted')
       land.sat.df$x <- land.sat.df$date - as.Date('1980-1-1')
