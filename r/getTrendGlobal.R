@@ -3,7 +3,8 @@ source('r/functions_json.R')
 # 
 gTS.df <- read.csv('data/timeseries_global/timeseries_global.csv')
 
-landsat.g.ts.ls <- apply(gTS.df, 1, get.TS.func,lat.col = 3,lon.col=2,n15.col=100,json.col=4,date.col=100)
+landsat.g.ts.ls <- apply(gTS.df, 1, get.TS.func,
+                         lat.col = 3,lon.col=2,n15.col=100,json.col=4,date.col=100)
 
 # landsat.g.ts.df <- do.call(rbind,landsat.g.ts.ls)
 # for (i in 1:nrow(gTS.df)) {
@@ -41,9 +42,9 @@ colnames(df) <- c('x', 'y', 'vals','p')
 r_obj <- raster(xmn=-180, xmx=180, ymn=-90, ymx=90, resolution=c(1,1))
 
 # use rasterize to create desired raster
-r_slope <- rasterize(x=df[, 1:2], # lon-lat data
+r_slope <- rasterize(x=df[,1:2], # lon-lat data
                     y=r_obj, # raster object
-                    field=df[, 3], # vals to fill raster with
+                    field=df[,3], # vals to fill raster with
                     fun=mean) # aggregate function
 
 r_p <- rasterize(x=df[, 1:2], # lon-lat data
@@ -67,5 +68,5 @@ tiff('figures/mapGlobalTrend.tif',height = 1000,width = 2000)
 par(mar=c(3,3,1,1))
 plot(r_slope,col='grey',legend=F)
 plot(r_out,add=T,legend=F,breaks = c(1,5e-4,0,-5e-4,-1e-3),col=col.vec)
-legend('bottom',legend = c('>0.001','>0.0005','> -0.0005','>0.001','NS'),pch=15,col=c(col.vec,'grey'),horiz = T,bty='n',cex=2)
+legend('bottom',legend = c('> -0.001','> -0.0005','> 0.0005','> 0.001','NS'),pch=15,col=c(col.vec,'grey'),horiz = T,bty='n',cex=2)
 dev.off()

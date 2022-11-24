@@ -1,4 +1,6 @@
 library(jsonlite)
+library(lubridate)
+library(forecast)
 # #########
 get.ndvi.func <- function(nir.in,red.in){
   (nir.in - red.in) / (nir.in + red.in)
@@ -181,22 +183,27 @@ get.TS.func <- function(ts.df.in,lon.col = 3,lat.col=4,n15.col=6,json.col=7,date
  
 }
 # 
-get.slope.new.func <- function(land.sat.df){
+get.slope.new.func <- function(land.sat.df,lon.col = 9,lat.col=10){
   
   if(!is.null(land.sat.df)){
-    ts.sub.df <- data.frame(Longitude = unique(land.sat.df[9]),
-                            Latitude = unique(land.sat.df[10]))
+    ts.sub.df <- data.frame(Longitude = unique(land.sat.df[lon.col]),
+                            Latitude = unique(land.sat.df[lat.col]))
     # get predictions of dn15
-    
-    # make sure we have enough data
+   # make sure we have enough data
     if(nrow(land.sat.df)> 40){
       land.sat.df <- get.dn154ts.new.func(land.sat.df)
       
+      # remove outlier for lm
+      x <- tsclean(land.sat.df$n15.pred,replace.missing = F)
+      land.sat.df$n15.pred[!land.sat.df$n15.pred %in% x] <- NA
+      
+      # lm fit
       print('predicted')
       land.sat.df$x <- land.sat.df$date - as.Date('1980-1-1')
       fit.lm <- summary(lm(n15.pred~x,data = land.sat.df))
       print('fitted lm')
-      # ts.sub.df <- ts.df[-c(1,6)]
+      
+      # save output
       ts.sub.df$slope.fit <- fit.lm$coefficients[2,1]
       ts.sub.df$slope.se <- fit.lm$coefficients[2,2]
       ts.sub.df$slope.p <- fit.lm$coefficients[2,4]
@@ -204,15 +211,27 @@ get.slope.new.func <- function(land.sat.df){
       ts.sub.df$intercept <- fit.lm$coefficients[1,1]
       return(ts.sub.df)
     }
-    
-
   }
-  
 }
 # 
 get.dn154ts.new.func <- function(land.sat.df){
   
   if(!is.null(land.sat.df)){
+    # 
+    # land.sat.df$yr <- year(land.sat.df$date)
+    # land.sat.ls <- split(land.sat.df,land.sat.df$yr)
+    # 
+    # land.sat.ls <- lapply(land.sat.ls, function(df){
+    #   df$gcc <- df$green / with(df,blue+green+red)
+    #   df <- df[order(df$ndvi,decreasing = T),]
+    #   df <- df[1:5,]
+    #   df <- df[order(df$gcc,decreasing = T),]
+    #   df <- df[1,]
+    #   return(df)
+    # })
+    # 
+    # land.sat.df <- do.call(rbind,land.sat.ls)
+    # 
     pred.val <- try(predict(fit.rf.n15,newdata = land.sat.df))
     
     if(class(pred.val) == 'try-error'){
@@ -220,8 +239,8 @@ get.dn154ts.new.func <- function(land.sat.df){
     }else{
       land.sat.df$n15.pred <- pred.val
     }
-    
     return(land.sat.df)
   }
   
 }
+# get.dn154ts.new.func(land.sat.df)

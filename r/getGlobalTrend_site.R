@@ -26,7 +26,7 @@ landsat.annual.df <- do.call(rbind,landsat.annual.ls)
 landsat.annual.df <- rbind(landsat.annual.df, 
                            data.frame(yr = 2012,lon=NA,lat = NA,dn15.pred=-100000))
 landsat.annual.df$yr.factor <- as.factor(landsat.annual.df$yr)
-levels(landsat.annual.df$yr)
+# levels(landsat.annual.df$yr)
 
 landsat.annual.df.global <- summaryBy(dn15.pred~yr ,
                                       data = landsat.annual.df,
