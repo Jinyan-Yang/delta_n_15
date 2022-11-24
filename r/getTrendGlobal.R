@@ -65,22 +65,20 @@ r_out <- mask(r_slope, r_p,method='ngb')
 r_se.frac <- mask(r_slope, r_p,method='ngb')
 # rgb(0.25,0.8784,0.81569,1),
 # rgb(0.854902,0.6470588,0.1254902,1)
-col.vec <- c(rgb(0.854902,0.6470588,0.1254902,1),
-             rgb(0.854902,0.6470588,0.1254902,0.5),
-             rgb(0.25,0.8784,0.81569,0.5),
-             rgb(0.25,0.8784,0.81569,1))
+# col.vec <- c(rgb(0.854902,0.6470588,0.1254902,1),
+#              rgb(0.25,0.8784,0.81569,1))
+neg.c.f <- colorRampPalette(c('coral',rgb(0.854902,0.6470588,0.1254902,1)))
+pos.c.f <- colorRampPalette(c(rgb(0.25,0.8784,0.81569),'navy'))
 
-tiff('figures/mapGlobalTrend.tif',height = 1000,width = 2000)
-par(mar=c(3,3,1,1))
-plot(r_slope,col='grey',legend=F)
-plot(r_out,add=T,legend=F,breaks = c(1,5e-4,0,-5e-4,-1e-3),col=col.vec)
-legend('bottom',legend = c('> -0.001','> -0.0005','> 0.0005','> 0.001','NS'),pch=15,col=c(col.vec,'grey'),horiz = T,bty='n',cex=2)
-dev.off()
+col.vec <- c(neg.c.f(99),pos.c.f(2)[1],pos.c.f(99))
 
+N
+plot(r, legend.only=TRUE, col=topo.colors(100), legend.width=1, legend.shrink=0.75,
+     smallplot=c(0,.09, .3,.75)); par(mar = par("mar"))
 tiff('figures/mapGlobalTrendSE.tif',height = 1000,width = 2000)
 par(mar=c(3,3,1,1))
 col.vec <- c('lightskyblue','blue','navy')
 plot(r_slope,col='grey',legend=F)
-plot(r_se.frac,breaks = seq(0,0.0015,length.out=4),col=col.vec,legend=F)
-legend('bottom',legend = c('<0.0005','<0.001','<0.0015','NS'),pch=15,col=col.vec,horiz = T,bty='n',cex=2)
+plot(r_se.frac,breaks = seq(0,0.0015,length.out=4),col=col.vec,legend=F,add=T)
+legend('bottom',legend = c('<0.0005','<0.001','<0.0015','NS'),pch=15,col=c(col.vec,'grey'),horiz = T,bty='n',cex=2)
 dev.off()
