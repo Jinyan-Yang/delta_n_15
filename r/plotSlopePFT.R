@@ -114,11 +114,13 @@ for (i.plot in seq_along(pft.vec)) {
   
 }
 
+r2.vec <- c()
 for (i.plot in seq_along(pft.vec)) {
   plot.df <- site.slope.dn15.df[site.slope.dn15.df$biome.factor == pft.vec[i.plot],]
   plot.df <- plot.df[order(plot.df$d15n),]
   
   fit.tmp <- lm((slope.fit*365.25)~ d15n,data = plot.df)
+  r2.vec[i.plot] <- format(summary(fit.tmp)$r.squared,digits = 2)
   if(summary(fit.tmp)$coefficients[2,4]>0.05){
     lty.in = 'dashed'
   }else{
@@ -134,6 +136,7 @@ legend('topleft',legend = '(b)',bty='n')
 # 
 
 plot(0,pch='',ann=F,axes=F)
-legend('top',legend = levels(site.slope.dn15.df$biome.factor),pch=15,col=palette(),bty='n',ncol=2)
+legend('top',legend = paste0(levels(site.slope.dn15.df$biome.factor),
+                             ': ',r2.vec),pch=15,col=palette(),bty='n',ncol=2)
 dev.off()
 
