@@ -1,5 +1,6 @@
 library(jsonlite)
 source('r/functions_json.R')
+fit.rf.n15 <- readRDS('cache/rf.kFold.n15.rds')
 # 
 gTS.df <- read.csv('data/timeseries_global/timeseries_global.csv')
 
@@ -10,7 +11,7 @@ landsat.g.ts.ls <- apply(gTS.df, 1, get.TS.func,
 # for (i in 1:nrow(gTS.df)) {
 #   landsat.ts.ls[[length(landsat.ts.ls)+1]] <- get.TS.func(gTS.df[i,])
 # }
-
+landsat.g.ts.ls <- lapply(landsat.g.ts.ls,get.dn154ts.new.func)
 saveRDS(landsat.g.ts.ls,'cache/landsat.global.ts.rds')
 
 # 
@@ -27,7 +28,7 @@ landsat.ts.slope.g.df <- do.call(rbind,landsat.ts.slope.g.ls)
 landsat.ts.slope.g.df$lon <- as.numeric(landsat.ts.slope.g.df$lon)
 landsat.ts.slope.g.df$lat <- as.numeric(landsat.ts.slope.g.df$lat)
 
-saveRDS(landsat.ts.slope.g.df,'cache/landsat.global.ts.rds')
+saveRDS(landsat.ts.slope.g.df,'cache/landsat.global.slope.ts.rds')
 # $#######
 library(raster)
 library(rasterize)
