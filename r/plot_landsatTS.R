@@ -86,7 +86,7 @@ nm.vec[nm.vec%%10 != 0] <- NA
 # axis(side = 1,at = number.vec, labels = NA,lwd.ticks=1,tck=-0.01)
 legend('bottomleft',
        legend = paste0(c('Increased: ','Decreased: ','No change: '),
-                       format(c(in.f,de.f,no.f),digits = 2)),
+                       round(c(in.f,de.f,no.f)*100),' %'),
        lty=c('solid','solid','dashed'),
        col= c(rgb(0.25,0.8784,0.81569,1),
               rgb(0.854902,0.6470588,0.1254902,1),
@@ -100,8 +100,8 @@ plot(dn15.smooth~yr,
 fit.lm <- lm(dn15.smooth~yr,
              data = landsat.annual.df.global)
 abline(fit.lm)
-mylabel.slope = bquote(Slope == .(format(summary(fit.lm)$coefficients[2,1], digits = 2)))
-mylabel.p = bquote(italic(p) == .(format(summary(fit.lm)$coefficients[2,4], digits = 3)))
+mylabel.slope = bquote(Slope == .(format(summary(fit.lm)$coefficients[2,1]),digit = 3))
+mylabel.p = bquote(italic(p) == .(format(summary(fit.lm)$coefficients[2,4]),digit = 3))
 text(1985,-3, labels = mylabel.slope)
 text(1985,-4, labels = mylabel.p)
 
