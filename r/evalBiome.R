@@ -1,3 +1,4 @@
+source('r/getModisLandCover.R')
 library(raster)
 # source('r/evaluation_process.R')
 if(!file.exists('cache/groundDN15.rds')){
@@ -12,28 +13,33 @@ combined.df <- combined.df[complete.cases(combined.df),]
 # An assessment of machine learning algorithms for estimating land potential. 
 # https://doi.org/10.7717/peerj.5457
 
-biome.ra <- raster('data/pnv_biome.type_biome00k_cf_1km_s0..0cm_2000..2017_v0.1.tif')
+biome.ra <- landCover.ra#raster('data/pnv_biome.type_biome00k_cf_1km_s0..0cm_2000..2017_v0.1.tif')
 # plot(biome.ra)
 combined.df$biome.no <- extract(biome.ra,cbind(combined.df$lon,combined.df$lat))
-met.csv.df <- read.csv('data/pnv_biome.type_biome00k_c_1km_s0..0cm_2000..2017_v0.1.tif.csv')
+# met.csv.df <- read.csv('data/pnv_biome.type_biome00k_c_1km_s0..0cm_2000..2017_v0.1.tif.csv')
 
 combined.df.biome <- merge(combined.df,
-                           met.csv.df[,c("Number","New.global.consolidated.biome.scheme")],
-                           by.x = 'biome.no',by.y = 'Number')
+                           name.df,
+                           by.x = 'biome.no',by.y = 'Value')
 
 # 
 # fit.all <- readRDS('cache/rf.fit.landsatBand.rds')
 fit.all.kFold <- readRDS('cache/rf.kFold.n15.rds')
 # evaluate all
 df.evaluate <- get.train.eval.func(combined.df.biome,giveTrain=FALSE)
+df.evaluate <- df.evaluate[df.evaluate$Label %in% c('ENF','EBF','DNF','DBF','FOR','OSH','CSH','WSA','SAV','GRA','WET','PSI','BAR'),]
+# # 
 # 
 df.evaluate$pred.all <- predict(fit.all.kFold, df.evaluate)
-biome.vec <- unique(df.evaluate$New.global.consolidated.biome.scheme)
-pdf('biomeEval.pdf',width = 4*2,height = 4*2)
-par(mfrow=c(2,2),mar=c(4,4,1,1))
-i.letter <- 1
+biome.vec <- unique(df.evaluate$Label)
+
+pdf('figures/biomeEval.pdf',width = 4*3,height = 4*4)
+par(mfrow=c(4,3),mar=c(4,4,1,1))
+plot.fit.region.func(df.evaluate)
+legend('topleft',legend = c('(a) Global'),bty='n')
+i.letter <- 2
 for (i.bio in seq_along(biome.vec)) {
-  df.plot <- df.evaluate[df.evaluate$New.global.consolidated.biome.scheme == biome.vec[i.bio],]
+  df.plot <- df.evaluate[df.evaluate$Label == biome.vec[i.bio],]
   coord.df <- df.plot[,c("lon",'lat')]
   coord.df <- coord.df[!duplicated(coord.df),]
   
@@ -44,4 +50,8 @@ for (i.bio in seq_along(biome.vec)) {
   }
 
 }
+
+# lot legend
+plot(0,pch='',ann=F,axes=F)
+legend('top',legend = c(1,10,100),col= c(rgb(0.9,0.1,0.1,0.05),rgb(0.9,0.1,0.1,0.5),rgb(0.9,0.1,0.1,1)),pch=16,bty='n',cex=2)
 dev.off()

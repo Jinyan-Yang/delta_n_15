@@ -78,25 +78,26 @@ landsat.annual.df.biome.sum <- summaryBy(dn15.pred~yr + biome.no,
 
 bio.vec <- unique(landsat.annual.df.biome.sum$biome.no)
 bio.vec.nm <- unique(landsat.annual.df.biome.sum$New.global.consolidated.biome.scheme)
-pdf('figures/dn15Biome.pdf',width = 10,height = 5*4)
-par(mar=c(3,5,1,1),mfrow=c(4,1))
-for (i in seq_along(bio.vec)) {
 
-  
-  plot.df <- landsat.annual.df.biome.sum[landsat.annual.df.biome.sum$biome.no == bio.vec[i],]
-  
-  plot(dn15.pred~yr,
-       data = plot.df,pch=16,xlab='',ylab=expression(delta*N^15),ylim=c(-10,10),xlim=c(1980,2020))
-fit.lm <- lm(dn15.pred~yr,
-             data = plot.df)
-  abline(fit.lm)
-  mylabel.slope = bquote(Slope == .(format(summary(fit.lm)$coefficients[2,1], digits = 2)))
-  mylabel.p = bquote(italic(p) == .(format(summary(fit.lm)$coefficients[2,4], digits = 3)))
-  text(1985,-8, labels = mylabel.slope)
-  text(1985,-9, labels = mylabel.p)
-  legend('topleft',legend = sprintf('(%s) %s',letters[i],bio.vec.nm[i]),bty='n')
-}
-dev.off()
+# # 
+# pdf('figures/dn15Biome.pdf',width = 10,height = 5*4)
+# par(mar=c(3,5,1,1),mfrow=c(4,1))
+# for (i in seq_along(bio.vec)) {
+#   
+#   plot.df <- landsat.annual.df.biome.sum[landsat.annual.df.biome.sum$biome.no == bio.vec[i],]
+#   
+#   plot(dn15.pred~yr,
+#        data = plot.df,pch=16,xlab='',ylab=expression(delta*N^15),ylim=c(-10,10),xlim=c(1980,2020))
+# fit.lm <- lm(dn15.pred~yr,
+#              data = plot.df)
+#   abline(fit.lm)
+#   mylabel.slope = bquote(Slope == .(format(summary(fit.lm)$coefficients[2,1], digits = 2)))
+#   mylabel.p = bquote(italic(p) == .(format(summary(fit.lm)$coefficients[2,4], digits = 3)))
+#   text(1985,-8, labels = mylabel.slope)
+#   text(1985,-9, labels = mylabel.p)
+#   legend('topleft',legend = sprintf('(%s) %s',letters[i],bio.vec.nm[i]),bty='n')
+# }
+# dev.off()
 
 # 
 

@@ -31,11 +31,16 @@ plot.fit.region.func <- function(df.evaluate){
   plot(Leaf15N~pred.all,
        data = df.evaluate,
        xlim=c(-12,15),ylim=c(-15,15),
-       pch=16,col=rgb(0.9,0.1,0.1,0.08),
+       pch=16,col=rgb(0.9,0.1,0.1,0.05),
        xlab='Prediction',ylab='Observation')
   abline(a=0,b=1)
-  mylabel = bquote(italic(R)^2 == .(format(summary(lm(Leaf15N~pred.all,data = df.evaluate))$r.squared, digits = 3)))
+  
+  fit.lm <- lm(Leaf15N~pred.all,data = df.evaluate)
+  
+  mylabel = bquote(italic(R)^2 == .(format(summary(fit.lm)$r.squared, digits = 2)))
+  lab.slope = bquote(Slope == .(format(coef(fit.lm)[[2]], digits = 2)))
   n.obs = bquote(n == .(format(nrow(df.evaluate), digits = 1)))
   text(x = 11, y = -13, labels = n.obs)
   text(x = 11, y = -10, labels = mylabel)
+  text(x = 11, y = -7, labels = lab.slope)
 }
