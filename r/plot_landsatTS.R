@@ -26,10 +26,12 @@ landsat.annual.df$yr.factor <- as.factor(landsat.annual.df$yr)
 # levels(landsat.annual.df$yr)
 
 landsat.annual.df.global <- summaryBy(dn15.pred~yr ,
-                                      data = landsat.annual.df,
-                                      FUN=(mean),na.rm=T,keep.names = T)
-landsat.annual.df.global$dn15.smooth <- forecast::tsclean(landsat.annual.df.global$dn15.pred)
-
+                                      data = landsat.annual.df[!is.na(landsat.annual.df$dn15.pred),],
+                                      FUN=c(mean,sd,length),keep.names = T)
+landsat.annual.df.global$dn15.smooth <- forecast::tsclean(landsat.annual.df.global$dn15.pred.mean)
+landsat.annual.df.global$dn15.se <- landsat.annual.df.global$dn15.pred.sd / sqrt(landsat.annual.df.global$dn15.pred.length)
+landsat.annual.df.global$dn15.pred.mean[landsat.annual.df.global$yr %in% 2012:2013] <- NA
+landsat.annual.df.global$dn15.smooth[landsat.annual.df.global$yr %in% 2012:2013] <- NA
 # check slope of change####
 landsat.df.narm <- landsat.df[complete.cases(landsat.df),]
 n.row <- nrow(landsat.df.narm)
@@ -97,11 +99,17 @@ par(mar=c(5,5,1,1))
 plot(dn15.smooth~yr,
      data = landsat.annual.df.global,pch=16,xlab='',ylab=expression(delta*N^15~('‰')),xlim=c(1980,2020))
 
+arrows(x0=landsat.annual.df.global$yr, 
+       y0=landsat.annual.df.global$dn15.pred.mean + landsat.annual.df.global$dn15.se, 
+       x1=landsat.annual.df.global$yr, 
+       y1=landsat.annual.df.global$dn15.pred.mean - landsat.annual.df.global$dn15.se,
+       angle=90, length=0, col="grey10", lwd=2)
+
 fit.lm <- lm(dn15.smooth~yr,
              data = landsat.annual.df.global)
 abline(fit.lm)
-mylabel.slope = bquote(Slope == .(format(summary(fit.lm)$coefficients[2,1]),digit = 3))
-mylabel.p = bquote(italic(p) == .(format(summary(fit.lm)$coefficients[2,4]),digit = 3))
+mylabel.slope = bquote(Slope == .(format(summary(fit.lm)$coefficients[2,1],digit = 2)))
+mylabel.p = bquote(italic(p) == .(format(summary(fit.lm)$coefficients[2,4],digit = 2)))
 text(1985,-3, labels = mylabel.slope)
 text(1985,-4, labels = mylabel.p)
 
