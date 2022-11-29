@@ -1,4 +1,6 @@
 library(jsonlite)
+library(randomForest)
+library(caret)
 source('r/functions_json.R')
 fit.rf.n15 <- readRDS('cache/rf.kFold.n15.rds')
 # 
@@ -15,20 +17,18 @@ landsat.g.ts.ls <- lapply(landsat.g.ts.ls,get.dn154ts.new.func)
 saveRDS(landsat.g.ts.ls,'cache/landsat.global.ts.rds')
 
 # 
-# landsat.g.ts.ls <- readRDS('cache/landsat.global.ts.rds')
+landsat.g.ts.ls <- readRDS('cache/landsat.global.ts.rds')
 
 landsat.g.ts.ls[[1]]
 # 
-library(randomForest)
-library(caret)
-fit.rf.n15 <- readRDS('cache/rf.kFold.n15.rds')
-
 landsat.ts.slope.g.ls <- lapply(landsat.g.ts.ls, get.slope.new.func)
 landsat.ts.slope.g.df <- do.call(rbind,landsat.ts.slope.g.ls)
 landsat.ts.slope.g.df$lon <- as.numeric(landsat.ts.slope.g.df$lon)
 landsat.ts.slope.g.df$lat <- as.numeric(landsat.ts.slope.g.df$lat)
 
 saveRDS(landsat.ts.slope.g.df,'cache/landsat.global.slope.ts.rds')
+# 
+landsat.ts.slope.g.df <- readRDS('cache/landsat.global.slope.ts.rds')
 # $#######
 library(raster)
 library(rasterize)
@@ -73,9 +73,19 @@ pos.c.f <- colorRampPalette(c(rgb(0.25,0.8784,0.81569),'navy'))
 
 col.vec <- c(neg.c.f(99),pos.c.f(2)[1],pos.c.f(99))
 
-N
-plot(r, legend.only=TRUE, col=topo.colors(100), legend.width=1, legend.shrink=0.75,
+tiff('figures/mapGlobalTrend.tif',height = 1000,width = 2000)
+par(mar=c(3,3,1,1))
+plot(r_slope,col='grey',legend=F)
+plot((r_out*365),add=T,legend=F,
+     breaks = c(seq(-0.2,-0.001,length.out=99),seq(0.001,0.2,length.out=99)),#c(1,5e-4,0,-5e-4,-1e-3)
+     col=col.vec)
+plot(r_slope, legend.only=TRUE, col=topo.colors(100), legend.width=1, legend.shrink=0.75,
      smallplot=c(0,.09, .3,.75)); par(mar = par("mar"))
+# legend('bottom',legend = c('> -0.001','> -0.0005','> 0.0005','> 0.001','NS'),pch=15,col=c(col.vec,'grey'),horiz = T,bty='n',cex=2)
+dev.off()
+
+
+##########
 tiff('figures/mapGlobalTrendSE.tif',height = 1000,width = 2000)
 par(mar=c(3,3,1,1))
 col.vec <- c('lightskyblue','blue','navy')

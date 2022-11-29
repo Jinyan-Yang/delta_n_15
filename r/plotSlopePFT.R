@@ -1,5 +1,5 @@
 source('r/getModisLandCover.R')
-devtools::source_url("https://github.com/Jinyan-Yang/colors/blob/master/R/col.R?raw=TRUE")
+source('r/color.R')
 library(vioplot)
 library(doBy)
 library(lubridate)
@@ -84,7 +84,7 @@ legend('topleft',legend = '(b)',bty='n')
 # 
 dev.off()
 #plot site n15 and slope ######
-palette(c(col.df$iris[c(1,2,3,5)],col.df$daisy,col.df$beauty[c(2,5)],col.df$bushBySea[5]))
+
 
 pdf('figures/dn15ByBiomeSiteVsGlobal.pdf',width = 6,height = 6*3*.62)
 all.df.biome$biome.factor <- as.factor(all.df.biome$Label)

@@ -1,0 +1,2 @@
+devtools::source_url("https://github.com/Jinyan-Yang/colors/blob/master/R/col.R?raw=TRUE")
+palette(c(col.df$iris[c(1,2,3,5)],col.df$daisy,col.df$beauty[c(2,5)],col.df$bushBySea[5],col.df$cityNight[4]))

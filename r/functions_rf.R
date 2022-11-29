@@ -28,18 +28,31 @@ fit.rf.func <- function(df,x.nm=c("blue","green","red","nir","swir1","swir2")){
 }
 # 
 plot.fit.region.func <- function(df.evaluate){
+  # col.trans.vec.old <- palette()
+  # on.exit(palette(col.trans.vec.old))
+  
+  col.trans.vec <- c()
+  
+  for (i in seq_along(palette())) {
+    col.trans.vec[i] <- t_col(palette()[i],percent = 90)
+  }
+  # palette(col.trans.vec)
   plot(Leaf15N~pred.all,
        data = df.evaluate,
        xlim=c(-12,15),ylim=c(-15,15),
-       pch=16,col=rgb(0.9,0.1,0.1,0.05),
+       pch=16,
+       col=col.trans.vec[plot.f],
        xlab='Prediction',ylab='Observation')
   abline(a=0,b=1)
+  
+  coord.df <- df.evaluate[,c("lon",'lat')]
+  coord.df <- coord.df[!duplicated(coord.df),]
   
   fit.lm <- lm(Leaf15N~pred.all,data = df.evaluate)
   
   mylabel = bquote(italic(R)^2 == .(format(summary(fit.lm)$r.squared, digits = 2)))
   lab.slope = bquote(Slope == .(format(coef(fit.lm)[[2]], digits = 2)))
-  n.obs = bquote(n == .(format(nrow(df.evaluate), digits = 1)))
+  n.obs = bquote(n == .(format(nrow(coord.df), digits = 1)))
   text(x = 11, y = -13, labels = n.obs)
   text(x = 11, y = -10, labels = mylabel)
   text(x = 11, y = -7, labels = lab.slope)

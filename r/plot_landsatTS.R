@@ -57,7 +57,7 @@ plot(red~x, data = plot.df,
      ylim=c(-6,6),xlab='',xaxt='n',pch=NA,
      ylab=expression(delta*N^15~('‰')))
 for (i in 1:nrow(landsat.df.narm)) {
-  x.df <- landsat.df.narm[i,]
+  x.df <-landsat.df.narm[i,]
   if(!is.na(x.df$slope.p)){
     
     if(x.df$slope.p>0.05){
@@ -72,7 +72,8 @@ for (i in 1:nrow(landsat.df.narm)) {
         lty.plot = 'solid'
       }
     }
-    abline(a = x.df$intercept,b=x.df$slope.fit,col = col.plot,lty = lty.plot)
+    # abline(a = x.df$intercept,b=x.df$slope.fit,col = col.plot,lty = lty.plot)
+    points(a = x.df$intercept,b=x.df$slope.fit,col = col.plot,lty = lty.plot)
   }
 
 }
