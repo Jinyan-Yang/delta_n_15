@@ -85,7 +85,7 @@ for (i.len in 1:length(dn15.ls)) {
 # site.slope.dn15.df 
 par(mar=c(5,5,0,0))
 plot((slope.fit*365.25)~ n15.pred,data = slope.dn15.df.sum,pch='',col = biome.factor,
-     ylim=c(-0.1,0.1),
+     ylim=c(-0.1,0.05),
      xlab=expression(delta*N^15~('‰')),ylab=expression(Slope~('‰'~yr^-1)))
 # fit.all <- lm((slope.fit*365.25)~ d15n,data = site.slope.dn15.df)
 
@@ -115,7 +115,7 @@ for (i.plot in seq_along(pft.vec)) {
   rm(plot.df)
   
 }
-legend('topleft',legend = '(b)',bty='n')
+legend('topleft',legend = '(g)',bty='n')
 # 
 
 plot(0,pch='',ann=F,axes=F)
