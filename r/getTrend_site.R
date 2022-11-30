@@ -4,24 +4,33 @@ library(lubridate)
 library(vioplot)
 library(raster)
 
-if(!file.exists('cache/landsat.ts.n15.noDup.rds')){
-  source('r/getGlobalTrend.R')
-}
+# if(!file.exists('cache/landsat.ts.n15.noDup.rds')){
+#   source('r/getGlobalTrend.R')
+# }
 
-landsat.ls <- readRDS('cache/landsat.ts.n15.noDup.rds')
+landsat.n15.ls <- readRDS('cache/landsat.ts.n15.noDup.rds')
 
-landsat.annual.ls <- lapply(landsat.ls, function(df){
+landsat.annual.ls <- lapply(landsat.n15.ls, function(df){
   if(!is.null(df)){
     if(length(nrow(df))>0){
       df$yr <- year(df$date)
-      df <- df[order(df$ndvi),]
+      df <- df[order(df$ndvi,decreasing = T),]
+
+      df <- df[df$nir > 0,]
+      df <- df[df$red > 0,]
+      df <- df[df$blue > 0,]
+      df <- df[df$swir1 > 0,]
+      df <- df[df$swir2 > 0,]
+      df <- df[df$ndvi > 0.01,]
       return(summaryBy(dn15.pred~yr + lon + lat,
                        data = df[1:5,],
-                       FUN=mean,na.rm=T,keep.names = T))
+                       FUN=quantile,prob = 0.9,na.rm=T,keep.names = T))
     }
   }
 })
+saveRDS(landsat.annual.ls,'cache/landsat.slope.ls.rds')
 
+######
 landsat.annual.df <- do.call(rbind,landsat.annual.ls)
 landsat.annual.df <- rbind(landsat.annual.df, 
                            data.frame(yr = 2012,lon=NA,lat = NA,dn15.pred=-100000))
@@ -32,6 +41,7 @@ landsat.annual.df.global <- summaryBy(dn15.pred~yr ,
                                       data = landsat.annual.df,
                                       FUN=(mean),na.rm=T,keep.names = T)
 landsat.annual.df.global$dn15.smooth <- forecast::tsclean(landsat.annual.df.global$dn15.pred)
+
 # landsat.annual.df.2012 <- landsat.annual.df[landsat.annual.df$yr==2012,]
 pdf('figures/dn15GlobalTrend.pdf',width = 12,height = 6*2*.62)
 

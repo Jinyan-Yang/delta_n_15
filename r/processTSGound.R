@@ -1,16 +1,16 @@
 library(lubridate)
 library(doBy)
 
-if(!file.exist('cache/landsat.ts.rds')){
+if(!file.exists('cache/landsat.ts.rds')){
   source('r/readTS.R')
 }else{
   landsat.ts.ls <- readRDS('cache/landsat.ts.rds')
 }
-n.r.s <- sapply(landsat.ts.ls, nrow)
-n.r.s <- unlist(n.r.s)
-n.r.s[n.r.s<2]
-n.r.s[which(n.r.s==20)]
-landsat.ts.ls[[which(n.r.s==20)[5]]]
+# n.r.s <- sapply(landsat.ts.ls, nrow)
+# n.r.s <- unlist(n.r.s)
+# n.r.s[n.r.s<2]
+# n.r.s[which(n.r.s==20)]
+# landsat.ts.ls[[which(n.r.s==20)[5]]]
  
 get.band4obs.func <- function(tmp.df){
   # 
@@ -42,6 +42,14 @@ get.band4obs.func <- function(tmp.df){
       # }
       # filter for the highest plant cover
       tmp.df$gcc <- tmp.df$green / with(tmp.df,blue+green+red)
+      # percision control and filtered out bad data
+      tmp.df <- tmp.df[tmp.df$nir > 0,]
+      tmp.df <- tmp.df[tmp.df$red > 0,]
+      tmp.df <- tmp.df[tmp.df$blue > 0,]
+      tmp.df <- tmp.df[tmp.df$swir1 > 0,]
+      tmp.df <- tmp.df[tmp.df$swir2 > 0,]
+      tmp.df <- tmp.df[tmp.df$ndvi > 0.01,]
+
       tmp.df <- tmp.df[order(tmp.df$ndvi,decreasing = T),]
       tmp.df <- tmp.df[1:5,]
       tmp.df <- tmp.df[order(tmp.df$gcc,decreasing = T),]

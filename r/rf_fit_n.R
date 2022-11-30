@@ -8,8 +8,13 @@ if(!file.exists('cache/groundDN15.rds')){
 }
 source('r/functions_rf.R')
 # 
+all.n.df <- read.csv('cache/groundDataN.csv')
+names(all.n.df) <- c("id","lon","lat","date.obs","Leaf15N","leafN")
+n.com.df <- merge(combined.df,all.n.df,by=c("lon","lat",'Leaf15N','date.obs'))
+# 
 predictor.vec <- c("blue","green","red","nir","swir1","swir2")
 
+n.com.df$leafN.log <- log(n.com.df$leafN)
 # #try to find repeated records--we do not have any!######
 # combined.df.dup <- combined.df[duplicated(combined.df$lon) &
 #                                  duplicated(combined.df$lat) &
@@ -25,7 +30,7 @@ predictor.vec <- c("blue","green","red","nir","swir1","swir2")
 # saveRDS(fit.all,'cache/rf.fit.landsatBand.rds')
 
 # k fold####
-train.df <- get.train.eval.func(combined.df)
+train.df <- get.train.eval.func(n.com.df)
 trcontrol = trainControl(method='cv', number=10, savePredictions = T,allowParallel=TRUE)
 # 
 library(parallel) 
@@ -39,11 +44,11 @@ cl <- makePSOCKcluster(no_cores)
 registerDoParallel(cl)
 # 
 trcontrol = trainControl(method='cv', number=10, savePredictions = T,allowParallel=TRUE)
-rf.kfolde.n15 <- train(Leaf15N~.,data = train.df[,c(predictor.vec,'Leaf15N')], method = "rf",
+rf.kfolde.n <- train(leafN.log~.,data = train.df[,c(predictor.vec,'leafN.log')], method = "rf",
                        trControl = trcontrol)
 
 stopCluster(cl)
 registerDoSEQ()
 print(Sys.time())
 # 
-saveRDS(rf.kfolde.n15,'cache/rf.kFold.n15.rds')
+saveRDS(rf.kfolde.n,'cache/rf.kFold.n.rds')

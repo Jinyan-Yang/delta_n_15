@@ -1,20 +1,20 @@
 library(doBy)
 # read in site data####
 # craine####
-craine.df <- read.csv('data/doi_10.5061_dryad.v2k2607__v1/InputData.csv')
+craine.df <- read.csv('data/craine/InputData.csv')
 craine.df$id <- paste0('craine',craine.df$ObservationID)
 craine.df$year.round <- trunc(craine.df$Year)
-craine.df.sub <- craine.df[,c("id","year.round","Longitude","Latitude","Leaf15N")]
-names(craine.df.sub) <- c('id','date','lon','lat','d15n')
+craine.df.sub <- craine.df[,c("id","year.round","Longitude","Latitude","Leaf15N",'LeafN')]
+names(craine.df.sub) <- c('id','date','lon','lat','d15n','leafN')
 # CAN dn15####
 neon_15N <- read.csv("cache/neon_15N_data.csv")
 
 n15.china.df <- read.csv('data/n15SouthChina/Dataset/n15SounthChina.csv')
 n.sc.df <- n15.china.df[,c("Lat","Lon")]
-nrow(n.sc.df[!duplicated(n.sc.df),])
+# nrow(n.sc.df[!duplicated(n.sc.df),])
 trait.df.d15 <- readRDS('cache/austrait.dn15.rds')
 au.sc.df <- trait.df.d15[,c("lat","lon")]
-nrow(au.sc.df[!duplicated(au.sc.df),])
+# nrow(au.sc.df[!duplicated(au.sc.df),])
 
 mongol.df.d15 <- readRDS('cache/n15mongol.rds')
 mongol.df.d15$id <- 'mongol'
@@ -31,13 +31,15 @@ neon_15N.sub <- neon_15N[,c('id','decimalLongitude','decimalLatitude','collectDa
 names(neon_15N.sub) <- c('id','lon','lat','date','d15n')
 neon_15N.sub$id <- 'neon'
 neon_15N.sub$date <- year(neon_15N.sub$date)
-n15.china.df.sub <- n15.china.df[,c('id','Lon','Lat','Year','N15')]
-names(n15.china.df.sub) <- c('id','lon','lat','date','d15n')
+neon_15N.sub$leafN <- NA
+n15.china.df.sub <- n15.china.df[,c('id','Lon','Lat','Year','N15','N')]
+names(n15.china.df.sub) <- c('id','lon','lat','date','d15n','leafN')
 n15.china.df.sub$id <- 'sc'
 trait.df.d15.sub <- trait.df.d15[,c('id','longitude (deg)','latitude (deg)','date','value')]
 names(trait.df.d15.sub) <- c('id','lon','lat','date','d15n')
 trait.df.d15.sub$id <- 'au'
 trait.df.d15.sub <- trait.df.d15.sub[complete.cases(trait.df.d15.sub),]
+trait.df.d15.sub$leafN <- NA
 # change date to year
 trait.df.d15.sub$date[grep('Laliberte',trait.df.d15.sub$id)] <- 2012
 trait.df.d15.sub$date[grep('Schmidt',trait.df.d15.sub$id)] <- 1998

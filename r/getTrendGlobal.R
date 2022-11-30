@@ -15,7 +15,7 @@ landsat.g.ts.ls <- apply(gTS.df, 1, get.TS.func,
 # }
 landsat.g.ts.ls <- lapply(landsat.g.ts.ls,get.dn154ts.new.func)
 saveRDS(landsat.g.ts.ls,'cache/landsat.global.ts.rds')
-
+names(landsat.g.ts.ls[[1]])
 # 
 landsat.g.ts.ls <- readRDS('cache/landsat.global.ts.rds')
 
@@ -27,7 +27,7 @@ landsat.ts.slope.g.df$lon <- as.numeric(landsat.ts.slope.g.df$lon)
 landsat.ts.slope.g.df$lat <- as.numeric(landsat.ts.slope.g.df$lat)
 
 saveRDS(landsat.ts.slope.g.df,'cache/landsat.global.slope.ts.rds')
-# 
+# ####
 landsat.ts.slope.g.df <- readRDS('cache/landsat.global.slope.ts.rds')
 # $#######
 library(raster)

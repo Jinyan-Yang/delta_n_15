@@ -2,6 +2,7 @@
 get.train.eval.func <- function(df,giveTrain=TRUE){
   df <- df[complete.cases(df),]
   set.seed(1935)
+  # set.seed(666)
   trani.index <- sample(1:nrow(df),round(nrow(df)*0.7))
   train.df.noClim <- df[trani.index,]
   evalu.df.noClim <- df[-trani.index,]
@@ -27,7 +28,7 @@ fit.rf.func <- function(df,x.nm=c("blue","green","red","nir","swir1","swir2")){
   return(fit.test)
 }
 # 
-plot.fit.region.func <- function(df.evaluate){
+plot.fit.region.func <- function(df.evaluate,x.range = c(-15,15),y.range = c(-15,15)){
   # col.trans.vec.old <- palette()
   # on.exit(palette(col.trans.vec.old))
   
@@ -39,7 +40,7 @@ plot.fit.region.func <- function(df.evaluate){
   # palette(col.trans.vec)
   plot(Leaf15N~pred.all,
        data = df.evaluate,
-       xlim=c(-12,15),ylim=c(-15,15),
+       xlim=x.range,ylim=y.range,
        pch=16,
        col=col.trans.vec[plot.f],
        xlab='Prediction',ylab='Observation')
