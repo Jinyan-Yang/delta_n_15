@@ -5,13 +5,13 @@ library(vioplot)
 library(doBy)
 library(lubridate)
 # $$$$$######
-landsat.g.ts.ls <- readRDS('cache/landsat.global.ts.rds')
-landsat.g.ts.ls[[1]]
-landsat.g.ts.ls <- landsat.g.ts.ls[!is.na(landsat.g.ts.ls)]
+ls.n.g.ts.ls <- readRDS('cache/ls.n.ts.rds')
+ls.n.g.ts.ls[[1]]
+ls.n.g.ts.ls <- ls.n.g.ts.ls[!is.na(ls.n.g.ts.ls)]
 
-ls.g.all.df <- do.call(rbind,landsat.g.ts.ls)
+ls.n.all.df <- do.call(rbind,ls.n.g.ts.ls)
 
-landsat.g.ts.ls.mean <- lapply(landsat.g.ts.ls, function(df){
+landsat.g.ts.ls.mean <- lapply(ls.n.g.ts.ls, function(df){
   if(!is.null(df)){
     if(length(nrow(df))>0){
       df$yr <- year(df$date)
@@ -19,26 +19,24 @@ landsat.g.ts.ls.mean <- lapply(landsat.g.ts.ls, function(df){
       return(summaryBy(dn15.pred~yr + lon + lat,
                        data = df[1:10,],
                        FUN = quantile,prob = 0.9,na.rm=T,keep.names = T))
-    
+      
       # return(df[1:3,])
-      }
+    }
   }
 })
 ####
 landsat.g.ts.df <- do.call(rbind,landsat.g.ts.ls.mean)
 
 # get slope
-landsat.ts.slope.df <- readRDS('cache/landsat.global.slope.ts.rds')
+ls.n.slope.df <- readRDS('cache/ls.n.slop.rds')
 # landsat.ts.slope.df <- do.call(rbind,landsat.ts.slope.ls)
-landsat.ts.slope.df$lon <- as.numeric(landsat.ts.slope.df$lon)
-landsat.ts.slope.df$lat <- as.numeric(landsat.ts.slope.df$lat)
-landsat.ts.slope.df$landUse <- extract(landCover.ra,cbind(landsat.ts.slope.df$lon,landsat.ts.slope.df$lat))
-all.df.biome <- merge(landsat.ts.slope.df,
+ls.n.slope.df$lon <- as.numeric(ls.n.slope.df$lon)
+ls.n.slope.df$lat <- as.numeric(ls.n.slope.df$lat)
+ls.n.slope.df$landUse <- extract(landCover.ra,cbind(ls.n.slope.df$lon,ls.n.slope.df$lat))
+all.df.biome <- merge(ls.n.slope.df,
                       name.df,
                       by.x = 'landUse',by.y = 'Value')
 all.df.biome <- all.df.biome[all.df.biome$Label %in% c('ENF','EBF','DNF','DBF','FOR','OSH','CSH','WSA','SAV','GRA','WET','PSI','BAR'),]
-
-
 
 # #get for global
 landsat.g.ts.df$lon <- as.numeric(landsat.g.ts.df$lon)
@@ -60,12 +58,12 @@ dn15.ls <- split(global.dn15.df,global.dn15.df$continent)
 # metge sites
 site.slope.dn15.df <- merge(global.dn15.df,all.df.biome)
 slope.dn15.df.sum <- summaryBy(dn15.pred + slope.fit+ slope.se + slope.p+r2+intercept~lon+lat+biome.factor ,
-  data = site.slope.dn15.df,FUN=median,namrm=T,keep.names = T)
+                               data = site.slope.dn15.df,FUN=median,namrm=T,keep.names = T)
 
 # dn15.ls <- split(slope.dn15.df.sum,slope.dn15.df.sum$continent)
 # length(dn15.ls)
 #plot######
-pdf('figures/fig4_dn15ByPFT.pdf',width = 8,height = 8)
+pdf('figures/si_n_ByPFT.pdf',width = 8,height = 8)
 # all.df.biome$biome.factor <- as.factor(all.df.biome$Label)
 # all.df.biome.dn15$biome.factor <- as.factor(all.df.biome.dn15$Label)
 # global.dn15.df$biome.factor <- as.factor(global.dn15.df$Label)
@@ -78,14 +76,14 @@ par(mar=c(5,5,1,1))
 for (i.len in 1:length(dn15.ls)) {
   plot.df <- dn15.ls[[i.len]] 
   col.plot.vec <- which(levels(global.dn15.df$biome.factor) %in% plot.df$biome.factor )
-
+  
   # plot.df$biome.factor <- as.character(plot.df$biome.factor)
   # plot.df <- plot.df[complete.cases(plot.df),]
   vioplot(dn15.pred~Label,data = plot.df,
           las=2,pch='',xlab='',col = col.plot.vec,
-          ylab=expression(delta*N^15~('‰')),ylim=c(-5,10))
+          ylab=expression(log(N)~('mg'~g^-1)),ylim=c(0,5))
   
-  abline(h=0,lty='dashed',col='coral',lwd=2)
+  # abline(h=0,lty='dashed',col='coral',lwd=2)
   legend('topleft',legend = sprintf('(%s) %s',letters[i.len],names(dn15.ls)[i.len]),bty='n')
 }
 
@@ -95,7 +93,7 @@ for (i.len in 1:length(dn15.ls)) {
 par(mar=c(5,5,0,0))
 plot((slope.fit*365.25)~ dn15.pred,data = slope.dn15.df.sum,pch='',col = biome.factor,
      ylim=c(-0.1,0.05),
-     xlab=expression(delta*N^15~('‰')),ylab=expression(Slope~('‰'~yr^-1)))
+     xlab=expression(log(N)~('mg'~g^-1)),ylab=expression(Slope~('mg'~g^-1~yr^-1)))
 # fit.all <- lm((slope.fit*365.25)~ d15n,data = site.slope.dn15.df)
 
 pft.vec <- unique(slope.dn15.df.sum$biome.factor)
@@ -129,5 +127,5 @@ legend('topleft',legend = '(g)',bty='n')
 
 plot(0,pch='',ann=F,axes=F)
 legend('topleft',legend = paste0(levels(slope.dn15.df.sum$biome.factor),
-                             ': ',r2.vec),pch=15,col=palette(),bty='n',ncol=1,title = expression(R^2))
+                                 ': ',r2.vec),pch=15,col=palette(),bty='n',ncol=1,title = expression(R^2))
 dev.off()

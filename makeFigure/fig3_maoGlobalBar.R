@@ -1,35 +1,35 @@
-library(jsonlite)
-library(randomForest)
-library(caret)
+# library(jsonlite)
+# library(randomForest)
+# library(caret)
 library(raster)
 source('r/functions_json.R')
 source('r/getModisLandCover.R')
+# # 
+# fit.rf.n15 <- readRDS('cache/rf.kFold.n15.rds')
+# # 
+# gTS.df <- read.csv('data/timeseries_global/timeseries_global.csv')
 # 
-fit.rf.n15 <- readRDS('cache/rf.kFold.n15.rds')
+# landsat.g.ts.ls <- apply(gTS.df, 1, get.TS.func,
+#                          lat.col = 3,lon.col=2,n15.col=100,json.col=4,date.col=100)
 # 
-gTS.df <- read.csv('data/timeseries_global/timeseries_global.csv')
-
-landsat.g.ts.ls <- apply(gTS.df, 1, get.TS.func,
-                         lat.col = 3,lon.col=2,n15.col=100,json.col=4,date.col=100)
-
-# landsat.g.ts.df <- do.call(rbind,landsat.g.ts.ls)
-# for (i in 1:nrow(gTS.df)) {
-#   landsat.ts.ls[[length(landsat.ts.ls)+1]] <- get.TS.func(gTS.df[i,])
-# }
-landsat.g.ts.ls <- lapply(landsat.g.ts.ls,get.dn154ts.new.func)
-saveRDS(landsat.g.ts.ls,'cache/landsat.global.ts.rds')
-
+# # landsat.g.ts.df <- do.call(rbind,landsat.g.ts.ls)
+# # for (i in 1:nrow(gTS.df)) {
+# #   landsat.ts.ls[[length(landsat.ts.ls)+1]] <- get.TS.func(gTS.df[i,])
+# # }
+# landsat.g.ts.ls <- lapply(landsat.g.ts.ls,get.dn154ts.new.func)
+# saveRDS(landsat.g.ts.ls,'cache/landsat.global.ts.rds')
 # 
-landsat.g.ts.ls <- readRDS('cache/landsat.global.ts.rds')
-
-landsat.g.ts.ls[[1]]
+# # 
+# landsat.g.ts.ls <- readRDS('cache/landsat.global.ts.rds')
 # 
-landsat.ts.slope.g.ls <- lapply(landsat.g.ts.ls, get.slope.new.func)
-landsat.ts.slope.g.df <- do.call(rbind,landsat.ts.slope.g.ls)
-landsat.ts.slope.g.df$lon <- as.numeric(landsat.ts.slope.g.df$lon)
-landsat.ts.slope.g.df$lat <- as.numeric(landsat.ts.slope.g.df$lat)
-
-saveRDS(landsat.ts.slope.g.df,'cache/landsat.global.slope.ts.rds')
+# landsat.g.ts.ls[[1]]
+# # 
+# landsat.ts.slope.g.ls <- lapply(landsat.g.ts.ls, get.slope.new.func)
+# landsat.ts.slope.g.df <- do.call(rbind,landsat.ts.slope.g.ls)
+# landsat.ts.slope.g.df$lon <- as.numeric(landsat.ts.slope.g.df$lon)
+# landsat.ts.slope.g.df$lat <- as.numeric(landsat.ts.slope.g.df$lat)
+# 
+# saveRDS(landsat.ts.slope.g.df,'cache/landsat.global.slope.ts.rds')
 # 
 landsat.ts.slope.g.df <- readRDS('cache/landsat.global.slope.ts.rds')
 # $#######
