@@ -1,6 +1,6 @@
 library(lubridate)
 library(doBy)
-# read data#####
+# read slope of each site#####
 landsat.slope.ls <- readRDS('cache/landsat.slope.ls.rds')
 landsat.df <- do.call(rbind,landsat.slope.ls)
 landsat.df <- landsat.df[!duplicated(landsat.df[,c("lon","lat")]),]
@@ -12,20 +12,26 @@ landsat.annual.ls <- lapply(landsat.ls, function(df){
     if(length(nrow(df))>0){
       df$yr <- year(df$date)
       df <- df[order(df$ndvi),]
+      df$dn15.pred[df$dn15.pred< -20] <- NA
       return(summaryBy(dn15.pred~yr + lon + lat,
-                       data = df[1:5,],
-                       FUN = quantile,prob = 0.9,na.rm=T,keep.names = T))
+                       data = df,
+                       FUN = median,na.rm=T,keep.names = T))
     }
   }
 })
 
 landsat.annual.df <- do.call(rbind,landsat.annual.ls)
-landsat.annual.df <- rbind(landsat.annual.df, 
-                           data.frame(yr = 2012,lon=NA,lat = NA,dn15.pred=-100000))
+# landsat.annual.df <- rbind(landsat.annual.df, 
+#                            data.frame(yr = 2012,lon=NA,lat = NA,dn15.pred=NA))
+
+# landsat.annual.df$dn15.pred[landsat.annual.df$yr == 2012] <- NA
 landsat.annual.df$yr.factor <- as.factor(landsat.annual.df$yr)
+x <- landsat.annual.df[landsat.annual.df$yr == 2002,]
+x.1 <- landsat.annual.df[landsat.annual.df$yr == 2001,]
+x.3 <- landsat.annual.df[landsat.annual.df$yr == 2003,]
 # levels(landsat.annual.df$yr)
 # range(landsat.annual.df$dn15.pred,na.rm=T)
-landsat.annual.df$dn15.pred[landsat.annual.df$dn15.pred< -20] <- NA
+# landsat.annual.df$dn15.pred[landsat.annual.df$dn15.pred< -20] <- NA
 # plot(dn15.pred~yr ,
 #      data = landsat.annual.df[!is.na(landsat.annual.df$dn15.pred),],ylim=c(-10,10))
 # abline(lm(dn15.pred~yr ,
@@ -33,8 +39,8 @@ landsat.annual.df$dn15.pred[landsat.annual.df$dn15.pred< -20] <- NA
 
 landsat.annual.df.global <- summaryBy(dn15.pred~yr ,
                                       data = landsat.annual.df[!is.na(landsat.annual.df$dn15.pred),],
-                                      FUN=c(median,sd,length),keep.names = T)
-landsat.annual.df.global$dn15.smooth <- landsat.annual.df.global$dn15.pred.median#forecast::tsclean(landsat.annual.df.global$dn15.pred.mean)
+                                      FUN=c(mean,sd,length),keep.names = T)
+landsat.annual.df.global$dn15.smooth <- landsat.annual.df.global$dn15.pred.mean#forecast::tsclean(landsat.annual.df.global$dn15.pred.mean)
 landsat.annual.df.global$dn15.se <- landsat.annual.df.global$dn15.pred.sd / sqrt(landsat.annual.df.global$dn15.pred.length)
 landsat.annual.df.global$dn15.pred.mean[landsat.annual.df.global$yr %in% 2012] <- NA
 landsat.annual.df.global$dn15.smooth[landsat.annual.df.global$yr %in% 2012] <- NA
@@ -64,6 +70,7 @@ plot(red~x, data = plot.df,
      ylab=expression(delta*N^15~('‰')))
 for (i in 1:nrow(landsat.df.narm)) {
   x.df <-landsat.df.narm[i,]
+  
   if(!is.na(x.df$slope.p)){
     
     if(x.df$slope.p>0.05){
@@ -105,12 +112,12 @@ legend('topleft',legend = '(a)',bty='n')
 par(mar=c(5,5,1,1))
 plot(dn15.smooth~yr,
      data = landsat.annual.df.global,pch=16,xlab='',ylab=expression(delta*N^15~('‰')),xlim=c(1980,2020),
-     ylim=c(-6,6))
+     ylim=c(-0.5,0.5))
 
 arrows(x0=landsat.annual.df.global$yr, 
-       y0=landsat.annual.df.global$dn15.pred.mean + landsat.annual.df.global$dn15.se, 
+       y0=landsat.annual.df.global$dn15.smooth + landsat.annual.df.global$dn15.se, 
        x1=landsat.annual.df.global$yr, 
-       y1=landsat.annual.df.global$dn15.pred.mean - landsat.annual.df.global$dn15.se,
+       y1=landsat.annual.df.global$dn15.smooth - landsat.annual.df.global$dn15.se,
        angle=90, length=0, col="grey10", lwd=2)
 
 fit.lm <- lm(dn15.smooth~yr,
@@ -118,8 +125,8 @@ fit.lm <- lm(dn15.smooth~yr,
 abline(fit.lm)
 mylabel.slope = bquote(Slope == .(format(summary(fit.lm)$coefficients[2,1],digit = 2)))
 mylabel.p = bquote(italic(p) == .(format(summary(fit.lm)$coefficients[2,4],digit = 2)))
-text(1985,-3, labels = mylabel.slope)
-text(1985,-4, labels = mylabel.p)
+text(1985,-.3, labels = mylabel.slope)
+text(1985,-.4, labels = mylabel.p)
 
 axis(side = 1,at = 1980:2022, labels = NA,lwd.ticks=1,tck=-0.01)
 

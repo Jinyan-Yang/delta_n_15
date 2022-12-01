@@ -2,32 +2,36 @@ source('r/function_contenent.R')
 source('r/getModisLandCover.R')
 source('r/color.R')
 library(vioplot)
+library(dplyr)
 library(doBy)
 library(lubridate)
 # $$$$$######
 landsat.g.ts.ls <- readRDS('cache/landsat.global.ts.rds')
 landsat.g.ts.ls[[1]]
-landsat.g.ts.ls <- landsat.g.ts.ls[!is.na(landsat.g.ts.ls)]
 
-ls.g.all.df <- do.call(rbind,landsat.g.ts.ls)
+# landsat.g.ts.ls <- Filter(function(x) !is.na(x), landsat.g.ts.ls)
+# landsat.g.ts.ls <- landsat.g.ts.ls[!is.na(landsat.g.ts.ls)]
+# landsat.g.ts.ls <- landsat.g.ts.ls[!is.null(landsat.g.ts.ls)]
+
+ls.g.all.df <- do.call(bind_rows,landsat.g.ts.ls)
 
 landsat.g.ts.ls.mean <- lapply(landsat.g.ts.ls, function(df){
   if(!is.null(df)){
     if(length(nrow(df))>0){
       df$yr <- year(df$date)
-      df <- df[order(df$ndvi),]
+      # df <- df[order(df$ndvi),]
       return(summaryBy(dn15.pred~yr + lon + lat,
-                       data = df[1:10,],
-                       FUN = quantile,prob = 0.9,na.rm=T,keep.names = T))
+                       data = df,
+                       FUN = median,na.rm=T,keep.names = T))
     
       # return(df[1:3,])
       }
   }
 })
 ####
-landsat.g.ts.df <- do.call(rbind,landsat.g.ts.ls.mean)
+landsat.g.ts.df <- do.call(bind_rows,landsat.g.ts.ls.mean)
 
-# get slope
+# get slope####
 landsat.ts.slope.df <- readRDS('cache/landsat.global.slope.ts.rds')
 # landsat.ts.slope.df <- do.call(rbind,landsat.ts.slope.ls)
 landsat.ts.slope.df$lon <- as.numeric(landsat.ts.slope.df$lon)
@@ -38,9 +42,7 @@ all.df.biome <- merge(landsat.ts.slope.df,
                       by.x = 'landUse',by.y = 'Value')
 all.df.biome <- all.df.biome[all.df.biome$Label %in% c('ENF','EBF','DNF','DBF','FOR','OSH','CSH','WSA','SAV','GRA','WET','PSI','BAR'),]
 
-
-
-# #get for global
+# #get pft for global
 landsat.g.ts.df$lon <- as.numeric(landsat.g.ts.df$lon)
 landsat.g.ts.df$lat <- as.numeric(landsat.g.ts.df$lat)
 landsat.g.ts.df$landUse <- extract(landCover.ra,cbind(landsat.g.ts.df$lon,landsat.g.ts.df$lat))
