@@ -36,21 +36,29 @@ landsat.ts.slope.df <- readRDS('cache/landsat.global.slope.ts.rds')
 # landsat.ts.slope.df <- do.call(rbind,landsat.ts.slope.ls)
 landsat.ts.slope.df$lon <- as.numeric(landsat.ts.slope.df$lon)
 landsat.ts.slope.df$lat <- as.numeric(landsat.ts.slope.df$lat)
-landsat.ts.slope.df$landUse <- extract(landCover.ra,cbind(landsat.ts.slope.df$lon,landsat.ts.slope.df$lat))
+landsat.ts.slope.df$landUse <- extract(landCover.ra.new,cbind(landsat.ts.slope.df$lon,landsat.ts.slope.df$lat))
 all.df.biome <- merge(landsat.ts.slope.df,
                       name.df,
                       by.x = 'landUse',by.y = 'Value')
-all.df.biome <- all.df.biome[all.df.biome$Label %in% c('ENF','EBF','DNF','DBF','FOR','OSH','CSH','WSA','SAV','GRA','WET','PSI','BAR'),]
+all.df.biome <- all.df.biome[all.df.biome$Label %in% c('ENF','EBF','DNF','DBF','FOR','OSH','CSH','WSA','SAV','GRA'),]
 
+all.df.biome$lc.old <- extract(landCover.ra,cbind(all.df.biome$lon,all.df.biome$lat))
+
+all.df.biome <- all.df.biome[all.df.biome$landUse == all.df.biome$lc.old,]
+# all.df.biome <- all.df.biome[!all.df.biome$Label]
 # #get pft for global
 landsat.g.ts.df$lon <- as.numeric(landsat.g.ts.df$lon)
 landsat.g.ts.df$lat <- as.numeric(landsat.g.ts.df$lat)
-landsat.g.ts.df$landUse <- extract(landCover.ra,cbind(landsat.g.ts.df$lon,landsat.g.ts.df$lat))
+landsat.g.ts.df$landUse <- extract(landCover.ra.ew,cbind(landsat.g.ts.df$lon,landsat.g.ts.df$lat))
 global.dn15.df <- merge(landsat.g.ts.df,
                         name.df,
                         by.x = 'landUse',by.y = 'Value')
+# ,'WET','PSI','BAR'
+global.dn15.df <- global.dn15.df[global.dn15.df$Label %in% c('ENF','EBF','DNF','DBF','FOR','OSH','CSH','WSA','SAV','GRA'),]
+# 
+global.dn15.df$lc.old <- extract(landCover.ra,cbind(global.dn15.df$lon,global.dn15.df$lat))
 
-global.dn15.df <- global.dn15.df[global.dn15.df$Label %in% c('ENF','EBF','DNF','DBF','FOR','OSH','CSH','WSA','SAV','GRA','WET','PSI','BAR'),]
+global.dn15.df <- global.dn15.df[global.dn15.df$landUse == global.dn15.df$lc.old,]
 # 
 global.dn15.df$continent <- find.continent.func(global.dn15.df$lon,
                                                 global.dn15.df$lat)
@@ -60,7 +68,7 @@ global.dn15.df$biome.factor <- as.factor(global.dn15.df$Label)
 dn15.ls <- split(global.dn15.df,global.dn15.df$continent)
 # 
 # metge sites
-site.slope.dn15.df <- merge(global.dn15.df,all.df.biome)
+site.slope.dn15.df <- merge(all.df.biome,global.dn15.df)
 slope.dn15.df.sum <- summaryBy(dn15.pred + slope.fit+ slope.se + slope.p+r2+intercept~lon+lat+biome.factor ,
   data = site.slope.dn15.df,FUN=median,namrm=T,keep.names = T)
 

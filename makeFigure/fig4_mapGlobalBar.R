@@ -38,12 +38,16 @@ library(rasterize)
 
 # Suppose you have a dataframe like this
 df <- landsat.ts.slope.g.df[,c('lon','lat',"slope.fit","slope.p","slope.se")]
-df$pft <- extract(landCover.ra,cbind(df$lon,df$lat))
+df$pft <- extract(landCover.ra.new,cbind(df$lon,df$lat))
 
 df.biome <- merge(df,
                       name.df,
                       by.x = 'pft',by.y = 'Value')
-df.biome <- df.biome[df.biome$Label %in% c('ENF','EBF','DNF','DBF','FOR','OSH','CSH','WSA','SAV','GRA','WET','PSI','BAR'),]
+df.biome.plot <- df.biome
+df.biome.plot$p[df.biome.plot$pft %in% c('WET','PSI','BAR')] <- NA
+# df.biome.plot$slope.se[df.biome.plot$pft %in% c('WET','PSI','BAR')] <- NA
+# 
+df.biome <- df.biome[df.biome$Label %in% c('ENF','EBF','DNF','DBF','FOR','OSH','CSH','WSA','SAV','GRA'),]
 df.biome$plot.f <- as.factor(df.biome$Label)
 
 # plot(slope.fit~plot.f,data = df.biome)
@@ -66,25 +70,25 @@ biome.frac.df <- biome.frac.df[!duplicated(biome.frac.df),]
 
 
 # will need to rename colnames for raster
-colnames(df) <- c('x', 'y', 'vals','p','se')
+colnames(df.biome.plot) <- c('pft','x', 'y', 'vals','p','se','Label')
 
 # create a raster object
 r_obj <- raster(xmn=-180, xmx=180, ymn=-90, ymx=90, resolution=c(1,1))
 
 # use rasterize to create desired raster
-r_slope <- rasterize(x=df[,c("x","y")], # lon-lat data
+r_slope <- rasterize(x=df.biome.plot[,c("x","y")], # lon-lat data
                     y=r_obj, # raster object
-                    field=df$vals, # vals to fill raster with
+                    field=df.biome.plot$vals, # vals to fill raster with
                     fun=mean) # aggregate function
 
-r_p <- rasterize(x=df[,c("x","y")], # lon-lat data
+r_p <- rasterize(x=df.biome.plot[,c("x","y")], # lon-lat data
                      y=r_obj, # raster object
-                     field=df$p, # vals to fill raster with
+                     field=df.biome.plot$p, # vals to fill raster with
                      fun=mean)
 
-r_se <- rasterize(x=df[,c("x","y")], # lon-lat data
+r_se <- rasterize(x=df.biome.plot[,c("x","y")], # lon-lat data
                  y=r_obj, # raster object
-                 field=df$se, # vals to fill raster with
+                 field=df.biome.plot$se, # vals to fill raster with
                  fun=mean)
 r_se.frac <- r_se/r_slope
 r_se.frac[r_se.frac<0] <- abs(r_se.frac[r_se.frac<0])
@@ -111,6 +115,7 @@ plot(r_slope,col='grey',legend=F,
 plot((r_out*365),add=T,legend=F,
      breaks = c(seq(-0.2,-0.001,length.out=99),seq(0.001,0.2,length.out=99)),#c(1,5e-4,0,-5e-4,-1e-3)
      col=col.vec)
+# plot legend
 plot(r_slope, legend.only=TRUE,
      breaks = c(seq(-0.2,-0.001,length.out=99),seq(0.001,0.2,length.out=99)),
      col=col.vec, legend.width=1, legend.shrink=0.75,
