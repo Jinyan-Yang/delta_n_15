@@ -44,7 +44,8 @@ df.biome <- merge(df,
                       name.df,
                       by.x = 'pft',by.y = 'Value')
 df.biome.plot <- df.biome
-df.biome.plot$p[df.biome.plot$pft %in% c('WET','PSI','BAR')] <- NA
+df.biome.plot$slope.p[df.biome.plot$Label %in% c("CRO","URB","CNV",'WET','PSI','BAR')] <- 10000
+names(df.biome.plot)
 # df.biome.plot$slope.se[df.biome.plot$pft %in% c('WET','PSI','BAR')] <- NA
 # 
 df.biome <- df.biome[df.biome$Label %in% c('ENF','EBF','DNF','DBF','FOR','OSH','CSH','WSA','SAV','GRA'),]
@@ -95,8 +96,8 @@ r_se.frac[r_se.frac<0] <- abs(r_se.frac[r_se.frac<0])
 
 r_p[r_p>0.05] <- NA
 
-r_out <- mask(r_slope, r_p,method='ngb')
-r_se.frac <- mask(r_slope, r_p,method='ngb')
+r_out <- mask(r_slope, r_p)
+r_se.frac <- mask(r_slope, r_p)
 # rgb(0.25,0.8784,0.81569,1),
 # rgb(0.854902,0.6470588,0.1254902,1)
 # col.vec <- c(rgb(0.854902,0.6470588,0.1254902,1),
