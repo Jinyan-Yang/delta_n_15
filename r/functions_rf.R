@@ -53,7 +53,7 @@ plot.fit.region.func <- function(df.evaluate,x.range = c(-15,15),y.range = c(-15
   
   mylabel = bquote(italic(R)^2 == .(format(summary(fit.lm)$r.squared, digits = 2)))
   lab.slope = bquote(Slope == .(format(coef(fit.lm)[[2]], digits = 2)))
-  n.obs = bquote(n == .(format(nrow(coord.df), digits = 1)))
+  n.obs = bquote(n == .(format(nrow(df.evaluate), digits = 1)))
   text(x = 11, y = -13, labels = n.obs)
   text(x = 11, y = -10, labels = mylabel)
   text(x = 11, y = -7, labels = lab.slope)

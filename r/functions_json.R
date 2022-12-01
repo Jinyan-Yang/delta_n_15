@@ -156,10 +156,15 @@ get.TS.func <- function(ts.df.in,lon.col = 3,lat.col=4,n15.col=6,json.col=7,date
     names(land.sat.new) <- c("blue","green","red","nir","swir1","swir2",'id' )
     
     land.sat.old <- landsat.ts.tmp[is.5,]
-    land.sat.old <- land.sat.old[,c("SR_B1","SR_B2","SR_B3","SR_B4","SR_B5","SR_B7","id")]
-    names(land.sat.old) <- c("blue","green","red","nir","swir1","swir2",'id' )
-    
-    land.sat.df <- rbind(land.sat.old,land.sat.new)
+    if((nrow(land.sat.old))>0){
+      land.sat.old <- land.sat.old[,c("SR_B1","SR_B2","SR_B3","SR_B4","SR_B5","SR_B7","id")]
+      names(land.sat.old) <- c("blue","green","red","nir","swir1","swir2",'id' )
+      
+      land.sat.df <- rbind(land.sat.old,land.sat.new)
+    }else{
+      land.sat.df <- land.sat.new
+    }
+
     land.sat.df$date <- as.Date(strptime(substr(land.sat.df$id,13,20),'%Y%m%d',tz = "GMT"))
     
     land.sat.df[,c("blue","green","red","nir","swir1","swir2")] <- 
@@ -242,6 +247,9 @@ get.dn154ts.new.func <- function(df){
       df$dn15.pred <- tmp.val
       return(df)
     }
+  }else{
+    df$dn15.pred <- NA
+    return(df)
   }
 
   # 
