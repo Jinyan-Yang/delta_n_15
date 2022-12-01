@@ -151,10 +151,13 @@ get.TS.func <- function(ts.df.in,lon.col = 3,lat.col=4,n15.col=6,json.col=7,date
     landsat.ts.tmp <- tmp.json
     is.5 <- grep(pattern = 'LT05',x = landsat.ts.tmp$id)
     print(landsat.ts.tmp$id[1])
+   
     land.sat.new <- landsat.ts.tmp[-is.5,]
-    land.sat.new <- land.sat.new[,c("SR_B2","SR_B3","SR_B4","SR_B5","SR_B6","SR_B7","id")]
-    names(land.sat.new) <- c("blue","green","red","nir","swir1","swir2",'id' )
-    
+    if((nrow(land.sat.new))>0){
+      land.sat.new <- land.sat.new[,c("SR_B2","SR_B3","SR_B4","SR_B5","SR_B6","SR_B7","id")]
+      names(land.sat.new) <- c("blue","green","red","nir","swir1","swir2",'id' )
+    }
+   
     land.sat.old <- landsat.ts.tmp[is.5,]
     if((nrow(land.sat.old))>0){
       land.sat.old <- land.sat.old[,c("SR_B1","SR_B2","SR_B3","SR_B4","SR_B5","SR_B7","id")]
@@ -164,15 +167,15 @@ get.TS.func <- function(ts.df.in,lon.col = 3,lat.col=4,n15.col=6,json.col=7,date
     }else{
       land.sat.df <- land.sat.new
     }
-
-    land.sat.df$date <- as.Date(strptime(substr(land.sat.df$id,13,20),'%Y%m%d',tz = "GMT"))
-    
-    land.sat.df[,c("blue","green","red","nir","swir1","swir2")] <- 
-      land.sat.df[,c("blue","green","red","nir","swir1","swir2")]* 0.0000275 - 0.2
-    
-    land.sat.df <- land.sat.df[complete.cases(land.sat.df),]
     # print(land.sat.df)
     if(nrow(land.sat.df)>= 1){
+      
+      land.sat.df$date <- as.Date(strptime(substr(land.sat.df$id,13,20),'%Y%m%d',tz = "GMT"))
+      
+      land.sat.df[,c("blue","green","red","nir","swir1","swir2")] <- 
+        land.sat.df[,c("blue","green","red","nir","swir1","swir2")]* 0.0000275 - 0.2
+      
+      land.sat.df <- land.sat.df[complete.cases(land.sat.df),]
       land.sat.df$lon <-rep(ts.df.in[lon.col],nrow(land.sat.df))
       land.sat.df$lat <- rep(ts.df.in[lat.col],nrow(land.sat.df))
       land.sat.df$Leaf15N <- rep(ts.df.in[n15.col],nrow(land.sat.df))
