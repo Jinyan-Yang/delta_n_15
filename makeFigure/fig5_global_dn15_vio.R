@@ -6,7 +6,7 @@ library(dplyr)
 library(doBy)
 library(lubridate)
 source('r/readSlopeGlobal.R')
-pft.chosen.vec <- c('ENF','DNF','EBF','DBF','FOR','WSA','SAV','GRA','CSH','OSH','BAR')
+# pft.chosen.vec <- c('DBF','EBF','FOR','ENF','DNF','WSA','SAV','CSH','OSH','GRA','BAR')
 # $$$$$######
 # landsat.g.ts.ls <- readRDS('cache/landsat.global.ts.rds')
 landsat.g.ts.ls.1 <- readRDS('cache/ls.ts.0.1.part1.rds')
@@ -77,8 +77,7 @@ global.dn15.df$continent <- find.continent.func(global.dn15.df$lon,
                                                 global.dn15.df$lat)
 # unique(global.dn15.df$continent)
 global.dn15.df <- global.dn15.df[!is.na(global.dn15.df$continent),]
-global.dn15.df$biome.factor <- factor(global.dn15.df$Label,
-                                      levels = c(pft.chosen.vec))
+global.dn15.df$biome.factor <- (global.dn15.df$Label)
 dn15.ls <- split(global.dn15.df,global.dn15.df$continent)
 # 
 # metge sites
@@ -86,6 +85,9 @@ site.slope.dn15.df <- merge(all.df.biome,global.dn15.df)
 slope.dn15.df.sum <- summaryBy(dn15.pred + slope.fit~lon+lat+biome.factor ,
   data = site.slope.dn15.df,FUN=median,namrm=T,keep.names = T)
 saveRDS(slope.dn15.df.sum,'cache/global.slope.d15n.rds')
+
+slope.dn15.df.sum$biome.factor <- factor(slope.dn15.df.sum$biome.factor,
+                                         levels = pft.chosen.vec)
 # dn15.ls <- split(slope.dn15.df.sum,slope.dn15.df.sum$continent)
 # length(dn15.ls)
 #plot######
@@ -118,7 +120,7 @@ for (i.len in 1:length(dn15.ls)) {
 # site.slope.dn15.df 
 par(mar=c(5,5,0,0))
 plot((slope.fit*365.25)~ dn15.pred,data = slope.dn15.df.sum,pch='',col = biome.factor,
-     ylim=c(-0.1,0.05),
+     ylim=c(-0.06,0.05),
      xlab=expression(delta^15*N~('‰')),ylab=expression(Slope~('‰'~yr^-1)))
 # fit.all <- lm((slope.fit*365.25)~ d15n,data = site.slope.dn15.df)
 
@@ -126,11 +128,12 @@ pft.vec <- levels(slope.dn15.df.sum$biome.factor)
 for (i.plot in seq_along(pft.vec)) {
   plot.df <- slope.dn15.df.sum[slope.dn15.df.sum$biome.factor == pft.vec[i.plot],]
   plot.df <- plot.df
-  points((slope.fit*365.25)~ dn15.pred,data = plot.df,pch=16,col = t_col(palette()[i.plot],percent = 80))
+  points((slope.fit*365.25)~ dn15.pred,data = plot.df,pch=16,col = t_col(palette()[i.plot],percent = 95))
   rm(plot.df)
   
 }
 
+#
 r2.vec <- c()
 for (i.plot in seq_along(pft.vec)) {
   plot.df <- slope.dn15.df.sum[slope.dn15.df.sum$biome.factor == pft.vec[i.plot],]
@@ -139,7 +142,10 @@ for (i.plot in seq_along(pft.vec)) {
   plot.df <- plot.df[complete.cases(plot.df),]
   fit.tmp <- (lm((slope.fit*365.25)~ dn15.pred,data = plot.df))
   r2.vec[i.plot] <- format(summary(fit.tmp)$r.squared,digits = 2)
-  if(summary(fit.tmp)$coefficients[2,4]>0.05){
+  
+  # fit.tmp <- mgcv::gam((slope.fit*365.25)~ s(dn15.pred),data = plot.df)#(lm((slope.fit*365.25)~ dn15.pred,data = plot.df))
+  # r2.vec[i.plot] <- format(summary(fit.tmp)$r.squared,digits = 2)
+  if(summary(fit.tmp)$coefficients[2,4] >= 0.05){
     lty.in = 'dashed'
   }else{
     lty.in = 'solid'
@@ -157,4 +163,5 @@ plot(0,pch='',ann=F,axes=F)
 legend('topleft',legend = paste0(levels(slope.dn15.df.sum$biome.factor),
                              ': ',r2.vec),pch=15,col=palette(),bty='n',ncol=1,title = expression(R^2))
 dev.off()
+
 

@@ -10,6 +10,7 @@ source('r/readSlopeGlobal.R')
 source('r/color.R')
 library(vioplot)
 library(reshape2)
+# pft.chosen.vec <- c('DBF','EBF','FOR','ENF','DNF','WSA','SAV','CSH','OSH','GRA','BAR')
 # # 
 # fit.rf.n15 <- readRDS('cache/rf.kFold.n15.rds')
 # # 
@@ -79,13 +80,17 @@ biome.frac.df <- do.call(rbind,df.biome.ls.frac)
 
 biome.frac.df <- biome.frac.df[,c('Label', 'plot.f',  'non.frac','de.frac')]
 biome.frac.df <- biome.frac.df[!duplicated(biome.frac.df),]
+biome.frac.df$biome.factor <- factor(biome.frac.df$Label,
+                                     levels = c(pft.chosen.vec))
 
-
+biome.frac.df.plot <- biome.frac.df[,c("non.frac","de.frac","biome.factor")]
+biome.frac.df.plot <- biome.frac.df.plot[!duplicated(biome.frac.df.plot),]
 # will need to rename colnames for raster
 colnames(df.biome.plot) <- c('pft','x', 'y', 'vals','p','se','Label')
 
 df.biome.plot.sub <- df.biome.plot[df.biome.plot$p <10000,]
-df.biome.plot.sub$biome.factor <- as.factor(df.biome.plot.sub$Label)
+df.biome.plot.sub$biome.factor <- factor(df.biome.plot.sub$Label,
+                                        levels = c(pft.chosen.vec))
 # # # create a raster object
 # r_obj <- raster(xmn=-180, xmx=180, ymn=-90, ymx=90, resolution=c(0.1,0.1))
 # # 
@@ -143,16 +148,18 @@ par(mar=c(5,5,1,1))
 # # legend('bottom',legend = c('> -0.001','> -0.0005','> 0.0005','> 0.001','NS'),pch=15,col=c(col.vec,'grey'),horiz = T,bty='n',cex=2)
 # legend('topleft',legend = '(a)',bty='n')
 # 
-barplot(rep(1,length(unique(biome.frac.df$Label)))~plot.f,data =biome.frac.df,ylim=c(0,1),
+barplot(rep(1,length(levels(biome.factor)))~ (biome.factor),
+        data = biome.frac.df.plot,ylim=c(0,1),
         col=rgb(0.25,0.8784,0.81569),
         border = NA,las=2,
         ylab= 'Fraction',xlab='')
-barplot((de.frac + non.frac)~plot.f,
-        data =biome.frac.df,
+barplot((de.frac + non.frac)~ biome.factor,
+        data = biome.frac.df.plot,
+        col= 'grey',
         ann=F,axes=F,xaxt='n',
         ylim=c(0,1),border = NA,
         add=T)
-barplot(de.frac~plot.f,data =biome.frac.df,ylim=c(0,1),add=T,
+barplot(de.frac~biome.factor,data =biome.frac.df.plot,ylim=c(0,1),add=T,
         col=rgb(0.854902,0.6470588,0.1254902,1),ann=F,axes=F,xaxt='n',
         border = NA)
 legend('topleft',legend = '(a)',bty='n')
@@ -164,9 +171,9 @@ legend('topleft',legend = '(a)',bty='n')
   
   # plot.df$biome.factor <- as.character(plot.df$biome.factor)
   # plot.df <- plot.df[complete.cases(plot.df),]
-  vioplot((vals*365.25)~Label,data = df.biome.plot.sub[df.biome.plot.sub$p<0.05,],
+  vioplot((vals*365.25)~biome.factor,data = df.biome.plot.sub[df.biome.plot.sub$p<0.05,],
           las=2,pch='',xlab='',col = col.plot.vec,
-          ylab=expression(Slope~('‰'~yr^-1)),ylim=c(-0.2,0.2))
+          ylab=expression(Slope~('‰'~yr^-1)),ylim=c(-0.3,0.3))
   
   abline(h=0,lty='dashed',col='coral',lwd=2)
   legend('topleft',legend = '(b)',bty='n')
@@ -174,90 +181,90 @@ legend('topleft',legend = '(a)',bty='n')
 # }
 
 dev.off()
-# plot Map####
-pdf('figures/fig2b.mapGlobal.pdf',height = 4,width = 8)
-#
-# df.biome.plot$val.range <- cut(df.biome.plot$vals,breaks = seq(-0.001,0.001,by = 0.0001))
-# col.vec <- c(neg.c.f(10),pos.c.f(10))
-# df.biome.plot$col.in <- col.vec[df.biome.plot$val.range ]
-# df.biome.plot$col.in[df.biome.plot$p > 0.05] <- 'grey'
-# df.biome.plot$col.in[df.biome.plot$p == 10000] <- 'black'
+# # plot Map####
+# pdf('figures/fig2b.mapGlobal.pdf',height = 4,width = 8)
+# #
+# # df.biome.plot$val.range <- cut(df.biome.plot$vals,breaks = seq(-0.001,0.001,by = 0.0001))
+# # col.vec <- c(neg.c.f(10),pos.c.f(10))
+# # df.biome.plot$col.in <- col.vec[df.biome.plot$val.range ]
+# # df.biome.plot$col.in[df.biome.plot$p > 0.05] <- 'grey'
+# # df.biome.plot$col.in[df.biome.plot$p == 10000] <- 'black'
+# # 
+# # 
+# # WorldData <- map_data('world') %>% filter(region != "Antarctica") %>% fortify
+# # 
+# # sig.df <- df.biome.plot[df.biome.plot$p < 0.05,]
+# # insig.df <- df.biome.plot[!df.biome.plot$p >= 0.05,]
+# # 
+# # 
+# df.biome.plot$Trend <- NA
+# df.biome.plot$Trend[df.biome.plot$p >=0.05] <- 'Stable'
+# df.biome.plot$Trend[df.biome.plot$p == 10000] <- 'Filtered'
+# df.biome.plot$Trend[df.biome.plot$p < 0.05 & df.biome.plot$vals > 0] <- 'Increase'
+# df.biome.plot$Trend[df.biome.plot$p < 0.05 & df.biome.plot$vals < 0] <- 'Decline'
+# df.biome.plot$Trend <- factor(df.biome.plot$Trend,
+#                                  levels = c('Increase' ,'Stable','Decline','Filtered' ))
+# # # 7f7f7f"
+# # 
+# # p <- ggplot() +
+# #   geom_map(data = WorldData, map = WorldData,
+# #            aes(x = long, y = lat, group = group, map_id=region),
+# #            fill = "white", colour = "red", size=0.5) +
+# #   coord_map("rectangular", lat0=0, xlim=c(-180,180), ylim=c(-60, 90)) +
+# #   
+# #   theme_bw()+
+# #   # xlab("Longitude") + ylab("Latitude")+
+# #   scale_x_continuous(name = 'Longitude',breaks = seq(-180,180,by=30),labels=seq(-180,180,by=30))+
+# #   scale_y_continuous(name = 'Latitude',breaks = seq(-80,80,by=20),labels=seq(-80,80,by=20))
+# # 
+# # p.dots <- p +
+# #   geom_point(data=insig.df, aes(x=x,y=y),
+# #              col=insig.df$col.in,size=0.0001,pch=15)+
+# #     geom_point(data=sig.df, aes(x=x,y=y),
+# #                col=sig.df$col.in,size=0.0001,pch=15)  
 # 
+# # p.dots.l <- p.dots + 
+# #   # theme(legend.position = "bottomleft")+
+# #   guides(fill = guide_colourbar())
+# #   # scale_color_manual(name = "Trend",
+# #   #                    values = c("Increase" = rgb(0.25,0.8784,0.81569,1),
+# #   #                               "Stable" = "grey",
+# #   #                               "Decline" = rgb(0.854902,0.6470588,0.1254902,1),
+# #   #                               "NA" = "white")) +
+# #   # scale_shape_manual(values = 15)
 # 
-# WorldData <- map_data('world') %>% filter(region != "Antarctica") %>% fortify
+# # p.dots
+# palette(c(rgb(0.25,0.8784,0.81569,1),
+#           "grey",
+#           rgb(0.854902,0.6470588,0.1254902,1),
+#           rgb(221/255,160/255,221/255,0.99)))
+# ny <- map_data('world') %>% filter(region != "Antarctica") %>% fortify
 # 
-# sig.df <- df.biome.plot[df.biome.plot$p < 0.05,]
-# insig.df <- df.biome.plot[!df.biome.plot$p >= 0.05,]
-# 
-# 
-df.biome.plot$Trend <- NA
-df.biome.plot$Trend[df.biome.plot$p >=0.05] <- 'Stable'
-df.biome.plot$Trend[df.biome.plot$p == 10000] <- 'Filtered'
-df.biome.plot$Trend[df.biome.plot$p < 0.05 & df.biome.plot$vals > 0] <- 'Increase'
-df.biome.plot$Trend[df.biome.plot$p < 0.05 & df.biome.plot$vals < 0] <- 'Decline'
-df.biome.plot$Trend <- factor(df.biome.plot$Trend,
-                                 levels = c('Increase' ,'Stable','Decline','Filtered' ))
-# # 7f7f7f"
-# 
-# p <- ggplot() +
-#   geom_map(data = WorldData, map = WorldData,
-#            aes(x = long, y = lat, group = group, map_id=region),
-#            fill = "white", colour = "red", size=0.5) +
-#   coord_map("rectangular", lat0=0, xlim=c(-180,180), ylim=c(-60, 90)) +
+# p <- ggplot() + geom_polygon(data = ny, aes(x = long, y = lat, group = group), 
+#                              color = "black", fill = "white")+
 #   
-#   theme_bw()+
-#   # xlab("Longitude") + ylab("Latitude")+
-#   scale_x_continuous(name = 'Longitude',breaks = seq(-180,180,by=30),labels=seq(-180,180,by=30))+
-#   scale_y_continuous(name = 'Latitude',breaks = seq(-80,80,by=20),labels=seq(-80,80,by=20))
+#   theme_bw()
 # 
-# p.dots <- p +
-#   geom_point(data=insig.df, aes(x=x,y=y),
-#              col=insig.df$col.in,size=0.0001,pch=15)+
-#     geom_point(data=sig.df, aes(x=x,y=y),
-#                col=sig.df$col.in,size=0.0001,pch=15)  
-
-# p.dots.l <- p.dots + 
-#   # theme(legend.position = "bottomleft")+
-#   guides(fill = guide_colourbar())
-#   # scale_color_manual(name = "Trend",
-#   #                    values = c("Increase" = rgb(0.25,0.8784,0.81569,1),
-#   #                               "Stable" = "grey",
-#   #                               "Decline" = rgb(0.854902,0.6470588,0.1254902,1),
-#   #                               "NA" = "white")) +
-#   # scale_shape_manual(values = 15)
-
-# p.dots
-palette(c(rgb(0.25,0.8784,0.81569,1),
-          "grey",
-          rgb(0.854902,0.6470588,0.1254902,1),
-          rgb(221/255,160/255,221/255,0.99)))
-ny <- map_data('world') %>% filter(region != "Antarctica") %>% fortify
-
-p <- ggplot() + geom_polygon(data = ny, aes(x = long, y = lat, group = group), 
-                             color = "black", fill = "white")+
-  
-  theme_bw()
-
-p +
-  geom_point(data=df.biome.plot, aes(x=x,y=y,color = Trend),size=0.001,shape = 15)+
-  # geom_point(data=sig.df, aes(x=x,y=y),
-  #            col=sig.df$col.in,size=0.0001,pch=15)  + 
-  theme(legend.justification=c(0.05,0.05),legend.position=c(0.05,0.05),
-        # plot.title = element_text(size = 12, face = "bold"),
-        legend.title=element_text(size=8), 
-        legend.text=element_text(size=8)) +
-  # guides(colour = guide_legend(override.aes = list(size=10)))
-  scale_color_manual(values=palette(), name = "Trend")+
-  # scale_size_manual(values = rep(10, 4)) + 
-  guides(colour = guide_legend(override.aes = list(size=8)))+
-  scale_x_continuous(name = 'Longitude',breaks = seq(-180,180,by=30),labels=seq(-180,180,by=30))+
-  scale_y_continuous(name = 'Latitude',breaks = seq(-80,80,by=20),labels=seq(-80,80,by=20))+
-  annotate(geom="text", x=-180, y=80, 
-           label="(b)",
-           size = 8,
-           color="black")
-
-dev.off()
+# p +
+#   geom_point(data=df.biome.plot, aes(x=x,y=y,color = Trend),size=0.001,shape = 15)+
+#   # geom_point(data=sig.df, aes(x=x,y=y),
+#   #            col=sig.df$col.in,size=0.0001,pch=15)  + 
+#   theme(legend.justification=c(0.05,0.05),legend.position=c(0.05,0.05),
+#         # plot.title = element_text(size = 12, face = "bold"),
+#         legend.title=element_text(size=8), 
+#         legend.text=element_text(size=8)) +
+#   # guides(colour = guide_legend(override.aes = list(size=10)))
+#   scale_color_manual(values=palette(), name = "Trend")+
+#   # scale_size_manual(values = rep(10, 4)) + 
+#   guides(colour = guide_legend(override.aes = list(size=8)))+
+#   scale_x_continuous(name = 'Longitude',breaks = seq(-180,180,by=30),labels=seq(-180,180,by=30))+
+#   scale_y_continuous(name = 'Latitude',breaks = seq(-80,80,by=20),labels=seq(-80,80,by=20))+
+#   annotate(geom="text", x=-180, y=80, 
+#            label="(b)",
+#            size = 8,
+#            color="black")
+# 
+# dev.off()
 
 
 ##########
@@ -268,3 +275,5 @@ plot(r_slope,col='grey',legend=F)
 plot(r_se.frac,breaks = seq(0,0.0015,length.out=4),col=col.vec,legend=F,add=T)
 legend('bottom',legend = c('<0.0005','<0.001','<0.0015','NS'),pch=15,col=c(col.vec,'grey'),horiz = T,bty='n',cex=2)
 dev.off()
+
+
