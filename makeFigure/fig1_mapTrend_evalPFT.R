@@ -2,6 +2,7 @@ source('r/getModisLandCover.R')
 source('r/color.R')
 library(raster)
 library(maps)
+pft.chosen.vec <- c('ENF','DNF','EBF','DBF','FOR','WSA','SAV','GRA','CSH','OSH','BAR')
 # get ground data and dn15 and pft######
 # source('r/evaluation_process.R')
 if(!file.exists('cache/groundDN15.rds')){
@@ -15,7 +16,7 @@ combined.df <- combined.df[complete.cases(combined.df),]
 # Hengl, T.(2018). Global mapping of potential natural vegetation: 
 # An assessment of machine learning algorithms for estimating land potential. 
 # https://doi.org/10.7717/peerj.5457
-biome.ra <- landCover.ra#raster('data/pnv_biome.type_biome00k_cf_1km_s0..0cm_2000..2017_v0.1.tif')
+biome.ra <- landCover.ra.new#raster('data/pnv_biome.type_biome00k_cf_1km_s0..0cm_2000..2017_v0.1.tif')
 # plot(biome.ra)
 combined.df$biome.no <- extract(biome.ra,cbind(combined.df$lon,combined.df$lat))
 # met.csv.df <- read.csv('data/pnv_biome.type_biome00k_c_1km_s0..0cm_2000..2017_v0.1.tif.csv')
@@ -24,17 +25,17 @@ combined.df.biome <- merge(combined.df,
                            name.df,
                            by.x = 'biome.no',by.y = 'Value')
 df.evaluate <- get.train.eval.func(combined.df.biome,giveTrain=FALSE)
-df.evaluate <- df.evaluate[df.evaluate$Label %in% c('ENF','EBF','DNF','DBF','FOR','OSH','CSH','WSA','SAV','GRA','WET','PSI','BAR'),]
+df.evaluate <- df.evaluate[df.evaluate$Label %in% pft.chosen.vec ,]
 # # 
 # 
 fit.all.kFold <- readRDS('cache/rf.kFold.n15.rds')
 df.evaluate$pred.all <- predict(fit.all.kFold, df.evaluate)
-df.evaluate$plot.f <- as.factor(df.evaluate$Label)
-biome.vec <- unique(df.evaluate$Label)
+df.evaluate$plot.f <- factor(df.evaluate$Label,levels = pft.chosen.vec )
+biome.vec <- levels(df.evaluate$plot.f)
 
 # slope for each site#############
-landsat.slope.ls <- readRDS('cache/landsat.slope.ls.rds')
-landsat.df <- do.call(rbind,landsat.slope.ls)
+landsat.df <- readRDS('cache/landsat.site.slope.ts.rds')
+# landsat.df <- do.call(rbind,landsat.slope.ls)
 landsat.df <- landsat.df[!duplicated(landsat.df[,c("lon","lat")]),]
 landsat.df.narm <- landsat.df[complete.cases(landsat.df),]
 landsat.df.narm$lat <- as.numeric(landsat.df.narm$lat)
@@ -51,7 +52,7 @@ r2.vec <- c()
 n.vec <- c()
 for (i.bio in 1:length(biome.vec)) {
   
-  sub.df <- df.evaluate[df.evaluate$Label == biome.vec[i.bio],]
+  sub.df <- df.evaluate[df.evaluate$plot.f == biome.vec[i.bio],]
   fit.lm <- lm(Leaf15N~pred.all,data = sub.df)
   
   coord.df <- sub.df[,c("lon",'lat')]
@@ -72,7 +73,7 @@ r2.vec[which(n.vec<5)] <- NA
 # c
 par(mar=c(1,1,4,1))
 plot(0,pch='',ann=F,axes=F)
-legend('topleft',legend = paste0(levels(as.factor(biome.vec)),
+legend('topleft',legend = paste0(biome.vec,
                                  ': ',
                                  slope.vec,', ',
                                  r2.vec,', ',
@@ -159,7 +160,7 @@ for (i in 1:nrow(landsat.df.narm)) {
         pch.plot = 16
       }
     }
-    point.size <- min(0.5+abs(x.df$slope.fit)/0.000267,3)
+    point.size <- min(0.5+abs(x.df$slope.fit)/(0.04/365.25),3)
     x.df$pch.val <- pch.plot
     x.df$col.val <- col.plot
     x.df$cex.val <- point.size
