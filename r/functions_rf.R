@@ -35,7 +35,7 @@ plot.fit.region.func <- function(df.evaluate,x.range = c(-15,15),y.range = c(-15
   col.trans.vec <- c()
   
   for (i in seq_along(palette())) {
-    col.trans.vec[i] <- t_col(palette()[i],percent = 90)
+    col.trans.vec[i] <- t_col(palette()[i],percent = 95)
   }
   # palette(col.trans.vec)
   plot(Leaf15N~pred.all,

@@ -18,3 +18,5 @@ landCover.ra <- raster(s[1])
 s.new <- sds('data/moddisLandCover/MCD12C1.A2021001.061.2022217040006.hdf')
 # https://lpdaac.usgs.gov/documents/101/MCD12_User_Guide_V6.pdf
 landCover.ra.new <- raster(s.new[1])
+
+pft.chosen.vec <- c('DBF','EBF','FOR','ENF','DNF','WSA','SAV','CSH','OSH','GRA','BAR')

@@ -241,7 +241,7 @@ get.dn154ts.new.func <- function(df){
     df <- df[df$blue > 0,]
     df <- df[df$swir1 > 0,]
     df <- df[df$swir2 > 0,]
-    df <- df[df$ndvi > 0.01,]
+    df <- df[df$ndvi > 0.2,]
     tmp.val <- try(predict(fit.rf.n15,df))
     if(class(tmp.val) == 'try-error'){
       df.ori$dn15.pred <- NA

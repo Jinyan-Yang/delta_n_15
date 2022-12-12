@@ -9,27 +9,35 @@ library(raster)
 # }
 
 landsat.n15.ls <- readRDS('cache/landsat.ts.n15.noDup.rds')
-
+landsat.n15.ls <- lapply(landsat.n15.ls, get.dn154ts.new.func)
 landsat.annual.ls <- lapply(landsat.n15.ls, function(df){
   if(!is.null(df)){
     if(length(nrow(df))>0){
       df$yr <- year(df$date)
       df <- df[order(df$ndvi,decreasing = T),]
 
-      df <- df[df$nir > 0,]
-      df <- df[df$red > 0,]
-      df <- df[df$blue > 0,]
-      df <- df[df$swir1 > 0,]
-      df <- df[df$swir2 > 0,]
-      df <- df[df$ndvi > 0.01,]
+      # df <- df[df$nir > 0,]
+      # df <- df[df$red > 0,]
+      # df <- df[df$blue > 0,]
+      # df <- df[df$swir1 > 0,]
+      # df <- df[df$swir2 > 0,]
+      # df <- df[df$ndvi > 0.01,]
       return(summaryBy(dn15.pred~yr + lon + lat,
-                       data = df[1:5,],
+                       data = df,#[1:5,],
                        FUN=quantile,prob = 0.9,na.rm=T,keep.names = T))
     }
   }
 })
-saveRDS(landsat.annual.ls,'cache/landsat.slope.ls.rds')
+# saveRDS(landsat.annual.ls,'cache/landsat.slope.ls.rds')
+#########
+ls.site.slope.ls <- lapply(landsat.n15.ls, get.slope.new.func)
+ls.site.slope.df <- do.call(rbind,ls.site.slope.ls)
+ls.site.slope.df$lon <- as.numeric(ls.site.slope.df$lon)
+ls.site.slope.df$lat <- as.numeric(ls.site.slope.df$lat)
 
+saveRDS(ls.site.slope.df,'cache/landsat.site.slope.ts.rds')
+# 
+ls.site.slope.df <- readRDS('cache/landsat.site.slope.ts.rds')
 ######
 landsat.annual.df <- do.call(rbind,landsat.annual.ls)
 landsat.annual.df <- rbind(landsat.annual.df, 
