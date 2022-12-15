@@ -1,6 +1,7 @@
 library(jsonlite)
 library(lubridate)
 library(forecast)
+library(Kendall)
 # #########
 get.ndvi.func <- function(nir.in,red.in){
   (nir.in - red.in) / (nir.in + red.in)
@@ -209,11 +210,13 @@ get.slope.new.func <- function(land.sat.df,lon.col = 9,lat.col=10){
       print('predicted')
       land.sat.df$x <- land.sat.df$date - as.Date('1980-1-1')
       fit.lm <- try(summary(lm(dn15.pred~x,data = land.sat.df)))
+      fit.lm.ndvi <- try(summary(lm(ndvi~x,data = land.sat.df)))
       print('fitted lm')
       
       if(class(fit.lm)=='try-error'){
         # save output
         ts.sub.df$slope.fit <- NA
+        ts.sub.df$slope.ndvi <- NA
         ts.sub.df$slope.se <- NA
         ts.sub.df$slope.p <- NA
         ts.sub.df$r2 <- NA
@@ -221,6 +224,7 @@ get.slope.new.func <- function(land.sat.df,lon.col = 9,lat.col=10){
       }else{
         # save output
         ts.sub.df$slope.fit <- fit.lm$coefficients[2,1]
+        ts.sub.df$slope.ndvi <- fit.lm.ndvi$coefficients[2,1]
         ts.sub.df$slope.se <- fit.lm$coefficients[2,2]
         ts.sub.df$slope.p <- fit.lm$coefficients[2,4]
         ts.sub.df$r2 <- fit.lm$r.squared
@@ -293,3 +297,5 @@ get.dn154ts.new.func <- function(df){
   
 }
 # get.dn154ts.new.func(land.sat.df)
+
+

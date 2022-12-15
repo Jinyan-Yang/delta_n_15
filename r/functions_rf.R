@@ -35,15 +35,16 @@ plot.fit.region.func <- function(df.evaluate,x.range = c(-15,15),y.range = c(-15
   col.trans.vec <- c()
   
   for (i in seq_along(palette())) {
-    col.trans.vec[i] <- t_col(palette()[i],percent = 95)
+    col.trans.vec[i] <- t_col(palette()[i],percent = 50)
   }
   # palette(col.trans.vec)
   plot(Leaf15N~pred.all,
        data = df.evaluate,
        xlim=x.range,ylim=y.range,
        pch=16,
-       col=col.trans.vec[plot.f],
-       xlab='Prediction',ylab='Observation')
+       col= col.trans.vec[plot.f],
+       cex=0.4,
+       xlab=expression(delta^15*N~'Index'~('‰')),ylab='Observation')
   abline(a=0,b=1)
   
   coord.df <- df.evaluate[,c("lon",'lat')]

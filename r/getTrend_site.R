@@ -9,13 +9,26 @@ library(raster)
 # }
 
 landsat.n15.ls <- readRDS('cache/landsat.ts.n15.noDup.rds')
-landsat.n15.ls <- lapply(landsat.n15.ls, get.dn154ts.new.func)
+# landsat.n15.ls <- lapply(landsat.n15.ls, get.dn154ts.new.func)
+
+# saveRDS(landsat.annual.ls,'cache/landsat.slope.ls.rds')
+#########
+ls.site.slope.ls <- lapply(landsat.n15.ls, get.slope.new.func)
+ls.site.slope.df <- do.call(rbind,ls.site.slope.ls)
+ls.site.slope.df$lon <- as.numeric(ls.site.slope.df$lon)
+ls.site.slope.df$lat <- as.numeric(ls.site.slope.df$lat)
+
+saveRDS(ls.site.slope.df,'cache/landsat.site.slope.ts.rds')
+# 
+ls.site.slope.df <- readRDS('cache/landsat.site.slope.ts.rds')
+
+######
 landsat.annual.ls <- lapply(landsat.n15.ls, function(df){
   if(!is.null(df)){
     if(length(nrow(df))>0){
       df$yr <- year(df$date)
       df <- df[order(df$ndvi,decreasing = T),]
-
+      
       # df <- df[df$nir > 0,]
       # df <- df[df$red > 0,]
       # df <- df[df$blue > 0,]
@@ -28,17 +41,6 @@ landsat.annual.ls <- lapply(landsat.n15.ls, function(df){
     }
   }
 })
-# saveRDS(landsat.annual.ls,'cache/landsat.slope.ls.rds')
-#########
-ls.site.slope.ls <- lapply(landsat.n15.ls, get.slope.new.func)
-ls.site.slope.df <- do.call(rbind,ls.site.slope.ls)
-ls.site.slope.df$lon <- as.numeric(ls.site.slope.df$lon)
-ls.site.slope.df$lat <- as.numeric(ls.site.slope.df$lat)
-
-saveRDS(ls.site.slope.df,'cache/landsat.site.slope.ts.rds')
-# 
-ls.site.slope.df <- readRDS('cache/landsat.site.slope.ts.rds')
-######
 landsat.annual.df <- do.call(rbind,landsat.annual.ls)
 landsat.annual.df <- rbind(landsat.annual.df, 
                            data.frame(yr = 2012,lon=NA,lat = NA,dn15.pred=-100000))

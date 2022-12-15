@@ -1,5 +1,6 @@
 source('r/getModisLandCover.R')
 library(raster)
+source('r/color.r')
 # source('r/evaluation_process.R')
 if(!file.exists('cache/groundDN15.rds')){
   source('r/processTSGound.R')
@@ -8,6 +9,11 @@ if(!file.exists('cache/groundDN15.rds')){
 }
 source('r/functions_rf.R')
 combined.df <- combined.df[complete.cases(combined.df),]
+combined.df.sum <- doBy::summaryBy(Leaf15N + green + red + 
+                                     blue +nir +swir1+swir2~lon+lat+date.obs,
+                                   data = combined.df,
+                                   FUN=mean,na.rm=T,keep.names = T)
+
 # data from 
 # Hengl, T.(2018). Global mapping of potential natural vegetation: 
 # An assessment of machine learning algorithms for estimating land potential. 
@@ -15,16 +21,16 @@ combined.df <- combined.df[complete.cases(combined.df),]
 
 biome.ra <- landCover.ra#raster('data/pnv_biome.type_biome00k_cf_1km_s0..0cm_2000..2017_v0.1.tif')
 # plot(biome.ra)
-combined.df$biome.no <- extract(biome.ra,cbind(combined.df$lon,combined.df$lat))
+combined.df.sum$biome.no <- extract(biome.ra,cbind(combined.df.sum$lon,combined.df.sum$lat))
 # met.csv.df <- read.csv('data/pnv_biome.type_biome00k_c_1km_s0..0cm_2000..2017_v0.1.tif.csv')
 
-combined.df.biome <- merge(combined.df,
+combined.df.biome <- merge(combined.df.sum,
                            name.df,
                            by.x = 'biome.no',by.y = 'Value')
 
 # 
 # fit.all <- readRDS('cache/rf.fit.landsatBand.rds')
-fit.all.kFold <- readRDS('cache/rf.kFold.n15.rds')
+fit.all.kFold <- readRDS('cache/bysite.rf.kFold.n15.rds')
 # evaluate all
 df.evaluate <- get.train.eval.func(combined.df.biome,giveTrain=FALSE)
 df.evaluate <- df.evaluate[df.evaluate$Label %in% c('ENF','EBF','DNF','DBF','FOR','OSH','CSH','WSA','SAV','GRA','WET','PSI','BAR'),]
@@ -33,6 +39,15 @@ df.evaluate <- df.evaluate[df.evaluate$Label %in% c('ENF','EBF','DNF','DBF','FOR
 df.evaluate$pred.all <- predict(fit.all.kFold, df.evaluate)
 biome.vec <- unique(df.evaluate$Label)
 
+plot(Leaf15N~pred.all,data = df.evaluate)
+abline(a=0,b=1)
+summary(lm(Leaf15N~pred.all,data = df.evaluate))
+
+plot(fit.all.kFold)
+plot(obs~pred,data = fit.all.kFold$pred)
+abline(a=0,b=1)
+summary(lm(obs~pred,data = fit.all.kFold$pred))
+# plot#####
 pdf('figures/biomeEval.pdf',width = 4*3,height = 4*4)
 par(mfrow=c(4,3),mar=c(4,4,1,1))
 plot.fit.region.func(df.evaluate)

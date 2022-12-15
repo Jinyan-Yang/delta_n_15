@@ -5,7 +5,7 @@ source('r/functions_json.R')
 fit.rf.n15 <- readRDS('cache/rf.kFold.n.rds')
 
 # 
-landsat.g.ts.ls <- readRDS('cache/landsat.global.ts.rds')
+landsat.g.ts.ls <- readRDS('cache/landsat.ts.n15.noDup.rds')
 landsat.g.ts.ls[[1]]
 # 
 landsat.g.ts.ls.n <- lapply(landsat.g.ts.ls,get.dn154ts.new.func)
