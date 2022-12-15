@@ -7,10 +7,10 @@ library(lubridate)
 # $$$$$######
 ls.n.g.ts.ls <- readRDS('cache/ls.n.ts.rds')
 ls.n.g.ts.ls[[1]]
-ls.n.g.ts.ls <- ls.n.g.ts.ls[!is.na(ls.n.g.ts.ls)]
+ls.n.g.ts.ls <- ls.n.g.ts.ls[!is.null(ls.n.g.ts.ls)]
 
-ls.n.all.df <- do.call(rbind,ls.n.g.ts.ls)
-
+# ls.n.all.df <- do.call(rbind,ls.n.g.ts.ls)
+ls.n.all.df <- dplyr::bind_rows(ls.n.g.ts.ls)
 landsat.g.ts.ls.mean <- lapply(ls.n.g.ts.ls, function(df){
   if(!is.null(df)){
     if(length(nrow(df))>0){
@@ -36,7 +36,7 @@ ls.n.slope.df$landUse <- extract(landCover.ra,cbind(ls.n.slope.df$lon,ls.n.slope
 all.df.biome <- merge(ls.n.slope.df,
                       name.df,
                       by.x = 'landUse',by.y = 'Value')
-all.df.biome <- all.df.biome[all.df.biome$Label %in% c('ENF','EBF','DNF','DBF','FOR','OSH','CSH','WSA','SAV','GRA','WET','PSI','BAR'),]
+all.df.biome <- all.df.biome[all.df.biome$Label %in%pft.chosen.vec,]
 
 # #get for global
 landsat.g.ts.df$lon <- as.numeric(landsat.g.ts.df$lon)
@@ -46,7 +46,7 @@ global.dn15.df <- merge(landsat.g.ts.df,
                         name.df,
                         by.x = 'landUse',by.y = 'Value')
 
-global.dn15.df <- global.dn15.df[global.dn15.df$Label %in% c('ENF','EBF','DNF','DBF','FOR','OSH','CSH','WSA','SAV','GRA','WET','PSI','BAR'),]
+global.dn15.df <- global.dn15.df[global.dn15.df$Label %in% pft.chosen.vec,]
 # 
 global.dn15.df$continent <- find.continent.func(global.dn15.df$lon,
                                                 global.dn15.df$lat)
@@ -75,11 +75,13 @@ layout(matrix(c(1,2,3,
 par(mar=c(5,5,1,1))
 for (i.len in 1:length(dn15.ls)) {
   plot.df <- dn15.ls[[i.len]] 
+  plot.df <- plot.df[plot.df$biome.factor == 'BAR',]
+  # plot.df$biome.factor <- droplevels(plot.df$biome.factor)
   col.plot.vec <- which(levels(global.dn15.df$biome.factor) %in% plot.df$biome.factor )
-  
+  plot.df$biome.factor <- droplevels(plot.df$biome.factor)
   # plot.df$biome.factor <- as.character(plot.df$biome.factor)
   # plot.df <- plot.df[complete.cases(plot.df),]
-  vioplot(dn15.pred~Label,data = plot.df,
+  vioplot(dn15.pred~biome.factor,data = plot.df,
           las=2,pch='',xlab='',col = col.plot.vec,
           ylab=expression(log(N)~('mg'~g^-1)),ylim=c(0,5))
   
@@ -92,7 +94,7 @@ for (i.len in 1:length(dn15.ls)) {
 # site.slope.dn15.df 
 par(mar=c(5,5,0,0))
 plot((slope.fit*365.25)~ dn15.pred,data = slope.dn15.df.sum,pch='',col = biome.factor,
-     ylim=c(-0.1,0.05),
+     ylim=c(-0.03,0.05),
      xlab=expression(log(N)~('mg'~g^-1)),ylab=expression(Slope~('mg'~g^-1~yr^-1)))
 # fit.all <- lm((slope.fit*365.25)~ d15n,data = site.slope.dn15.df)
 

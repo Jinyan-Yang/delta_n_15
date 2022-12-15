@@ -31,7 +31,7 @@ combined.df.biome <- merge(n.com.df,
                            by.x = 'biome.no',by.y = 'Value')
 combined.df.biome$leafN.log <- log(combined.df.biome$leafN)
 df.evaluate <- get.train.eval.func(combined.df.biome,giveTrain=FALSE)
-df.evaluate <- df.evaluate[df.evaluate$Label %in% c('ENF','EBF','DNF','DBF','FOR','OSH','CSH','WSA','SAV','GRA','WET','PSI','BAR'),]
+df.evaluate <- df.evaluate[df.evaluate$Label %in% pft.chosen.vec,]
 # # 
 # 
 fit.all.kFold <- readRDS('cache/rf.kFold.n.rds')
@@ -39,16 +39,16 @@ df.evaluate$pred.all <- predict(fit.all.kFold, df.evaluate)
 df.evaluate$plot.f <- as.factor(df.evaluate$Label)
 biome.vec <- unique(df.evaluate$Label)
 
-# slope for each site#############
-landsat.slope.ls <- readRDS('cache/landsat.slope.ls.rds')
-landsat.df <- do.call(rbind,landsat.slope.ls)
-landsat.df <- landsat.df[!duplicated(landsat.df[,c("lon","lat")]),]
-landsat.df.narm <- landsat.df[complete.cases(landsat.df),]
+# # slope for each site#############
+# landsat.slope.ls <- readRDS('cache/landsat.slope.ls.rds')
+# landsat.df <- do.call(rbind,landsat.slope.ls)
+# landsat.df <- landsat.df[!duplicated(landsat.df[,c("lon","lat")]),]
+# landsat.df.narm <- landsat.df[complete.cases(landsat.df),]
 
 # make plot#####
-pdf('figures/SI_leafN_eval.pdf',width = 5,height = 5*.62*2)
+pdf('figures/SI_leafN_eval.pdf',width = 8,height = 4)
 par(mar=c(5,5,1,1),
-    mfrow=c(2,1))
+    mfrow=c(1,2))
 #make plot#####
 col.trans.vec <- c()
 
@@ -62,6 +62,7 @@ plot(leafN.log~pred.all,
      xlim=c(0,5),ylim=c(0,5),
      pch=16,
      col=col.trans.vec[plot.f],
+     cex=0.5,
      xlab='Prediction',ylab='Observation')
 abline(a=0,b=1)
 
@@ -96,7 +97,7 @@ for (i.bio in 1:length(biome.vec)) {
   rm(sub.df)
 }
 # 
-par(mar=c(0,5,0,0))
+par(mar=c(5,1,1,1))
 plot(0,pch='',ann=F,axes=F)
 legend('topleft',legend = paste0(levels(as.factor(biome.vec)),
                                  ': ',

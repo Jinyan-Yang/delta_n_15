@@ -29,3 +29,4 @@ ls.slope.pft.ls <- lapply(ls.ts.pft.ls,function(df){
 ls.slope.pft.df <- do.call(rbind,ls.slope.pft.ls)
 names(ls.slope.pft.df) <- c('PFT','Slope','SE','p','R2','Intercept')
 write.csv(ls.slope.pft.df,'figures/TableOfSlope.csv',row.names = F)
+

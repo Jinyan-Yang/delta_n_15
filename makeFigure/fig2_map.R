@@ -1,5 +1,6 @@
 library(dplyr)
 library(maps)
+library(ggplot2)
 ny <- map_data('world') %>% filter(region != "Antarctica") %>% fortify
 
 p <- ggplot() + geom_polygon(data = ny, aes(x = long, y = lat, group = group), 
@@ -24,16 +25,16 @@ for (i in 1:nrow(landsat.df.narm)) {
   if(!is.na(x.df$slope.p)){
     
     if(x.df$slope.p>0.05){
-      col.plot = rgb(0.1,0.1,0.1,0.1)
+      col.plot = rgb(0.1,0.1,0.1,0.5)
       pch.plot = 1
     }else{
       if(x.df$slope.fit<0){
         c(218,165,32)/255
-        col.plot = rgb(0.854902,0.6470588,0.1254902,0.3)
+        col.plot = rgb(0.854902,0.6470588,0.1254902,0.5)
         pch.plot = 16
       }else{
         c(64,224,208)/255
-        col.plot = rgb(0.25,0.8784,0.81569,0.3)
+        col.plot = rgb(0.25,0.8784,0.81569,0.5)
         pch.plot = 16
       }
     }
@@ -52,10 +53,10 @@ for (i in 1:nrow(landsat.df.narm)) {
 plot.ls.df <- do.call(rbind,plot.ls)
 
 plot1 <-  p + geom_point(data=plot.ls.df, aes(x=lon,y=lat),
-                         col=plot.ls.df$col.val,size=plot.ls.df$cex.val+8,pch=plot.ls.df$pch.val) +
+                         col=plot.ls.df$col.val,size=plot.ls.df$cex.val+2,pch=1) +
   annotate(geom="text", x=-180, y=80, 
            label="(a)",
-           size = 10,
+           size = 8,
            color="black")
 
 #read global #####
@@ -73,11 +74,11 @@ df.biome.plot$Trend <- factor(df.biome.plot$Trend,
 palette(c(rgb(0.25,0.8784,0.81569,1),
           "grey",
           rgb(0.854902,0.6470588,0.1254902,1),
-          rgb(221/255,160/255,221/255,1)))
-
+          rgb(250/255,235/255,215/255,1)))
+# 250,235,215
 
 plot2 <- p +
-  geom_point(data=df.biome.plot, aes(x=x,y=y,color = Trend),size=0.001,shape = 15)+
+  geom_point(data=df.biome.plot, aes(x=x,y=y,color = Trend),size=0.0001,shape = 15)+
   # geom_point(data=sig.df, aes(x=x,y=y),
   #            col=sig.df$col.in,size=0.0001,pch=15)  + 
   theme(legend.justification=c(0.05,0.05),legend.position=c(0.05,0.05),
@@ -91,7 +92,7 @@ plot2 <- p +
 
   annotate(geom="text", x=-180, y=80, 
            label="(b)",
-           size = 10,
+           size = 8,
            color="black")
 
 

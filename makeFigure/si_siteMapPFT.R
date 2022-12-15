@@ -1,6 +1,7 @@
 source('r/getModisLandCover.R')
 # 
 landsat_bands <- read.csv("cache/groundData.csv")
+
 # landsat_bands.narm <- landsat_bands[!is.na(landsat_bands$imaging_time),]
 
 

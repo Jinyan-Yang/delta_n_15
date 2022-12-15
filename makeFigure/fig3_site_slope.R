@@ -13,7 +13,7 @@ landsat.annual.ls <- lapply(landsat.ls, function(df){
       df$yr <- year(df$date)
       df <- df[order(df$ndvi),]
       df$dn15.pred[df$dn15.pred< -20] <- NA
-      return(summaryBy(dn15.pred~yr + lon + lat,
+      return(summaryBy(dn15.pred + ndvi~yr + lon + lat,
                        data = df,
                        FUN = median,na.rm=T,keep.names = T))
     }
@@ -37,7 +37,7 @@ x.3 <- landsat.annual.df[landsat.annual.df$yr == 2003,]
 # abline(lm(dn15.pred~yr ,
 #    data = landsat.annual.df[!is.na(landsat.annual.df$dn15.pred),]))
 
-landsat.annual.df.global <- summaryBy(dn15.pred~yr ,
+landsat.annual.df.global <- summaryBy(dn15.pred+ndvi~yr ,
                                       data = landsat.annual.df[!is.na(landsat.annual.df$dn15.pred),],
                                       FUN=c(mean,sd,length),keep.names = T)
 landsat.annual.df.global$dn15.smooth <- landsat.annual.df.global$dn15.pred.mean#forecast::tsclean(landsat.annual.df.global$dn15.pred.mean)
@@ -87,6 +87,7 @@ for (i in 1:nrow(landsat.df.narm)) {
     }
     abline(a = x.df$intercept,b=x.df$slope.fit,col = col.plot,lty = lty.plot)
     # points(a = x.df$intercept,b=x.df$slope.fit,col = col.plot,lty = lty.plot)
+
   }
 
 }
@@ -122,6 +123,13 @@ arrows(x0=landsat.annual.df.global$yr,
 fit.lm <- lm(dn15.smooth~yr,
              data = landsat.annual.df.global)
 abline(fit.lm)
+
+# add CIÏ
+newx = 1984:2020
+conf_interval <- predict(fit.lm, newdata=data.frame(x=newx), interval="confidence",
+                         level = 0.95)
+matlines(newx, conf_interval[,2:3], col = "grey", lty='dashed')
+# add label
 mylabel.slope = bquote(Slope == .(format(summary(fit.lm)$coefficients[2,1],digit = 2)))
 mylabel.p = bquote(italic(p) == .(format(summary(fit.lm)$coefficients[2,4],digit = 2)))
 text(1985,-.3, labels = mylabel.slope)
