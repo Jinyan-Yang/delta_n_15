@@ -61,7 +61,7 @@ plot.df <- landsat.ls[[1]]#fromJSON(sample.yr.df$timeseries[1])
 plot.df$x <- plot.df$date - as.Date('1980-1-1')
 
 # make plot scatter #####
-pdf('figures/fig3_trendBysite.pdf',width = 8,height = 2*8*.618)
+pdf('figures/fig3_trendBysite.pdf',width = 7,height = 2*7*.618)
 par(mar=c(1,5,5,1))
 par(mfrow=c(2,1))
 plot(red~x, data = plot.df,

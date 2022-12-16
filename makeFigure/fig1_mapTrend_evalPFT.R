@@ -12,6 +12,9 @@ if(!file.exists('cache/groundDN15.rds')){
 }
 source('r/functions_rf.R')
 combined.df <- combined.df[complete.cases(combined.df),]
+
+combined.df.lonLat <- combined.df[,c('lon','lat')]
+combined.df.lonLat <- combined.df.lonLat[!duplicated(combined.df.lonLat),]
 # data from 
 # Hengl, T.(2018). Global mapping of potential natural vegetation: 
 # An assessment of machine learning algorithms for estimating land potential. 
@@ -42,7 +45,7 @@ landsat.df.narm <- landsat.df[complete.cases(landsat.df),]
 landsat.df.narm$lat <- as.numeric(landsat.df.narm$lat)
 landsat.df.narm$lon <- as.numeric(landsat.df.narm$lon)
 #make plot#####
-pdf('figures/fig1_bioeval.pdf',width = 8,height = 4)
+pdf('figures/fig1_bioeval.pdf',width = 7,height = 4)
 par(mfrow=c(1,2))
 par(mar=c(4,5,4,1))
 # 

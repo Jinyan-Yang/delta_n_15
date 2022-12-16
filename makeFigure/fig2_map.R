@@ -56,7 +56,7 @@ plot1 <-  p + geom_point(data=plot.ls.df, aes(x=lon,y=lat),
                          col=plot.ls.df$col.val,size=plot.ls.df$cex.val+2,pch=1) +
   annotate(geom="text", x=-180, y=80, 
            label="(a)",
-           size = 8,
+           size = 7/.pt,
            color="black")
 
 #read global #####
@@ -72,37 +72,37 @@ df.biome.plot$Trend <- factor(df.biome.plot$Trend,
                               levels = c('Increase' ,'Stable','Decline','Filtered' ))
 
 palette(c(rgb(0.25,0.8784,0.81569,1),
-          "grey",
+          "grey70",
           rgb(0.854902,0.6470588,0.1254902,1),
           rgb(250/255,235/255,215/255,1)))
 # 250,235,215
 
 plot2 <- p +
-  geom_point(data=df.biome.plot, aes(x=x,y=y,color = Trend),size=0.0001,shape = 15)+
+  geom_point(data=df.biome.plot, aes(x=x,y=y,color = Trend),size=0.001,shape = 15)+
   # geom_point(data=sig.df, aes(x=x,y=y),
   #            col=sig.df$col.in,size=0.0001,pch=15)  + 
   theme(legend.justification=c(0.05,0.05),legend.position=c(0.05,0.05),
         # plot.title = element_text(size = 12, face = "bold"),
-        legend.title=element_text(size=20), 
-        legend.text=element_text(size=20)) +
+        legend.title=element_text(size=7), 
+        legend.text=element_text(size=7)) +
   # guides(colour = guide_legend(override.aes = list(size=10)))
   scale_color_manual(values=palette(), name = "Trend")+
   # scale_size_manual(values = rep(10, 4)) + 
-  guides(colour = guide_legend(override.aes = list(size=8)))+
+  guides(colour = guide_legend(override.aes = list(size=7/.pt)))+
 
   annotate(geom="text", x=-180, y=80, 
            label="(b)",
-           size = 8,
+           size = 7/.pt,
            color="black")
 
 
 
 #plot together######
 require(gridExtra)
-# tiff('figures/fig2Maps.tif',width = 2000,height = 2000)
-# grid.arrange(plot1, plot2, nrow=2)
+# png('figures/fig2Maps.png',width = 3600,height = 3600)
+# grid.arrange(plot1, plot2, nrowC=2)
 # dev.off()
 
-pdf('figures/fig2Maps.pdf',width = 10,height = 10)
+pdf('figures/fig2Maps.pdf',width = 7,height = 7)
 grid.arrange(plot1, plot2, nrow=2)
 dev.off()
