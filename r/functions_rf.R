@@ -44,7 +44,7 @@ plot.fit.region.func <- function(df.evaluate,x.range = c(-15,15),y.range = c(-15
        pch=16,
        col= col.trans.vec[plot.f],
        cex=0.4,
-       xlab=expression(delta^15*N~'Index'~('‰')),ylab='Observation')
+       xlab=expression(delta^15*N~Index~('‰')),ylab='Observation')
   abline(a=0,b=1)
   
   coord.df <- df.evaluate[,c("lon",'lat')]
