@@ -132,9 +132,9 @@ par(mar=c(4,5,1,0))
 smoothScatter(landsat.g.ts.df.bio[,c("ndvi","dn15.pred")],
               colramp = colorRampPalette(c('white',"grey")),
               xlim = c(0.2,1),
-              ylim = c(-10,10),
+              ylim = c(-2,3),
               xlab = 'NDVI (-)',
-              ylab = expression(delta^15*N~('‰')),
+              ylab = expression(delta^15*N~Index~('‰')),
               pch = '')
 
 # 2
@@ -185,11 +185,11 @@ legend('topleft',legend = paste0(pft.chosen.vec,
 #      xlim=c(-1e-4,1e-4),
 #      ylim=c(-1e-3,1e-3),
 #      xlab = expression('Trend of NDVI'~(yr^-1)),ylab=expression(Trend~of~delta^15*N~('‰'~yr^-1)))
-
-smoothScatter(all.df.biome[,c("slope.ndvi","slope.fit")],
+all.df.biome$slope.yr <- all.df.biome$slope.fit*365.25
+smoothScatter(all.df.biome[,c("slope.ndvi","slope.yr")],
               colramp = colorRampPalette(c('white',"grey40")),
               xlim=c(-1e-4,1e-4),
-              ylim=c(-1e-3,1e-3),
+              ylim=c(-0.06,0.05),
               xlab = expression('Trend of NDVI'~(yr^-1)),
               ylab = expression(Trend~of~delta^15*N~('‰'~yr^-1)),
               pch = '')
@@ -198,9 +198,9 @@ r2.vec <- c()
 for (i.plot in seq_along(pft.chosen.vec)) {
   plot.df <- all.df.biome[all.df.biome$plot.f == pft.chosen.vec[i.plot],]
   # plot.df <- plot.df
-  plot.df <- plot.df[order(plot.df$slope.fit),]
+  plot.df <- plot.df[order(plot.df$slope.yr),]
   plot.df <- plot.df[complete.cases(plot.df),]
-  fit.tmp <- (lm(slope.fit ~ slope.ndvi,data = plot.df))
+  fit.tmp <- (lm(slope.yr ~ slope.ndvi,data = plot.df))
   r2.vec[i.plot] <- format(summary(fit.tmp)$r.squared,digits = 2)
   
   # fit.tmp <- mgcv::gam((slope.fit*365.25)~ s(dn15.pred),data = plot.df)#(lm((slope.fit*365.25)~ dn15.pred,data = plot.df))

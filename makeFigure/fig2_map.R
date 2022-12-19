@@ -106,3 +106,36 @@ require(gridExtra)
 pdf('figures/fig2Maps.pdf',width = 7,height = 7)
 grid.arrange(plot1, plot2, nrow=2)
 dev.off()
+
+df.biome.plot$Uncertainty <- df.biome.plot$se *1.96
+
+plot3 <- p +
+  geom_tile(data=df.biome.plot, aes(x=x,y=y,fill = (Uncertainty)))#+
+  # scale_fill_gradientn(colours = hcl.colors(10)) 
+  # geom_point(data=sig.df, aes(x=x,y=y),
+  #            col=sig.df$col.in,size=0.0001,pch=15)  + 
+  # theme(legend.justification=c(0.05,0.05),legend.position=c(0.05,0.05),
+  #       # plot.title = element_text(size = 12, face = "bold"),
+  #       legend.title=element_text(size=7), 
+  #       legend.text=element_text(size=7)) #+
+  # guides(colour = guide_legend(override.aes = list(size=10)))
+  # scale_color_manual(values=palette(), name = "Trend")+
+  # scale_size_manual(values = rep(10, 4)) + 
+  # guides(colour = guide_legend(override.aes = list(size=7/.pt)))+
+  
+  # annotate(geom="text", x=-180, y=80, 
+  #          label="(b)",
+  #          size = 7/.pt,
+  #          color="black")
+
+##########
+pdf('figures/SI_mapGlobalTrendSE.pdf',height = 3,width = 6)
+par(mar=c(3,3,1,1))
+# col.vec <- c('lightskyblue','blue','navy')
+# plot(r_slope,col='grey',legend=F)
+# plot(r_se.frac,breaks = seq(0,0.0015,length.out=4),col=col.vec,legend=F,add=T)
+# legend('bottom',legend = c('<0.0005','<0.001','<0.0015','NS'),pch=15,col=c(col.vec,'grey'),horiz = T,bty='n',cex=2)
+plot3 <- p +
+  geom_tile(data=df.biome.plot, aes(x=x,y=y,fill = Uncertainty))
+plot3
+dev.off()

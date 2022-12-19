@@ -41,34 +41,41 @@ for (i.len in 1:length(dn15.ls)) {
   # plot.df <- plot.df[complete.cases(plot.df),]
   vioplot(dn15.pred~biome.factor,data = plot.df,
           las=2,pch='',xlab='',col = col.plot.vec,
-          ylab=expression(delta^15*N~('‰')),ylim=c(-5,10))
+          ylab=expression(delta^15*N~Index~('‰')),ylim=c(-5,10))
   
   abline(h=0,lty='dashed',col='coral',lwd=2)
   legend('topleft',legend = sprintf('(%s) %s',letters[i.len],names(dn15.ls)[i.len]),bty='n')
 }
-
+slope.dn15.df.sum$slope.yr <- slope.dn15.df.sum$slope.fit*365.25
 # g####
 par(mar=c(5,5,0,0))
-plot((slope.fit*365.25)~ dn15.pred,data = slope.dn15.df.sum,pch='',col = 'white',
-     ylim=c(-0.06,0.05),
-     xlab=expression(delta^15*N~('‰')),ylab=expression(Slope~('‰'~yr^-1)))
+# plot((slope.fit*365.25)~ dn15.pred,data = slope.dn15.df.sum,pch='',col = 'white',
+#      ylim=c(-0.06,0.05),
+#      xlab=expression(delta^15*N~Index~('‰')),ylab=expression(Trend~('‰'~yr^-1)))
 
+smoothScatter(slope.dn15.df.sum[,c("dn15.pred","slope.yr")],
+              colramp = colorRampPalette(c('white',"grey40")),
+              # xlim=c(-1e-4,1e-4),
+              ylim=c(-0.06,0.05),
+              xlab=expression(delta^15*N~Index~('‰')),
+              ylab=expression(Trend~('‰'~yr^-1)),
+              pch = '')
 # 
-pft.vec <- levels(slope.dn15.df.sum$biome.factor)
-for (i.plot in seq_along(pft.vec)) {
-  plot.df <- slope.dn15.df.sum[slope.dn15.df.sum$biome.factor == pft.vec[i.plot],]
-  plot.df <- plot.df
-  points((slope.fit*365.25)~ dn15.pred,data = plot.df,pch=16,col = rgb(0.5,0.5,0.5,0.01),cex=0.4)
-  rm(plot.df)
-}
+# pft.vec <- levels(slope.dn15.df.sum$biome.factor)
+# for (i.plot in seq_along(pft.vec)) {
+#   plot.df <- slope.dn15.df.sum[slope.dn15.df.sum$biome.factor == pft.vec[i.plot],]
+#   plot.df <- plot.df
+#   points((slope.fit*365.25)~ dn15.pred,data = plot.df,pch=16,col = rgb(0.5,0.5,0.5,0.01),cex=0.4)
+#   rm(plot.df)
+# }
 #
 r2.vec <- c()
-for (i.plot in seq_along(pft.vec)) {
-  plot.df <- slope.dn15.df.sum[slope.dn15.df.sum$biome.factor == pft.vec[i.plot],]
+for (i.plot in seq_along(pft.chosen.vec)) {
+  plot.df <- slope.dn15.df.sum[slope.dn15.df.sum$biome.factor == pft.chosen.vec[i.plot],]
   plot.df <- plot.df
   plot.df <- plot.df[order(plot.df$dn15.pred),]
   plot.df <- plot.df[complete.cases(plot.df),]
-  fit.tmp <- (lm((slope.fit*365.25)~ dn15.pred,data = plot.df))
+  fit.tmp <- (lm(slope.yr~ dn15.pred,data = plot.df))
   r2.vec[i.plot] <- format(summary(fit.tmp)$r.squared,digits = 2)
   
   # fit.tmp <- mgcv::gam((slope.fit*365.25)~ s(dn15.pred),data = plot.df)#(lm((slope.fit*365.25)~ dn15.pred,data = plot.df))
@@ -78,7 +85,10 @@ for (i.plot in seq_along(pft.vec)) {
   }else{
     lty.in = 'solid'
   }
-  points(x = plot.df$dn15.pred,y = fit.tmp$fitted.values,col=i.plot,lwd=3,lty=lty.in,type='l')
+  
+  lm.df <- data.frame(x = plot.df$dn15.pred,y = fit.tmp$fitted.values)
+  lm.df <- lm.df[seq(1,nrow(lm.df),length.out=100),]
+  points(x = lm.df$x,y = lm.df$y,col=i.plot,lwd=3,lty=lty.in,type='l')
   
   rm(fit.tmp)
   rm(plot.df)

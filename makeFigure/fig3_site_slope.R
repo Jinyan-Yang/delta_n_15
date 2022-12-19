@@ -67,7 +67,7 @@ par(mfrow=c(2,1))
 plot(red~x, data = plot.df,
      # xlim = c(as.POSIXct("1/1/1980", format = "%m/%d/%Y"),as.POSIXct("12/31/2018", format = "%m/%d/%Y")),
      ylim=c(-4,4),xlab='',xaxt='n',pch=NA,
-     ylab=expression(delta^15*N~('‰')))
+     ylab=expression(delta^15*N~Index~('‰')))
 for (i in 1:nrow(landsat.df.narm)) {
   x.df <-landsat.df.narm[i,]
   
@@ -112,7 +112,7 @@ legend('topleft',legend = '(a)',bty='n')
 # global
 par(mar=c(5,5,1,1))
 plot(dn15.smooth~yr,
-     data = landsat.annual.df.global,pch=16,xlab='',ylab=expression(delta^15*N~('‰')),xlim=c(1980,2020))
+     data = landsat.annual.df.global,pch=16,xlab='',ylab=expression(delta^15*N~Index~('‰')),xlim=c(1980,2020))
 
 arrows(x0=landsat.annual.df.global$yr, 
        y0=landsat.annual.df.global$dn15.smooth + landsat.annual.df.global$dn15.se, 

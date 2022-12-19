@@ -173,7 +173,7 @@ legend('topleft',legend = '(a)',bty='n')
   # plot.df <- plot.df[complete.cases(plot.df),]
   vioplot((vals*365.25)~biome.factor,data = df.biome.plot.sub[df.biome.plot.sub$p<0.05,],
           las=2,pch='',xlab='',col = col.plot.vec,
-          ylab=expression(Slope~('‰'~yr^-1)),ylim=c(-0.3,0.3))
+          ylab=expression(Trend~('‰'~yr^-1)),ylim=c(-0.3,0.3))
   
   abline(h=0,lty='dashed',col='coral',lwd=2)
   legend('topleft',legend = '(b)',bty='n')
@@ -267,13 +267,6 @@ dev.off()
 # dev.off()
 
 
-##########
-tiff('figures/mapGlobalTrendSE.tif',height = 1000,width = 2000)
-par(mar=c(3,3,1,1))
-col.vec <- c('lightskyblue','blue','navy')
-plot(r_slope,col='grey',legend=F)
-plot(r_se.frac,breaks = seq(0,0.0015,length.out=4),col=col.vec,legend=F,add=T)
-legend('bottom',legend = c('<0.0005','<0.001','<0.0015','NS'),pch=15,col=c(col.vec,'grey'),horiz = T,bty='n',cex=2)
-dev.off()
+
 
 

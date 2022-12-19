@@ -37,6 +37,9 @@ df.evaluate$plot.f <- factor(df.evaluate$Label,levels = pft.chosen.vec )
 df.evaluate$plot.f <- droplevels(df.evaluate$plot.f)
 biome.vec <- levels(df.evaluate$plot.f)
 
+df.evaluate.lonLat <- df.evaluate[,c('lon','lat')]
+df.evaluate.lonLat <- df.evaluate.lonLat[!duplicated(df.evaluate.lonLat),]
+
 # slope for each site#############
 landsat.df <- readRDS('cache/landsat.site.slope.ts.rds')
 # landsat.df <- do.call(rbind,landsat.slope.ls)
@@ -47,7 +50,7 @@ landsat.df.narm$lon <- as.numeric(landsat.df.narm$lon)
 #make plot#####
 pdf('figures/fig1_bioeval.pdf',width = 7,height = 4)
 par(mfrow=c(1,2))
-par(mar=c(4,5,4,1))
+par(mar=c(5,5,1,1))
 # 
 plot.fit.region.func(df.evaluate)
 # df.evaluate$plot.f
@@ -78,7 +81,7 @@ r2.vec[which(n.vec<5)] <- NA
 small.df <- df.evaluate[,c("biome.no","plot.f")]
 small.df <- small.df[!duplicated(small.df),]
 small.df <- small.df[order(small.df$plot.f),]
-par(mar=c(1,1,4,1))
+par(mar=c(1,1,1,1))
 plot(0,pch='',ann=F,axes=F)
 legend('topleft',legend = paste0(biome.vec,
                                  ': ',
