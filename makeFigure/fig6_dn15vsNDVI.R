@@ -115,20 +115,22 @@ landsat.g.ts.df.bio$biome.factor <- factor(landsat.g.ts.df.bio$Label,
 # 
 # # all.df.biome.sub <- all.df.biome[!duplicated(all.df.biome[,c('lon','lat','slope.fit')]),]
 
-fit.lm.slope <- lm(slope.fit~slope.ndvi,data = all.df.biome)
-summary(fit.lm.slope)
+# fit.lm.slope <- lm(slope.fit~slope.ndvi,data = all.df.biome)
+# summary(fit.lm.slope)
 # 
-x <- densCols(all.df.biome$slope.ndvi,all.df.biome$slope.fit, 
-              colramp=colorRampPalette(c("black", "white")))
-all.df.biome$dens <- col2rgb(x)[1,] + 1L
-cols <-  colorRampPalette(c("#000099", "#00FEFF", "#45FE4F", 
-                            "#FCFF00", "#FF9400", "#FF3100"))(256)
-all.df.biome$col <- (cols[all.df.biome$dens])
+# x <- densCols(all.df.biome$slope.ndvi,all.df.biome$slope.fit, 
+#               colramp=colorRampPalette(c("black", "white")))
+# all.df.biome$dens <- col2rgb(x)[1,] + 1L
+# cols <-  colorRampPalette(c("#000099", "#00FEFF", "#45FE4F", 
+#                             "#FCFF00", "#FF9400", "#FF3100"))(256)
+# all.df.biome$col <- (cols[all.df.biome$dens])
 
 pdf('figures/fig6_slope.lm.pdf',width=7,height = 7)
 # make plot####
-par(mfrow=c(2,2))
+# par(mfrow=c(2,2))
 par(mar=c(4,5,1,0))
+layout(matrix(c(1,1,1,2,
+                3,3,3,4),nrow=2,byrow = T))
 smoothScatter(landsat.g.ts.df.bio[,c("ndvi","dn15.pred")],
               colramp = colorRampPalette(c('white',"grey")),
               xlim = c(0.2,1),
@@ -192,7 +194,13 @@ smoothScatter(all.df.biome[,c("slope.ndvi","slope.yr")],
               ylim=c(-0.06,0.05),
               xlab = expression('Trend of NDVI'~(yr^-1)),
               ylab = expression(Trend~of~delta^15*N~('‰'~yr^-1)),
-              pch = '')
+              pch = '',yaxt='n',xaxt='n')
+axis(2,at = seq(-0.06,0.06, by=0.02),labels = seq(-0.06,0.06,by=0.02))
+axis(2,at = seq(-0.06,0.06, by=0.01),labels=NA, tck=-0.01)
+
+
+axis(1,at = seq(-1e-4,1e-4, by=5e-5),labels = seq(-1e-4,1e-4, by=5e-5))
+axis(1,at = seq(-1e-4,1e-4, by=1e-5),labels=NA, tck=-0.01)
 # abline(fit.lm.slope,col='grey',lwd=3)
 r2.vec <- c()
 for (i.plot in seq_along(pft.chosen.vec)) {

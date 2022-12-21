@@ -33,6 +33,10 @@ df.evaluate <- df.evaluate[df.evaluate$Label %in% pft.chosen.vec ,]
 # 
 fit.all.kFold <- readRDS('cache/rf.kFold.n15.rds')
 df.evaluate$pred.all <- predict(fit.all.kFold, df.evaluate)
+
+summary(lm(Leaf15N~pred.all,data = df.evaluate))
+rsme.func(obs = df.evaluate$Leaf15N,prd = df.evaluate$pred.all)
+
 df.evaluate$plot.f <- factor(df.evaluate$Label,levels = pft.chosen.vec )
 df.evaluate$plot.f <- droplevels(df.evaluate$plot.f)
 biome.vec <- levels(df.evaluate$plot.f)

@@ -46,6 +46,7 @@ landsat.annual.df.global$dn15.pred.mean[landsat.annual.df.global$yr %in% 2012] <
 landsat.annual.df.global$dn15.smooth[landsat.annual.df.global$yr %in% 2012] <- NA
 # check slope of change####
 landsat.df.narm <- landsat.df[complete.cases(landsat.df),]
+# landsat.df.narm <- landsat.df.narm[!duplicated(landsat.df.narm),]
 n.row <- nrow(landsat.df.narm)
 de.f <- nrow(landsat.df.narm[landsat.df.narm$slope.p <= 0.05 & 
                        landsat.df.narm$slope.fit<0,]) / n.row
@@ -101,8 +102,8 @@ nm.vec[nm.vec%%10 != 0] <- NA
 # axis(side = 1,at = number.vec, labels =nm.vec,lwd.ticks=1,tick=4)
 # axis(side = 1,at = number.vec[!is.na(nm.vec)], labels = NA,lwd.ticks=3)
 # axis(side = 1,at = number.vec, labels = NA,lwd.ticks=1,tck=-0.01)
-legend('bottomleft',
-       legend = paste0(c('Increased: ','Decreased: ','No change: '),
+legend('bottomright',
+       legend = paste0(c('Increas: ','Decline: ','Stable: '),
                        round(c(in.f,de.f,no.f)*100),' %'),
        lty=c('solid','solid','dashed'),
        col= c(rgb(0.25,0.8784,0.81569,1),
@@ -112,7 +113,10 @@ legend('topleft',legend = '(a)',bty='n')
 # global
 par(mar=c(5,5,1,1))
 plot(dn15.smooth~yr,
-     data = landsat.annual.df.global,pch=16,xlab='',ylab=expression(delta^15*N~Index~('‰')),xlim=c(1980,2020))
+     data = landsat.annual.df.global,
+     pch=16,xlab='',
+     ylab=expression(delta^15*N~Index~('‰')),
+     xlim=c(1980,2020),ylim=c(-0.4,0.4))
 
 arrows(x0=landsat.annual.df.global$yr, 
        y0=landsat.annual.df.global$dn15.smooth + landsat.annual.df.global$dn15.se, 
@@ -125,7 +129,7 @@ fit.lm <- lm(dn15.smooth~yr,
 abline(fit.lm)
 
 # add CIÏ
-newx = 1984:2020
+newx = data.frame(yr=1984:2020)
 conf_interval <- predict(fit.lm, newdata=data.frame(x=newx), interval="confidence",
                          level = 0.95)
 matlines(newx, conf_interval[,2:3], col = "grey", lty='dashed')

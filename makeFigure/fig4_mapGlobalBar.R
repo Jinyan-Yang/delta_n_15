@@ -85,10 +85,11 @@ biome.frac.df$biome.factor <- factor(biome.frac.df$Label,
 
 biome.frac.df.plot <- biome.frac.df[,c("non.frac","de.frac","biome.factor")]
 biome.frac.df.plot <- biome.frac.df.plot[!duplicated(biome.frac.df.plot),]
-# will need to rename colnames for raster
-colnames(df.biome.plot) <- c('pft','x', 'y', 'vals','p','se','Label')
 
-df.biome.plot.sub <- df.biome.plot[df.biome.plot$p <10000,]
+# will need to rename colnames for raster
+colnames(df.biome) <- c('pft','x', 'y', 'vals','p','se','slope.ndvi','Label','plot.f')
+
+df.biome.plot.sub <- df.biome[df.biome$p <10000,]
 df.biome.plot.sub$biome.factor <- factor(df.biome.plot.sub$Label,
                                         levels = c(pft.chosen.vec))
 # # # create a raster object
@@ -167,11 +168,11 @@ legend('topleft',legend = '(a)',bty='n')
 
 # for (i.pft in 1:length(pft.chosen.vec)) {
   # plot.df <- df.biome.plot.sub[df.biome.plot.sub$Label == pft.chosen.vec[i.pft], ]
-  col.plot.vec <- unique(as.numeric(df.biome.plot.sub$biome.factor))
+  col.plot.vec <- 1:11#levels(df.biome.plot.sub$biome.factor)
   
   # plot.df$biome.factor <- as.character(plot.df$biome.factor)
   # plot.df <- plot.df[complete.cases(plot.df),]
-  vioplot((vals*365.25)~biome.factor,data = df.biome.plot.sub[df.biome.plot.sub$p<0.05,],
+  vioplot((vals*365.25)~ biome.factor,data = df.biome.plot.sub,#[df.biome.plot.sub$p<0.05,],
           las=2,pch='',xlab='',col = col.plot.vec,
           ylab=expression(Trend~('‰'~yr^-1)),ylim=c(-0.3,0.3))
   
@@ -181,6 +182,20 @@ legend('topleft',legend = '(a)',bty='n')
 # }
 
 dev.off()
+
+
+
+df.biome.plot.sub$slope.yr <- df.biome.plot.sub$vals*365.25
+library(doBy)
+# 
+out.df <- summaryBy(slope.yr~ biome.factor,data = df.biome.plot.sub,
+                    FUN=quantile,probs=c(0.05,0.5,0.95),na.rm=T)
+out.df <- out.df[order(out.df$`slope.yr.50%`,decreasing = F),]
+names(out.df) <- c('PFT','Quantile_5%','Median','Quantile_95%')
+write.csv(out.df,'figures/TableOfSlope.csv',row.names = F)
+
+
+
 # # plot Map####
 # pdf('figures/fig2b.mapGlobal.pdf',height = 4,width = 8)
 # #

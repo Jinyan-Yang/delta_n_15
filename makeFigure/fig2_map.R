@@ -76,7 +76,7 @@ palette(c(rgb(0.25,0.8784,0.81569,1),
           rgb(0.854902,0.6470588,0.1254902,1),
           rgb(250/255,235/255,215/255,1)))
 # 250,235,215
-
+#######
 plot2 <- p +
   geom_point(data=df.biome.plot, aes(x=x,y=y,color = Trend),size=0.001,shape = 15)+
   # geom_point(data=sig.df, aes(x=x,y=y),
@@ -106,8 +106,8 @@ require(gridExtra)
 pdf('figures/fig2Maps.pdf',width = 7,height = 7)
 grid.arrange(plot1, plot2, nrow=2)
 dev.off()
-
-df.biome.plot$Uncertainty <- df.biome.plot$se *1.96
+#########
+df.biome.plot$Uncertainty <- df.biome.plot$se *1.96 / df.biome.plot$vals
 
 plot3 <- p +
   geom_tile(data=df.biome.plot, aes(x=x,y=y,fill = (Uncertainty)))#+
@@ -135,7 +135,7 @@ par(mar=c(3,3,1,1))
 # plot(r_slope,col='grey',legend=F)
 # plot(r_se.frac,breaks = seq(0,0.0015,length.out=4),col=col.vec,legend=F,add=T)
 # legend('bottom',legend = c('<0.0005','<0.001','<0.0015','NS'),pch=15,col=c(col.vec,'grey'),horiz = T,bty='n',cex=2)
-plot3 <- p +
-  geom_tile(data=df.biome.plot, aes(x=x,y=y,fill = Uncertainty))
+# plot3 <- p +
+#   geom_tile(data=df.biome.plot, aes(x=x,y=y,fill = Uncertainty))
 plot3
 dev.off()
