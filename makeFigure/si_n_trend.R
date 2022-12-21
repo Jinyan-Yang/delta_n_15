@@ -6,26 +6,26 @@ library(doBy)
 library(lubridate)
 # $$$$$######
 ls.n.g.ts.ls <- readRDS('cache/ls.n.ts.rds')
-ls.n.g.ts.ls[[1]]
+# table(ls.n.g.ts.ls[[1]]$dn15.pred)
 ls.n.g.ts.ls <- ls.n.g.ts.ls[!is.null(ls.n.g.ts.ls)]
 
 # ls.n.all.df <- do.call(rbind,ls.n.g.ts.ls)
 ls.n.all.df <- dplyr::bind_rows(ls.n.g.ts.ls)
-landsat.g.ts.ls.mean <- lapply(ls.n.g.ts.ls, function(df){
-  if(!is.null(df)){
-    if(length(nrow(df))>0){
-      df$yr <- year(df$date)
-      df <- df[order(df$ndvi),]
-      return(summaryBy(dn15.pred~yr + lon + lat,
-                       data = df[1:10,],
-                       FUN = quantile,prob = 0.9,na.rm=T,keep.names = T))
-      
-      # return(df[1:3,])
-    }
-  }
-})
+# landsat.g.ts.ls.mean <- lapply(ls.n.g.ts.ls, function(df){
+#   if(!is.null(df)){
+#     if(length(nrow(df))>0){
+#       df$yr <- year(df$date)
+#       df <- df[order(df$ndvi),]
+#       return(summaryBy(dn15.pred~yr + lon + lat,
+#                        data = df[1:10,],
+#                        FUN = quantile,prob = 0.9,na.rm=T,keep.names = T))
+#       
+#       # return(df[1:3,])
+#     }
+#   }
+# })
 ####
-landsat.g.ts.df <- do.call(rbind,landsat.g.ts.ls.mean)
+landsat.g.ts.df <-  dplyr::bind_rows(ls.n.g.ts.ls)
 
 # get slope
 ls.n.slope.df <- readRDS('cache/ls.n.slop.rds')
@@ -74,8 +74,8 @@ layout(matrix(c(1,2,3,
                 7,7,8),ncol = 3,byrow = T))
 par(mar=c(5,5,1,1))
 for (i.len in 1:length(dn15.ls)) {
-  plot.df <- dn15.ls[[i.len]] 
-  plot.df <- plot.df[plot.df$biome.factor == 'BAR',]
+  plot.df <- dn15.ls[[i.len]]
+  # plot.df <- plot.df[plot.df$biome.factor == 'BAR',]
   # plot.df$biome.factor <- droplevels(plot.df$biome.factor)
   col.plot.vec <- which(levels(global.dn15.df$biome.factor) %in% plot.df$biome.factor )
   plot.df$biome.factor <- droplevels(plot.df$biome.factor)
@@ -84,7 +84,7 @@ for (i.len in 1:length(dn15.ls)) {
   vioplot(dn15.pred~biome.factor,data = plot.df,
           las=2,pch='',xlab='',col = col.plot.vec,
           ylab=expression(log(N)~('mg'~g^-1)),ylim=c(0,5))
-  
+
   # abline(h=0,lty='dashed',col='coral',lwd=2)
   legend('topleft',legend = sprintf('(%s) %s',letters[i.len],names(dn15.ls)[i.len]),bty='n')
 }
