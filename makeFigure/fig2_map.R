@@ -1,6 +1,8 @@
 library(dplyr)
 library(maps)
 library(ggplot2)
+
+source('r/getModisLandCover.R')
 ny <- map_data('world') %>% filter(region != "Antarctica") %>% fortify
 
 p <- ggplot() + geom_polygon(data = ny, aes(x = long, y = lat, group = group), 
@@ -61,7 +63,7 @@ plot1 <-  p + geom_point(data=plot.ls.df, aes(x=lon,y=lat),
 
 #read global #####
 source('r/readSlopeGlobal.R')
-colnames(df.biome.plot) <- c('pft','x', 'y', 'vals','p','se','Label')
+colnames(df.biome.plot) <- c('pft','x', 'y', 'vals','p','se','ndvi','Label')
 
 df.biome.plot$Trend <- NA
 df.biome.plot$Trend[df.biome.plot$p >=0.05] <- 'Stable'
@@ -107,10 +109,13 @@ pdf('figures/fig2Maps.pdf',width = 7,height = 7)
 grid.arrange(plot1, plot2, nrow=2)
 dev.off()
 #########
-df.biome.plot$Uncertainty <- df.biome.plot$se *1.96 / df.biome.plot$vals
+df.biome.plot$Uncertainty <- abs(df.biome.plot$se / df.biome.plot$vals) * 100
+df.biome.plot$Uncertainty[df.biome.plot$Uncertainty>100] <- 100
 
+df.biome.plot.sub <- df.biome.plot[df.biome.plot$p < 0.05,]
+hist(df.biome.plot.sub$Uncertainty)
 plot3 <- p +
-  geom_tile(data=df.biome.plot, aes(x=x,y=y,fill = (Uncertainty)))#+
+  geom_tile(data=df.biome.plot.sub, aes(x=x,y=y,fill = Uncertainty))#+
   # scale_fill_gradientn(colours = hcl.colors(10)) 
   # geom_point(data=sig.df, aes(x=x,y=y),
   #            col=sig.df$col.in,size=0.0001,pch=15)  + 
