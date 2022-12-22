@@ -42,9 +42,9 @@ plot.fit.region.func <- function(df.evaluate,x.range = c(-15,15),y.range = c(-15
        data = df.evaluate,
        xlim=x.range,ylim=y.range,
        pch=16,
-       col= col.trans.vec[plot.f],
-       cex=0.4,
-       xlab=expression(delta^15*N~Index~('‰')),ylab='Observation')
+       col= rgb(0.9,0.1,0.1,0.8),#col.trans.vec[plot.f],
+       cex=1,
+       xlab=expression(delta^15*N~Index~('\u2030')),ylab='Observation')
   abline(a=0,b=1)
   
   coord.df <- df.evaluate[,c("lon",'lat')]
