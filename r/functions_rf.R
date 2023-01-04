@@ -28,23 +28,31 @@ fit.rf.func <- function(df,x.nm=c("blue","green","red","nir","swir1","swir2")){
   return(fit.test)
 }
 # 
-plot.fit.region.func <- function(df.evaluate,x.range = c(-15,15),y.range = c(-15,15)){
+plot.fit.region.func <- function(df.evaluate,x.range = c(-15,15),y.range = c(-15,15),use.diff.col=TRUE){
   # col.trans.vec.old <- palette()
   # on.exit(palette(col.trans.vec.old))
   
-  col.trans.vec <- c()
+
   
-  for (i in seq_along(palette())) {
-    col.trans.vec[i] <- t_col(palette()[i],percent = 50)
+  if(use.diff.col){
+    col.trans.vec <- c()
+    
+    for (i in seq_along(palette())) {
+      col.trans.vec[i] <- t_col(palette()[i],percent = 50)
+    }
+  }else{
+    col.trans.vec <- rep(rgb(0.9,0.1,0.1,0.8),20)
   }
+  
   # palette(col.trans.vec)
   plot(Leaf15N~pred.all,
        data = df.evaluate,
        xlim=x.range,ylim=y.range,
        pch=16,
-       col= rgb(0.9,0.1,0.1,0.8),#col.trans.vec[plot.f],
+       col= col.trans.vec[plot.f],#rgb(0.9,0.1,0.1,0.8),#
        cex=1,
-       xlab=expression(delta^15*N~Index~('\u2030')),ylab='Observation')
+       xlab=expression(Derived~delta^15*N~('\u2030')),
+       ylab=expression(Observed~delta^15*N~('\u2030')))
   abline(a=0,b=1)
   
   coord.df <- df.evaluate[,c("lon",'lat')]
