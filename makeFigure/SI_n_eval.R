@@ -105,5 +105,5 @@ legend('topleft',legend = paste0(levels(as.factor(biome.vec)),
                                  slope.vec,', ',
                                  r2.vec,', ',
                                  n.vec),pch=16,col=palette(),
-       bty='n',ncol=1,title = expression('PFT: Slope,'~R^2*', n'),xpd=T)
+       bty='n',ncol=1,title = expression('LCT: Slope,'~R^2*', n'),xpd=T)
 dev.off()

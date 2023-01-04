@@ -35,7 +35,7 @@ fit.all.kFold <- readRDS('cache/rf.kFold.n15.rds')
 df.evaluate$pred.all <- predict(fit.all.kFold, df.evaluate)
 
 summary(lm(Leaf15N~pred.all,data = df.evaluate))
-rsme.func(obs = df.evaluate$Leaf15N,prd = df.evaluate$pred.all)
+# rsme.func(obs = df.evaluate$Leaf15N,prd = df.evaluate$pred.all)
 
 df.evaluate$plot.f <- factor(df.evaluate$Label,levels = pft.chosen.vec )
 df.evaluate$plot.f <- droplevels(df.evaluate$plot.f)
@@ -95,7 +95,7 @@ legend('topleft',legend = paste0(biome.vec,
                                  n.vec),
        col=palette(),
        bty='n',ncol=1,
-       title = expression('PFT: Slope,'~R^2*', n'),
+       title = expression('LCT: Slope,'~R^2*', n'),
        xpd=T,pch=16)
 dev.off()
 # 
