@@ -41,7 +41,7 @@ for (i.len in 1:length(dn15.ls)) {
   # plot.df <- plot.df[complete.cases(plot.df),]
   vioplot(dn15.pred~biome.factor,data = plot.df,
           las=2,pch='',xlab='',col = col.plot.vec,
-          ylab=expression(delta^15*N~Index~('‰')),ylim=c(-5,10))
+          ylab=expression(Derived~delta^15*N~('‰')),ylim=c(-5,10))
   
   abline(h=0,lty='dashed',col='coral',lwd=2)
   legend('topleft',legend = sprintf('(%s) %s',letters[i.len],names(dn15.ls)[i.len]),bty='n')
@@ -57,7 +57,7 @@ smoothScatter(slope.dn15.df.sum[,c("dn15.pred","slope.yr")],
               colramp = colorRampPalette(c('white',"grey40")),
               # xlim=c(-1e-4,1e-4),
               ylim=c(-0.06,0.05),
-              xlab=expression(delta^15*N~Index~('‰')),
+              xlab=expression(Derived~delta^15*N~('‰')),
               ylab=expression(Trend~('‰'~yr^-1)),
               pch = '')
 # 

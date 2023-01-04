@@ -63,7 +63,8 @@ plot(leafN.log~pred.all,
      pch=16,
      col=col.trans.vec[plot.f],
      cex=0.5,
-     xlab='Prediction',ylab='Observation')
+     xlab=expression(Derived~'[N]'~('%')),
+     ylab=expression(Observed~'[N]'~('%')))
 abline(a=0,b=1)
 
 coord.df <- df.evaluate[,c("lon",'lat')]

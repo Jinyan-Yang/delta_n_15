@@ -64,12 +64,18 @@ library(reshape2)
 # df.biome$plot.f <- as.factor(df.biome$Label)
 
 # plot(slope.fit~plot.f,data = df.biome)
+
+# 
+nrow(df.biome[df.biome$vals < 0 & df.biome$p < 0.05,]) / nrow(df.biome)
+
+nrow(df.biome[df.biome$vals > 0 & df.biome$p < 0.05,]) / nrow(df.biome)
+# 
 df.biome.ls <- split(df.biome,df.biome$Label)
 
 df.biome.ls.frac <- lapply(df.biome.ls, function(df.tmp){
   tot.nrow <- nrow(df.tmp)
-  non.nrow <- nrow(df.tmp[df.tmp$slope.p>0.05,])
-  decrease.nrow <- nrow(df.tmp[df.tmp$slope.p<= 0.05&
+  non.nrow <- nrow(df.tmp[df.tmp$slope.p>=0.05,])
+  decrease.nrow <- nrow(df.tmp[df.tmp$slope.p< 0.05&
                                  df.tmp$slope.fit<0,])
   
   df.tmp$non.frac <- non.nrow / tot.nrow

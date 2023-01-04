@@ -53,7 +53,8 @@ landsat.df.narm$lat <- as.numeric(landsat.df.narm$lat)
 landsat.df.narm$lon <- as.numeric(landsat.df.narm$lon)
 #make plot#####
 pdf('figures/fig1_bioeval.pdf',width = 7,height = 4)
-par(mfrow=c(1,2))
+layout(matrix(c(1,1,1,1,2,2),ncol=3,byrow = F))
+# par(mfrow=c(1,2))
 par(mar=c(5,5,1,1))
 # 
 plot.fit.region.func(df.evaluate)
@@ -85,7 +86,7 @@ r2.vec[which(n.vec<5)] <- NA
 small.df <- df.evaluate[,c("biome.no","plot.f")]
 small.df <- small.df[!duplicated(small.df),]
 small.df <- small.df[order(small.df$plot.f),]
-par(mar=c(1,1,1,1))
+par(mar=c(5,1,1,1))
 plot(0,pch='',ann=F,axes=F)
 legend('topleft',legend = paste0(biome.vec,
                                  ': ',

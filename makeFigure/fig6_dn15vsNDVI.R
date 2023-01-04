@@ -136,7 +136,7 @@ smoothScatter(landsat.g.ts.df.bio[,c("ndvi","dn15.pred")],
               xlim = c(0.2,1),
               ylim = c(-2,3),
               xlab = 'NDVI (-)',
-              ylab = expression(delta^15*N~Index~('‰')),
+              ylab = expression(Derived~delta^15*N~('‰')),
               pch = '')
 
 # 2

@@ -49,8 +49,8 @@ df.evaluate$plot.f <- as.factor(df.evaluate$Label)
 # abline(a=0,b=1)
 # summary(lm(obs~pred,data = fit.all.kFold$pred))
 
-pdf('figures/SI_biomeEval.pdf',width = 4*3,height = 4*4)
-par(mfrow=c(4,2),mar=c(4,4,1,1))
+pdf('figures/SI_biomeEval.pdf',width = 7,height = 3.5*4)
+par(mfrow=c(4,2),mar=c(5,5,1,1))
 # plot.fit.region.func(df.evaluate)
 # legend('topleft',legend = c('(a) Global'),bty='n')
 i.letter <- 1
@@ -60,7 +60,7 @@ for (i.bio in seq_along(biome.vec)) {
   coord.df <- coord.df[!duplicated(coord.df),]
   
   if(nrow(coord.df)>5){
-    plot.fit.region.func(df.plot)
+    plot.fit.region.func(df.plot,use.diff.col=F)
     legend('topleft',legend = sprintf('(%s) %s',letters[i.letter],biome.vec[i.bio]),bty='n')
     i.letter <- i.letter + 1
   }

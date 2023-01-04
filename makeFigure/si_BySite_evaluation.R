@@ -31,12 +31,16 @@ combined.df.biome <- merge(combined.df.sum,
 # 
 # fit.all <- readRDS('cache/rf.fit.landsatBand.rds')
 fit.all.kFold <- readRDS('cache/bysite.rf.kFold.n15.rds')
+# summary(lm(fit.all.kFold$pred$obs~fit.all.kFold$pred$pred))
 # evaluate all
 df.evaluate <- get.train.eval.func(combined.df.biome,giveTrain=FALSE)
-df.evaluate <- df.evaluate[df.evaluate$Label %in% c('ENF','EBF','DNF','DBF','FOR','OSH','CSH','WSA','SAV','GRA','WET','PSI','BAR'),]
+# df.evaluate <- df.evaluate[df.evaluate$Label %in% c('ENF','EBF','DNF','DBF','FOR','OSH','CSH','WSA','SAV','GRA','WET','PSI','BAR'),]
 # # 
 # 
 df.evaluate$pred.all <- predict(fit.all.kFold, df.evaluate)
+
+df.evaluate <- df.evaluate[df.evaluate$Label %in% c('ENF','EBF','DNF','DBF','FOR','OSH','CSH','WSA','SAV','GRA','WET','PSI','BAR'),]
+
 biome.vec <- unique(df.evaluate$Label)
 df.evaluate$plot.f <- as.factor(df.evaluate$Label)
 
@@ -49,25 +53,24 @@ df.evaluate$plot.f <- as.factor(df.evaluate$Label)
 # abline(a=0,b=1)
 # summary(lm(obs~pred,data = fit.all.kFold$pred))
 
-pdf('figures/Si_Bysite_biomeEval.pdf',width = 4*3,height = 4*4)
-par(mfrow=c(4,3),mar=c(4,4,1,1))
-plot.fit.region.func(df.evaluate)
-legend('topleft',legend = c('(a) Global'),bty='n')
-i.letter <- 2
+pdf('figures/Si_Bysite_biomeEval.pdf',width = 7,height = 3.5*4)
+par(mfrow=c(4,2),mar=c(5,5,1,1))
+# plot.fit.region.func(df.evaluate)
+# legend('topleft',legend = c('(a) Global'),bty='n')
+i.letter <- 1
 for (i.bio in seq_along(biome.vec)) {
   df.plot <- df.evaluate[df.evaluate$Label == biome.vec[i.bio],]
   coord.df <- df.plot[,c("lon",'lat')]
   coord.df <- coord.df[!duplicated(coord.df),]
   
   if(nrow(coord.df)>5){
-    plot.fit.region.func(df.plot)
+    plot.fit.region.func(df.plot,use.diff.col = FALSE)
     legend('topleft',legend = sprintf('(%s) %s',letters[i.letter],biome.vec[i.bio]),bty='n')
     i.letter <- i.letter + 1
   }
-  
 }
 
-# lot legend
-plot(0,pch='',ann=F,axes=F)
-legend('top',legend = c(1,10,100),col= c(rgb(0.9,0.1,0.1,0.05),rgb(0.9,0.1,0.1,0.5),rgb(0.9,0.1,0.1,1)),pch=16,bty='n',cex=2)
+# # lot legend
+# plot(0,pch='',ann=F,axes=F)
+# legend('top',legend = c(1,10,100),col= c(rgb(0.9,0.1,0.1,0.05),rgb(0.9,0.1,0.1,0.5),rgb(0.9,0.1,0.1,1)),pch=16,bty='n',cex=2)
 dev.off()

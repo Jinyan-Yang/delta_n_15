@@ -32,3 +32,7 @@ legend('topleft',legend = c('Biomass-weighted mean','Observation'),
        col=c('black','grey'),
        bty='n')
 dev.off()
+
+length(unique(mongol.mean.df$SiteID))
+
+sqrt(mean((fit.lm$residuals)^2))
