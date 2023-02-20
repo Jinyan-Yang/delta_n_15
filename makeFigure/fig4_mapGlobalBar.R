@@ -66,9 +66,9 @@ library(reshape2)
 # plot(slope.fit~plot.f,data = df.biome)
 
 # 
-nrow(df.biome[df.biome$vals < 0 & df.biome$p < 0.05,]) / nrow(df.biome)
+nrow(df.biome[df.biome$slope.fit < 0 & df.biome$slope.p < 0.05,]) / nrow(df.biome) +
 
-nrow(df.biome[df.biome$vals > 0 & df.biome$p < 0.05,]) / nrow(df.biome)
+nrow(df.biome[df.biome$slope.fit > 0 & df.biome$slope.p < 0.05,]) / nrow(df.biome)
 # 
 df.biome.ls <- split(df.biome,df.biome$Label)
 

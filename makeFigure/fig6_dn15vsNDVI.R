@@ -5,7 +5,15 @@ source('r/color.R')
 source('r/readSlopeGlobal.R')
 source('r/function_contenent.R')
 # source('r/get_dn15_annual.R')
+# 
+library(raster)
+lai.ra <- raster('data/LAI_gimms_trend_MK_1982.nc')
+df.biome$lai <- extract(lai.ra,cbind(df.biome$lon,
+                                     df.biome$lat))
 
+fit.lm <- lm(lai~slope.fit,data = df.biome)
+summary(fit.lm)
+# 
 landsat.g.ts.df <- readRDS('cache/ls.annual.ts.rds')
 landsat.g.ts.df$lon <- as.numeric(landsat.g.ts.df$lon)
 landsat.g.ts.df$lat <- as.numeric(landsat.g.ts.df$lat)
@@ -205,7 +213,8 @@ axis(1,at = seq(-1e-4,1e-4, by=1e-5),labels=NA, tck=-0.01)
 r2.vec <- c()
 for (i.plot in seq_along(pft.chosen.vec)) {
   plot.df <- all.df.biome[all.df.biome$plot.f == pft.chosen.vec[i.plot],]
-  # plot.df <- plot.df
+  
+  # plot.df <- df.biome[df.biome$plot.f == pft.chosen.vec[i.plot],]
   plot.df <- plot.df[order(plot.df$slope.yr),]
   plot.df <- plot.df[complete.cases(plot.df),]
   fit.tmp <- (lm(slope.yr ~ slope.ndvi,data = plot.df))

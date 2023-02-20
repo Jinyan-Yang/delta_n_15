@@ -50,5 +50,5 @@ sapply(year.vec,
        y.short ='N',
        y.nm = 'Leaf nitrogen content (%)')
 
-test.ra <- raster("outputs/N/N_Map_2016.tif")
+# test.ra <- raster("outputs/N/N_Map_2016.tif")
 # plot(test.ra)
