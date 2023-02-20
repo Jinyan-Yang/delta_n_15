@@ -48,7 +48,7 @@ get.band4obs.func <- function(tmp.df){
       tmp.df <- tmp.df[tmp.df$blue > 0,]
       tmp.df <- tmp.df[tmp.df$swir1 > 0,]
       tmp.df <- tmp.df[tmp.df$swir2 > 0,]
-      tmp.df <- tmp.df[tmp.df$ndvi > 0.01,]
+      tmp.df <- tmp.df[tmp.df$ndvi > 0.2,]
 
       tmp.df <- tmp.df[order(tmp.df$ndvi,decreasing = T),]
       tmp.df <- tmp.df[1:5,]
@@ -62,3 +62,5 @@ get.band4obs.func <- function(tmp.df){
 obs.ts.ls <- lapply(landsat.ts.ls, get.band4obs.func)
 obs.ts.df <- do.call(rbind,obs.ts.ls)
 saveRDS(obs.ts.df,'cache/groundDN15.rds')
+
+nrow(obs.ts.df[!is.na(obs.ts.df$blue),]) / nrow(obs.ts.df)

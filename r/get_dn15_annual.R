@@ -77,3 +77,42 @@ if(!file.exists('cache/ls.annual.ts.rds')){
 }
 
 # 
+if(!file.exists('cache/ls.annual.median.sd.ts.rds')){
+  library(dplyr)
+  library(doBy)
+  library(lubridate)
+  source('r/readSlopeGlobal.R')
+  # pft.chosen.vec <- c('DBF','EBF','FOR','ENF','DNF','WSA','SAV','CSH','OSH','GRA','BAR')
+  # $$$$$######
+  # landsat.g.ts.ls <- readRDS('cache/landsat.global.ts.rds')
+  landsat.g.ts.ls.1 <- readRDS('cache/ls.ts.0.1.part1.rds')
+  landsat.g.ts.ls.2 <- readRDS('cache/ls.ts.0.1.part2.rds')
+  landsat.g.ts.ls <- c(landsat.g.ts.ls.1,landsat.g.ts.ls.2)
+  
+  # landsat.g.ts.ls <- Filter(function(x) !is.na(x), landsat.g.ts.ls)
+  # landsat.g.ts.ls <- landsat.g.ts.ls[!is.na(landsat.g.ts.ls)]
+  # landsat.g.ts.ls <- landsat.g.ts.ls[!is.null(landsat.g.ts.ls)]
+  
+  # ls.g.all.df <- do.call(bind_rows,landsat.g.ts.ls)
+  
+  landsat.g.ts.ls.mean <- lapply(landsat.g.ts.ls, function(df){
+    if(!is.null(df)){
+      if(length(nrow(df))>0){
+        df$yr <- year(df$date)
+        # df <- df[order(df$ndvi),]
+        return(summaryBy(dn15.pred+ndvi~yr + lon + lat,
+                         data = df,
+                         FUN = c(median,sd),na.rm=T))
+        
+        # return(df[1:3,])
+      }
+    }
+  })
+  # landsat.g.ts.ls[[1]]
+  # ls.g.ts.mean.clean <- landsat.g.ts.ls.mean[!sapply(landsat.g.ts.ls.mean, is.null)]
+  ####
+  landsat.g.ts.df <- bind_rows(landsat.g.ts.ls.mean)
+  landsat.g.ts.df$lon <- as.numeric(landsat.g.ts.df$lon)
+  landsat.g.ts.df$lat <- as.numeric(landsat.g.ts.df$lat)
+  saveRDS(landsat.g.ts.df,'cache/ls.annual.median.sd.ts.rds')
+}

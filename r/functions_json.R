@@ -238,6 +238,7 @@ get.slope.new.func <- function(land.sat.df,lon.col = 9,lat.col=10){
 }
 # 
 get.dn154ts.new.func <- function(df){
+
   if(length(nrow(df))>0){
     df.ori <- df
     df <- df[df$nir > 0,]
