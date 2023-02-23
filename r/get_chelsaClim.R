@@ -111,8 +111,8 @@ pr.yr.ls <- sapply(ppt.annual.vec, raster)
 
 pr.ra.stack <- stack(pr.yr.ls)
 process.para.raster.func(pr.ra.stack,
-                         out.nm.mean = 'cache/ppt.trend.rds',
-                         out.nm.slope = 'cache/ppt.mean.rds')
+                         out.nm.mean = 'cache/ppt.mean.rds',
+                         out.nm.slope = 'cache/ppt.trend.rds')
 
 # pr.ra.stack <- readAll(pr.ra.stack)
 # 
@@ -154,8 +154,8 @@ t.ls <- lapply(t.fn.vec, raster)
 t.ra.stack <- stack(t.ls)
 # t.ra.stack <- readAll(t.ra.stack)
 process.para.raster.func(t.ra.stack,
-                         out.nm.mean = 'cache/tmean.trend.rds',
-                         out.nm.slope = 'cache/tmean.mean.rds')
+                         out.nm.mean = 'cache/tmean.mean.rds',
+                         out.nm.slope = 'cache/tmean.trend.rds')
 remove(pr.ra.stack)
 # t.trend.ra <- calc(t.ra.stack,function(ts){
 #   if(sum(ts,na.rm=T)==0){
@@ -179,17 +179,17 @@ remove(pr.ra.stack)
 
 
 
-
-
-
-
-#
-library(ncdf4)
-
-nc.f <- nc_open('data/met/CHELSA_pr_1981-2010_V.2.1.nc')
-nc_close(nc.f)
-
-library(raster)
-met.ra <- raster('data/met/CHELSA_pr_1981-2010_V.2.1.nc')
-
-plot(met.ra)
+# 
+# 
+# 
+# 
+# #
+# library(ncdf4)
+# 
+# nc.f <- nc_open('data/met/CHELSA_pr_1981-2010_V.2.1.nc')
+# nc_close(nc.f)
+# 
+# library(raster)
+# met.ra <- raster('data/met/CHELSA_pr_1981-2010_V.2.1.nc')
+# 
+# plot(met.ra)
