@@ -4,6 +4,7 @@
 source('r/color.R')
 source('r/readSlopeGlobal.R')
 source('r/function_contenent.R')
+source('r/getModisLandCover.R')
 # source('r/get_dn15_annual.R')
 # 
 library(raster)
