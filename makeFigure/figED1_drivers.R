@@ -11,15 +11,22 @@ d15n.trend.df <- d15n.trend.df[!is.na(d15n.trend.df$soilN),]
 # termplot(fit.mat)
 
 
-fit.soil <- lm(slope.fit~soilN,data = d15n.trend.df)
-summary(fit.soil)
-d15n.trend.df$soilN.resi <- fit.soil$residuals
+# fit.soil <- lm(slope.fit~soilN,data = d15n.trend.df)
+# summary(fit.soil)
+# d15n.trend.df$soilN.resi <- fit.soil$residuals
 
 d15n.trend.df$mat.c <- d15n.trend.df$mat.mean*0.1-272.15
 # hist(d15n.trend.df$mat.c)
 d15n.trend.df$map.log <- log(d15n.trend.df$map.mean*0.1)
-# hist(exp(d15n.trend.df$map.log))
+d15n.trend.df$map.trend <- (d15n.trend.df$map.trend*0.1)
+d15n.trend.df$mat.trend <- (d15n.trend.df$mat.trend*0.1)
+hist(exp(d15n.trend.df$map.log))
+hist(d15n.trend.df$map.trend)
 
+d15n.trend.df <- d15n.trend.df[d15n.trend.df$map.trend > -10 & 
+                                 d15n.trend.df$map.trend< 15,]
+
+range(d15n.trend.df$map.trend)
 d15n.trend.df$soilN.log <- log(d15n.trend.df$soilN)
 d15n.trend.df <- d15n.trend.df[d15n.trend.df$soilN>0,]
 #####
@@ -160,7 +167,7 @@ plot.resi.func(dat = d15n.trend.df[,c("mat.trend","resi.matTrend")],
                x.nm = expression(Trend~of~MAT~(K~yr^-1)),
                legend.nm = '(d)')
 plot.resi.func(dat = d15n.trend.df[,c("map.trend","resi.mapTrend")],
-               x.nm = expression(Trend~of~MAP~(mm~10^-1~yr^-1)),
+               x.nm = expression(Trend~of~MAP~(mm~yr^-1)),
                legend.nm = '(e)')
 plot.resi.func(dat = d15n.trend.df[,c("soilN.log","resi.n")],
                x.nm = expression(log(N[soil])~(cg~kg^1)),
