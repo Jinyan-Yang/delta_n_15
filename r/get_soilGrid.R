@@ -1,8 +1,8 @@
 # https://maps.isric.org/mapserv?map=/map/nitrogen.map&SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&COVERAGEID=nitrogen_15-30cm_mean&FORMAT=image/tiff&SUBSET=long(0.0000,2.0000)&SUBSET=lat(0.0000,2.0000)&SUBSETTINGCRS=http://www.opengis.net/def/crs/EPSG/0/4326&OUTPUTCRS=http://www.opengis.net/def/crs/EPSG/0/4326
 n.url <- 'https://maps.isric.org/mapserv?map=/map/nitrogen.map&SERVICE=WCS&VERSION=2.0.1&REQUEST=GetCoverage&COVERAGEID=nitrogen_15-30cm_mean&FORMAT=image/tiff&SUBSET=LON&SUBSET=LAT&SUBSETTINGCRS=http://www.opengis.net/def/crs/EPSG/0/4326&OUTPUTCRS=http://www.opengis.net/def/crs/EPSG/0/4326'
 
-lon.vec <- seq(-180,180,by=4)
-lat.vec <- seq(-90,90,by=4)
+lon.vec <- seq(-180,178,by=2)
+lat.vec <- seq(-90,88,by=2)
 
 lat.match <- rep(lat.vec,length(lon.vec))
 
@@ -27,7 +27,7 @@ lapply(lonLat.ls, function(cood.vec){
   
   if(!file.exists(out.fn)){
     download.file(url.new,
-                  destfile = out.fn,cacheOK=FALSE,method = 'curl')
+                  destfile = out.fn,cacheOK = FALSE,method = 'curl')
   }
   
 })
