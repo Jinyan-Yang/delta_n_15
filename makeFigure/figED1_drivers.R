@@ -53,7 +53,7 @@ d15n.trend.df <- d15n.trend.df[d15n.trend.df$soilN>0,]
 # get partial residual####
 fit.full <- lm(slope.fit~ slope.ndvi  +
                 map.log + 
-                mat.c + soilN.log,
+                mat.c + soilN.log +map.trend+mat.trend,
               data = d15n.trend.df)
 
 summary(fit.full)
@@ -61,7 +61,7 @@ summary(fit.full)
 fit.leave.ndvi <- lm(slope.fit~ 
                       map.log +  
                       mat.c + 
-                      soilN.log,
+                      soilN.log+map.trend+mat.trend,
                     data = d15n.trend.df)
 summary(fit.leave.ndvi)
 
@@ -71,7 +71,7 @@ d15n.trend.df$resi.ndvi <- d15n.trend.df$slope.fit - coef(fit.leave.ndvi)["(Inte
 fit.leave.map <- lm(slope.fit~ slope.ndvi + 
                        # map.log +  
                        mat.c + 
-                       soilN.log,
+                       soilN.log+map.trend+mat.trend,
                      data = d15n.trend.df)
 summary(fit.leave.map)
 
@@ -80,7 +80,7 @@ d15n.trend.df$resi.map <- d15n.trend.df$slope.fit - coef(fit.leave.map)["(Interc
 fit.leave.mat <- lm(slope.fit~ slope.ndvi + 
                       map.log +
                       # mat.c + 
-                      soilN.log,
+                      soilN.log+map.trend+mat.trend,
                     data = d15n.trend.df)
 summary(fit.leave.mat)
 
@@ -90,18 +90,40 @@ fit.leave.n <- lm(slope.fit~ slope.ndvi +
                       map.log +
                     # +
                     # soilN.log
-                      mat.c ,
+                      mat.c +map.trend+mat.trend,
                     data = d15n.trend.df)
 summary(fit.leave.n)
 
 d15n.trend.df$resi.n <- d15n.trend.df$slope.fit - coef(fit.leave.n)["(Intercept)"]
+# 
+fit.leave.mat.Trend <- lm(slope.fit~ slope.ndvi + 
+                    map.log +
+                    # +
+                    soilN.log+
+                    mat.c +map.trend,
+                  data = d15n.trend.df)
+summary(fit.leave.mat.Trend)
+
+d15n.trend.df$resi.matTrend <- d15n.trend.df$slope.fit - coef(fit.leave.mat.Trend)["(Intercept)"]
+# 
+# 
+fit.leave.map.Trend <- lm(slope.fit~ slope.ndvi + 
+                            map.log +
+                            # +
+                            soilN.log+
+                            mat.c +map.trend,
+                          data = d15n.trend.df)
+summary(fit.leave.map.Trend)
+
+d15n.trend.df$resi.mapTrend <- d15n.trend.df$slope.fit - coef(fit.leave.map.Trend)["(Intercept)"]
 
 #get summary info
 summary(lm(resi.ndvi~slope.ndvi,data = d15n.trend.df))
 summary(lm(resi.mat~mat.c,data = d15n.trend.df))
 summary(lm(resi.map~map.log,data = d15n.trend.df))
 summary(lm(resi.n~soilN.log,data = d15n.trend.df))
-
+summary(lm(resi.matTrend~mat.trend,data = d15n.trend.df))
+summary(lm(resi.mapTrend~map.trend,data = d15n.trend.df))
 # 
 plot.resi.func <- function(dat,x.nm,legend.nm){
   # dat = d15n.trend.df[,c("soilN.log","resi.n")]
@@ -119,9 +141,9 @@ plot.resi.func <- function(dat,x.nm,legend.nm){
   legend('topleft',legend = legend.nm,bty='n')
 }
 #plot####
-pdf('figures/figED1.driver.pdf',width = 7,height = 7)
+pdf('figures/figED1.driver.pdf',width = 7,height = 3.5*3)
 par(mar=c(5,5,1,1),
-    mfrow=c(2,2))
+    mfrow=c(3,2))
 
 # abline(lm(d15n.trend.df[,c("soilN.log","resi.n")]),col='grey',lwd = 6)
 
@@ -134,6 +156,12 @@ plot.resi.func(dat = d15n.trend.df[,c("mat.c","resi.mat")],
 plot.resi.func(dat = d15n.trend.df[,c("map.log","resi.map")],
                x.nm = expression(log(MAP)~(mm~yr^-1)),
                legend.nm = '(c)')
+plot.resi.func(dat = d15n.trend.df[,c("mat.trend","resi.matTrend")],
+               x.nm = expression(Trend~of~MAT~(K~yr^-1)),
+               legend.nm = '(d)')
+plot.resi.func(dat = d15n.trend.df[,c("map.trend","resi.mapTrend")],
+               x.nm = expression(Trend~of~MAP~(mm~10^-1~yr^-1)),
+               legend.nm = '(e)')
 plot.resi.func(dat = d15n.trend.df[,c("soilN.log","resi.n")],
                x.nm = expression(log(N[soil])~(cg~kg^1)),
                legend.nm = '(d)')
