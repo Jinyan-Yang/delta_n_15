@@ -180,7 +180,7 @@ if(is.null(x.range)){
     plot.df <- dat[dat$Label == pft.chosen.vec[i.plot],]
     
     # plot.df <- df.biome[df.biome$plot.f == pft.chosen.vec[i.plot],]
-    plot.df <- plot.df[order(plot.df[,2]),]
+    plot.df <- plot.df[order(plot.df[,1]),]
     plot.df <- plot.df[complete.cases(plot.df),]
     fit.tmp <- lm(plot.df[,2]~plot.df[,1])
     # r2.vec[i.plot] <- format(summary(fit.tmp)$r.squared,digits = 2)
@@ -236,68 +236,68 @@ dev.off()
 
 
 # old code no use######
-smoothScatter(d15n.trend.df[,c("soilN.log","resi.n")],nbin = 512,
-              colramp = colorRampPalette(c('white',"red")),
-              # xlim = c(0.2,1),
-              ylim = c(-0.001,0.001),
-              # xlab = 'NDVI (-)',
-              # ylab = expression(Derived~delta^15*N~('‰')),
-              pch = '',
-              xlab=expression(log(N[soil])~(cg~kg^1)),ylab = 'Residual')
-abline(lm(resi.n~soilN.log,data = d15n.trend.df),col='grey',lwd = 3)
+# smoothScatter(d15n.trend.df[,c("soilN.log","resi.n")],nbin = 512,
+#               colramp = colorRampPalette(c('white',"red")),
+#               # xlim = c(0.2,1),
+#               ylim = c(-0.001,0.001),
+#               # xlab = 'NDVI (-)',
+#               # ylab = expression(Derived~delta^15*N~('‰')),
+#               pch = '',
+#               xlab=expression(log(N[soil])~(cg~kg^1)),ylab = 'Residual')
+# abline(lm(resi.n~soilN.log,data = d15n.trend.df),col='grey',lwd = 3)
+# # 
+# # 
+# smoothScatter(d15n.trend.df[,c("soilN.log","resi.n")],nbin = 512,
+#               colramp = colorRampPalette(c('white',"red")),
+#               # xlim = c(0.2,1),
+#               ylim = c(-0.001,0.001),
+#               # xlab = 'NDVI (-)',
+#               # ylab = expression(Derived~delta^15*N~('‰')),
+#               pch = '',
+#               xlab=expression(log(N[soil])~(cg~kg^1)),ylab = 'Residual')
+# abline(lm(resi.n~soilN.log,data = d15n.trend.df),col='grey',lwd = 3)
+# # 
+# # 
+# smoothScatter(d15n.trend.df[,c("soilN.log","resi.n")],nbin = 512,
+#               colramp = colorRampPalette(c('white',"red")),
+#               # xlim = c(0.2,1),
+#               ylim = c(-0.001,0.001),
+#               # xlab = 'NDVI (-)',
+#               # ylab = expression(Derived~delta^15*N~('‰')),
+#               pch = '',
+#               xlab=expression(log(N[soil])~(cg~kg^1)),ylab = 'Residual')
+# abline(lm(resi.n~soilN.log,data = d15n.trend.df),col='grey',lwd = 3)
+# 
+# # 
 # 
 # 
-smoothScatter(d15n.trend.df[,c("soilN.log","resi.n")],nbin = 512,
-              colramp = colorRampPalette(c('white',"red")),
-              # xlim = c(0.2,1),
-              ylim = c(-0.001,0.001),
-              # xlab = 'NDVI (-)',
-              # ylab = expression(Derived~delta^15*N~('‰')),
-              pch = '',
-              xlab=expression(log(N[soil])~(cg~kg^1)),ylab = 'Residual')
-abline(lm(resi.n~soilN.log,data = d15n.trend.df),col='grey',lwd = 3)
+# # 
+# # library(car)
+# # crPlots(fit.mat)
+# # 
+# # 
+# # fit.resi.climate.soil <- lm(mat.map.resi~soilN,data = d15n.trend.df)
+# # summary(fit.resi.climate.soil)
+# # 
+# # fit.resi.soil.climate <- lm(soilN.resi ~ mat.trend + map.trend,
+# #                             data = d15n.trend.df)
+# # summary(fit.resi.climate.soil)
 # 
 # 
-smoothScatter(d15n.trend.df[,c("soilN.log","resi.n")],nbin = 512,
-              colramp = colorRampPalette(c('white',"red")),
-              # xlim = c(0.2,1),
-              ylim = c(-0.001,0.001),
-              # xlab = 'NDVI (-)',
-              # ylab = expression(Derived~delta^15*N~('‰')),
-              pch = '',
-              xlab=expression(log(N[soil])~(cg~kg^1)),ylab = 'Residual')
-abline(lm(resi.n~soilN.log,data = d15n.trend.df),col='grey',lwd = 3)
-
-# 
-
-
-# 
-# library(car)
-# crPlots(fit.mat)
 # 
 # 
-# fit.resi.climate.soil <- lm(mat.map.resi~soilN,data = d15n.trend.df)
-# summary(fit.resi.climate.soil)
 # 
-# fit.resi.soil.climate <- lm(soilN.resi ~ mat.trend + map.trend,
-#                             data = d15n.trend.df)
-# summary(fit.resi.climate.soil)
-
-
-
-
-
-
-
-
-
-smoothScatter(d15n.trend.df[,c("map.mean","slope.fit")],
-              colramp = colorRampPalette(c('white',"grey")),
-              # xlim = c(0.2,1),
-              ylim = c(-0.001,0.001),
-              # xlab = 'NDVI (-)',
-              # ylab = expression(Derived~delta^15*N~('‰')),
-              pch = '')
-
-# x.ra <- raster('data/soil/soil_15_35_lon38_lat24.tif')
-# plot(x.ra)
+# 
+# 
+# 
+# 
+# smoothScatter(d15n.trend.df[,c("map.mean","slope.fit")],
+#               colramp = colorRampPalette(c('white',"grey")),
+#               # xlim = c(0.2,1),
+#               ylim = c(-0.001,0.001),
+#               # xlab = 'NDVI (-)',
+#               # ylab = expression(Derived~delta^15*N~('‰')),
+#               pch = '')
+# 
+# # x.ra <- raster('data/soil/soil_15_35_lon38_lat24.tif')
+# # plot(x.ra)

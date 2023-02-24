@@ -161,7 +161,7 @@ r2.vec <- c()
 for (i.plot in seq_along(pft.chosen.vec)) {
   plot.df <- landsat.g.ts.df.bio[landsat.g.ts.df.bio$biome.factor == pft.chosen.vec[i.plot],]
   # plot.df <- plot.df
-  plot.df <- plot.df[order(plot.df$dn15.pred),]
+  plot.df <- plot.df[order(plot.df$ndvi),]
   plot.df <- plot.df[complete.cases(plot.df),]
   fit.tmp <- (lm(dn15.pred ~ ndvi,data = plot.df))
   r2.vec[i.plot] <- format(summary(fit.tmp)$r.squared,digits = 2)
@@ -216,7 +216,7 @@ for (i.plot in seq_along(pft.chosen.vec)) {
   plot.df <- all.df.biome[all.df.biome$plot.f == pft.chosen.vec[i.plot],]
   
   # plot.df <- df.biome[df.biome$plot.f == pft.chosen.vec[i.plot],]
-  plot.df <- plot.df[order(plot.df$slope.yr),]
+  plot.df <- plot.df[order(plot.df$slope.ndvi),]
   plot.df <- plot.df[complete.cases(plot.df),]
   fit.tmp <- (lm(slope.yr ~ slope.ndvi,data = plot.df))
   r2.vec[i.plot] <- format(summary(fit.tmp)$r.squared,digits = 2)
