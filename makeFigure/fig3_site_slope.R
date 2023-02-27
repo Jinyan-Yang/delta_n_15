@@ -104,7 +104,7 @@ nm.vec[nm.vec%%10 != 0] <- NA
 # axis(side = 1,at = number.vec, labels = NA,lwd.ticks=1,tck=-0.01)
 legend('bottomright',
        legend = paste0(c('Increase: ','Decline: ','Stable: '),
-                       round(c(in.f,de.f,no.f)*100),' %'),
+                       round(c(in.f,de.f,no.f)*100),'%'),
        lty=c('solid','solid','dashed'),
        col= c(rgb(0.25,0.8784,0.81569,1),
               rgb(0.854902,0.6470588,0.1254902,1),

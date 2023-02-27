@@ -211,7 +211,7 @@ par(mar=c(5,5,1,1),
 # abline(lm(d15n.trend.df[,c("soilN.log","resi.n")]),col='grey',lwd = 6)
 
 plot.resi.func(dat = d15n.trend.df[,c("slope.ndvi","resi.ndvi",'Label')],
-               x.nm = expression(Trend~of~NDVI~('-')),
+               x.nm = expression(Trend~of~NDVI~(yr^-1)),
                legend.nm = '(a)',
                x.range = c(-1e-4,1e-4))
 plot.resi.func(dat = d15n.trend.df[,c("mat.c","resi.mat",'Label')],

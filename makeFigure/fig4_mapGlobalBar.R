@@ -156,10 +156,11 @@ par(mar=c(5,5,1,1))
 # legend('topleft',legend = '(a)',bty='n')
 # 
 barplot(rep(1,length(levels(biome.factor)))~ (biome.factor),
-        data = biome.frac.df.plot,ylim=c(0,1),
+        data = biome.frac.df.plot,
         col=rgb(0.25,0.8784,0.81569),
         border = NA,las=2,
-        ylab= 'Fraction',xlab='')
+        ylab= 'Fraction',xlab='',ylim=c(0,1.2),yaxt='n')
+axis(side = 2,at = seq(0,1,by=0.2),labels = seq(0,1,by=0.2))
 barplot((de.frac + non.frac)~ biome.factor,
         data = biome.frac.df.plot,
         col= 'grey',
