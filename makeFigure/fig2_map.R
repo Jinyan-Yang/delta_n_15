@@ -1,6 +1,7 @@
 library(dplyr)
 library(maps)
 library(ggplot2)
+library(raster)
 
 source('r/getModisLandCover.R')
 ny <- map_data('world') %>% filter(region != "Antarctica") %>% fortify
@@ -63,8 +64,9 @@ plot1 <-  p + geom_point(data=plot.ls.df, aes(x=lon,y=lat),
 
 #read global #####
 source('r/readSlopeGlobal.R')
+# df.biome.plot
 colnames(df.biome.plot) <- c('pft','x', 'y', 'vals','p','se','ndvi','Label')
-
+# hist(df.biome.plot$p)
 df.biome.plot$Trend <- NA
 df.biome.plot$Trend[df.biome.plot$p >=0.05] <- 'Stable'
 df.biome.plot$Trend[df.biome.plot$p == 10000] <- 'Filtered'
@@ -72,6 +74,23 @@ df.biome.plot$Trend[df.biome.plot$p < 0.05 & df.biome.plot$vals > 0] <- 'Increas
 df.biome.plot$Trend[df.biome.plot$p < 0.05 & df.biome.plot$vals < 0] <- 'Decline'
 df.biome.plot$Trend <- factor(df.biome.plot$Trend,
                               levels = c('Increase' ,'Stable','Decline','Filtered' ))
+df.biome.plot$trendVal <- as.numeric(df.biome.plot$Trend)
+
+
+# library(ggplot2)
+ra.global <- rasterFromXYZ(df.biome.plot[,c('x','y','trendVal')])
+# plot(ra.global)
+gplot_dist1 <- as.data.frame(ra.global,xy=T)
+gplot_dist1$trendVal <- as.factor(gplot_dist1$trendVal)
+# pdf('test.pdf')
+# p+
+#   geom_tile(data=gplot_dist1, 
+#             aes(x=x, y=y, fill=trendVal), 
+#             alpha=1)+
+#   scale_fill_manual(values = palette(), breaks = 1:4,
+#                     na.value = NA,
+#                     labels = levels(df.biome.plot$trendVal))
+# dev.off()
 
 palette(c(rgb(0.25,0.8784,0.81569,1),
           "grey70",
@@ -80,7 +99,14 @@ palette(c(rgb(0.25,0.8784,0.81569,1),
 # 250,235,215
 #######
 plot2 <- p +
-  geom_point(data=df.biome.plot, aes(x=x,y=y,color = Trend),size=0.001,shape = 15)+
+  geom_tile(data=gplot_dist1, 
+            aes(x=x, y=y, fill=trendVal), 
+            alpha=1)+
+  scale_fill_manual(values = palette(), breaks = 1:4,
+                    na.value = NA,
+                    labels = levels(df.biome.plot$Trend),
+                    name = "Trend")+
+  # geom_point(data=df.biome.plot, aes(x=x,y=y,color = Trend),size=0.001,shape = 15)+
   # geom_point(data=sig.df, aes(x=x,y=y),
   #            col=sig.df$col.in,size=0.0001,pch=15)  + 
   theme(legend.justification=c(0.05,0.05),legend.position=c(0.05,0.05),
@@ -88,7 +114,7 @@ plot2 <- p +
         legend.title=element_text(size=7), 
         legend.text=element_text(size=7)) +
   # guides(colour = guide_legend(override.aes = list(size=10)))
-  scale_color_manual(values=palette(), name = "Trend")+
+  # scale_color_manual(values=palette(), name = "Trend")+
   # scale_size_manual(values = rep(10, 4)) + 
   guides(colour = guide_legend(override.aes = list(size=7/.pt)))+
 
