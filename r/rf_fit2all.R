@@ -7,6 +7,7 @@ if(!file.exists('cache/groundDN15.rds')){
   combined.df <- readRDS('cache/groundDN15.rds')
 }
 source('r/functions_rf.R')
+# length(combined.df$date.obs[combined.df$date.obs>2013])
 # 
 predictor.vec <- c("blue","green","red","nir","swir1","swir2")
 

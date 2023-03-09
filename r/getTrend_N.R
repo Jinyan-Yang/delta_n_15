@@ -4,6 +4,8 @@ library(caret)
 source('r/functions_json.R')
 fit.rf.n15 <- readRDS('cache/rf.kFold.n.rds')
 
+# predict(fit.rf.n15)
+
 # 
 landsat.g.ts.ls <- readRDS('cache/landsat.ts.n15.noDup.rds')
 landsat.g.ts.ls[[1]]
@@ -20,4 +22,4 @@ landsat.ts.slope.g.df$lat <- as.numeric(landsat.ts.slope.g.df$lat)
 
 saveRDS(landsat.ts.slope.g.df,'cache/ls.n.slop.rds')
 
-get.dn154ts.new.func(landsat.g.ts.ls[[1]])
+# get.dn154ts.new.func(landsat.g.ts.ls[[1]])

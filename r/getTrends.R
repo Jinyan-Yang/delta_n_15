@@ -4,7 +4,7 @@ if(!file.exists('cache/landsat.ts.n15.noDup.rds')){
 }else{
   landsat.ts.ls <- readRDS('cache/landsat.ts.n15.noDup.rds')
 }
-landsat.ts.ls[[1]]
+# landsat.ts.ls[[1]]
 source('r/functions_json.R')
 # 
 # library(randomForest)
@@ -12,7 +12,7 @@ source('r/functions_json.R')
 # fit.rf.n15 <- readRDS('cache/rf.kFold.n15.rds')
 
 landsat.ts.slope.ls <- lapply(landsat.ts.ls, get.slope.new.func)
-landsat.ts.slope.ls[[1]]
+# landsat.ts.slope.ls[[1]]
 # landsat.ts.slope.ls <- c()
 # for (i in 1:length(landsat.ts.ls)){
 #   if(!is.null(landsat.ts.ls[[i]])){

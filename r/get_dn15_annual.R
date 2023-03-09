@@ -1,3 +1,4 @@
+source('r/functions_json.R')
 if(!file.exists('cache/ls.annual.ts.rds')){
   library(dplyr)
   library(doBy)
@@ -9,26 +10,51 @@ if(!file.exists('cache/ls.annual.ts.rds')){
   landsat.g.ts.ls.1 <- readRDS('cache/ls.ts.0.1.part1.rds')
   landsat.g.ts.ls.2 <- readRDS('cache/ls.ts.0.1.part2.rds')
   landsat.g.ts.ls <- c(landsat.g.ts.ls.1,landsat.g.ts.ls.2)
-  
+
   # landsat.g.ts.ls <- Filter(function(x) !is.na(x), landsat.g.ts.ls)
   # landsat.g.ts.ls <- landsat.g.ts.ls[!is.na(landsat.g.ts.ls)]
   # landsat.g.ts.ls <- landsat.g.ts.ls[!is.null(landsat.g.ts.ls)]
   
   # ls.g.all.df <- do.call(bind_rows,landsat.g.ts.ls)
-  
-  landsat.g.ts.ls.mean <- lapply(landsat.g.ts.ls, function(df){
-    if(!is.null(df)){
-      if(length(nrow(df))>0){
-        df$yr <- year(df$date)
-        # df <- df[order(df$ndvi),]
-        return(summaryBy(dn15.pred+ndvi~yr + lon + lat,
-                         data = df,
-                         FUN = median,na.rm=T,keep.names = T))
-        
-        # return(df[1:3,])
+  library(parallel)
+  # system.time({
+    n_cores <- 15#detectCores(logical=FALSE)
+    cl <- makeCluster(n_cores)
+    clusterEvalQ(cl, {
+      library(doBy)
+      library(lubridate)
+    })
+    landsat.g.ts.ls.mean <- parLapply(cl , landsat.g.ts.ls, function(df){
+      if(!is.null(df)){
+        if(length(nrow(df))>0){
+          df$yr <- year(df$date)
+          # df <- ls5_ls8_correct.func(df)
+          # df <- df[order(df$ndvi),]
+          return(summaryBy(dn15.pred+ndvi~yr + lon + lat,
+                           data = df,
+                           FUN = median,na.rm=T,keep.names = T))
+          
+          # return(df[1:3,])
+        }
       }
-    }
-  })
+    })
+  # })
+  stopCluster(cl)
+  # landsat.g.ts.ls.mean <- lapply(landsat.g.ts.ls, function(df){
+  #   if(!is.null(df)){
+  #     if(length(nrow(df))>0){
+  #       df$yr <- year(df$date)
+  #       # df <- df[order(df$ndvi),]
+  #       return(summaryBy(dn15.pred+ndvi~yr + lon + lat,
+  #                        data = df,
+  #                        FUN = median,
+  #                        na.rm=T,
+  #                        keep.names = T))
+  #       
+  #       # return(df[1:3,])
+  #     }
+  #   }
+  # })
   # landsat.g.ts.ls[[1]]
   # ls.g.ts.mean.clean <- landsat.g.ts.ls.mean[!sapply(landsat.g.ts.ls.mean, is.null)]
   ####
@@ -50,7 +76,8 @@ if(!file.exists('cache/ls.annual.ts.rds')){
   # #get pft for global
   landsat.g.ts.df$lon <- as.numeric(landsat.g.ts.df$lon)
   landsat.g.ts.df$lat <- as.numeric(landsat.g.ts.df$lat)
-  landsat.g.ts.df$landUse <- extract(landCover.ra.new,cbind(landsat.g.ts.df$lon,landsat.g.ts.df$lat))
+  landsat.g.ts.df$landUse <- extract(landCover.ra.new,cbind(landsat.g.ts.df$lon,
+                                                            landsat.g.ts.df$lat))
   global.dn15.df <- merge(landsat.g.ts.df,
                           name.df,
                           by.x = 'landUse',by.y = 'Value')
@@ -72,7 +99,9 @@ if(!file.exists('cache/ls.annual.ts.rds')){
   # metge sites
   site.slope.dn15.df <- merge(all.df.biome,global.dn15.df)
   slope.dn15.df.sum <- summaryBy(dn15.pred + slope.fit~lon+lat+biome.factor ,
-                                 data = site.slope.dn15.df,FUN=median,namrm=T,keep.names = T)
+                                 data = site.slope.dn15.df,
+                                 FUN=median,
+                                 na.rm=T,keep.names = T)
   saveRDS(slope.dn15.df.sum,'cache/global.slope.d15n.rds')
 }
 

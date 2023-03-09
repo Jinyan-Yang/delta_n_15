@@ -1,5 +1,6 @@
 library(lubridate)
 library(doBy)
+source('r/functions_json.R')
 
 if(!file.exists('cache/landsat.ts.rds')){
   source('r/readTS.R')

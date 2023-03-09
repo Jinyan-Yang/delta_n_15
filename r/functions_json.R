@@ -241,12 +241,17 @@ get.dn154ts.new.func <- function(df){
 
   if(length(nrow(df))>0){
     df.ori <- df
+    # correct all to ls8
+    df <- ls5_ls8_correct.func(df)
+    
     df <- df[df$nir > 0,]
     df <- df[df$red > 0,]
     df <- df[df$blue > 0,]
     df <- df[df$swir1 > 0,]
     df <- df[df$swir2 > 0,]
     df <- df[df$ndvi > 0.2,]
+    
+    
     tmp.val <- try(predict(fit.rf.n15,df))
     if(class(tmp.val) == 'try-error'){
       df.ori$dn15.pred <- NA
@@ -299,4 +304,20 @@ get.dn154ts.new.func <- function(df){
 }
 # get.dn154ts.new.func(land.sat.df)
 
+# correct for change from ls5 to ls8#####
+# https://www.sciencedirect.com/science/article/pii/S0034425715302455?via%3Dihub
+# Table 2
+# library(lubridate)
+ls5_ls8_correct.func <- function(df){
+  # df = landsat.ts.ls [[1]]
+  index.in <- grep(x = df$id,pattern = 'LT05')
+  df$blue[index.in] <-  0.0173 + 0.8707 * df$blue[index.in]
+  df$green[index.in] <-  0.0153 + 0.8707 * df$green[index.in]
+  df$red[index.in] <-  0.0107 + 0.9175 * df$red[index.in]
+  
+  df$nir[index.in] <-  0.0374 + 0.9281  * df$nir[index.in]
+  df$swir1[index.in] <-  0.0260 + 0.9414 * df$swir1[index.in]
+  df$swir2[index.in] <-  0.0490 + 0.9352 * df$swir2[index.in]
+  return(df)
+}
 
