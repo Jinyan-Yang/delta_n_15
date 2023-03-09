@@ -102,9 +102,9 @@ for (i.bio in 1:length(biome.vec)) {
   
   r2.vec[i.bio] = format(summary(fit.lm)$r.squared, digits = 2)
   # slope.vec[i.bio] = format(coef(fit.lm)[[2]], digits = 2)
-  n.rmse <- sqrt(mean((df.evaluate$Leaf15N - df.evaluate$pred.all)^2,na.rm=T)) / 
-    (quantile(df.evaluate$Leaf15N,probs = 0.95,na.rm=T) - 
-       quantile(df.evaluate$Leaf15N,probs = 0.05,na.rm=T))
+  n.rmse <- sqrt(mean((sub.df$Leaf15N - sub.df$pred.all)^2,na.rm=T)) / 
+    (quantile(sub.df$Leaf15N,probs = 0.95,na.rm=T) - 
+       quantile(sub.df$Leaf15N,probs = 0.05,na.rm=T))
   slope.vec[i.bio] <- unname(n.rmse)
   # lab.slope = bquote(NRMSE == .(format(unname(n.rmse), digits = 2)))
   n.vec[i.bio] = nrow(sub.df)
@@ -128,7 +128,7 @@ table.df <- data.frame(LCTs = biome.vec,
                        slope = slope.vec,
                        n = n.vec)
 colnames(table.df) <- c("LCTs",
-                        "R^2", 'Slope','n')
+                        "R^2", 'NRMSE','n')
 
 plot.col.vec <- sapply(palette(), t_col,percent=40)
 tt <- ttheme_default(colhead=list(fg_params = list(parse=TRUE),
