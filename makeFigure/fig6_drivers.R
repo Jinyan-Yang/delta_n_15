@@ -195,7 +195,7 @@ if(is.null(x.range)){
                 # ylab = expression(Derived~delta^15*N~('‰')),
                 pch = '',
                 xlab=x.nm,yaxt='n',
-                ylab = expression(Residual~of~delta^15*N~('‰'~yr^-1)))
+                ylab = expression(Residual~of~delta^15*N~trend~('‰'~yr^-1)))
   
   axis(2,at = seq(-5e-4,5e-4, by=1e-4),labels = seq(-5e-4,5e-4, by=1e-4))
   axis(2,at = seq(-5e-4,5e-4, by=5e-5),labels=NA, tck=-0.01)
@@ -207,7 +207,7 @@ if(is.null(x.range)){
                 # xlab = 'NDVI (-)',
                 # ylab = expression(Derived~delta^15*N~('‰')),
                 pch = '',
-                xlab=x.nm,ylab = expression(Residual~of~delta^15*N~('‰'~yr^-1)))
+                xlab=x.nm,ylab = expression(Residual~of~delta^15*N~trend~('‰'~yr^-1)))
 }
   # fit.rsi <- lm(dat[,2]~dat[,1])
   # abline(fit.rsi,col='#B4AF46',lwd = 3)

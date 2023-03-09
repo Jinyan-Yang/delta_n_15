@@ -28,16 +28,19 @@ for (i in 1:nrow(landsat.df.narm)) {
   if(!is.na(x.df$slope.p)){
     
     if(x.df$slope.p>0.05){
-      col.plot = rgb(0.1,0.1,0.1,0.5)
+      # col.plot = rgb(0.1,0.1,0.1,0.5)
+      col.plot = 'Stable'
       pch.plot = 1
     }else{
       if(x.df$slope.fit<0){
         c(218,165,32)/255
-        col.plot = rgb(0.854902,0.6470588,0.1254902,0.5)
+        # col.plot = rgb(0.854902,0.6470588,0.1254902,0.5)
+        col.plot = 'Decline'
         pch.plot = 16
       }else{
         c(64,224,208)/255
-        col.plot = rgb(0.25,0.8784,0.81569,0.5)
+        # col.plot = rgb(0.25,0.8784,0.81569,0.5)
+        col.plot = 'Increase'
         pch.plot = 16
       }
     }
@@ -54,9 +57,25 @@ for (i in 1:nrow(landsat.df.narm)) {
   }
 }
 plot.ls.df <- do.call(rbind,plot.ls)
+plot.ls.df$Trends <- factor(plot.ls.df$col.val,levels = c("Increase","Stable","Decline"))
 
-plot1 <-  p + geom_point(data=plot.ls.df, aes(x=lon,y=lat),
-                         col=plot.ls.df$col.val,size=plot.ls.df$cex.val+2,pch=1) +
+col.tran <- sapply(palette(),t_col,percent=20)
+
+plot1 <-  p + 
+  geom_point(data=plot.ls.df, 
+             aes(x=lon,y=lat,col = Trends),
+             # col = Trends,#plot.ls.df$col.val,
+             size=plot.ls.df$cex.val+2,pch=1) +
+  scale_color_manual(values = col.tran, 
+                     breaks = c("Increase","Stable","Decline"),
+                     na.value = NA,
+                     labels = levels(plot.ls.df$Trends),
+                     name = "Trend")+
+  theme(legend.justification=c(0.05,0.05),legend.position=c(0.05,0.05),
+        # plot.title = element_text(size = 12, face = "bold"),
+        legend.title=element_text(size=7), 
+        legend.text=element_text(size=7))+
+  guides(colour = guide_legend(override.aes = list(size=7/.pt)))+
   annotate(geom="text", x=-180, y=80, 
            label="(a)",
            size = 7/.pt,
@@ -141,8 +160,9 @@ df.biome.plot$Uncertainty[df.biome.plot$Uncertainty>100] <- 100
 df.biome.plot.sub <- df.biome.plot[df.biome.plot$p < 0.05,]
 hist(df.biome.plot.sub$Uncertainty)
 plot3 <- p +
-  geom_tile(data=df.biome.plot.sub, aes(x=x,y=y,fill = Uncertainty))#+
-  # scale_fill_gradientn(colours = hcl.colors(10)) 
+  geom_tile(data=df.biome.plot.sub, aes(x=x,y=y,fill = Uncertainty))+
+  scale_fill_gradientn(colors = rev(hcl.colors(20, "RdYlGn")))
+
   # geom_point(data=sig.df, aes(x=x,y=y),
   #            col=sig.df$col.in,size=0.0001,pch=15)  + 
   # theme(legend.justification=c(0.05,0.05),legend.position=c(0.05,0.05),

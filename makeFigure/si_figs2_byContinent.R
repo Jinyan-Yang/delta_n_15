@@ -9,36 +9,40 @@ if(!file.exists('cache/groundDN15.rds')){
   combined.df <- readRDS('cache/groundDN15.rds')
 }
 source('r/functions_rf.R')
-combined.df <- combined.df[complete.cases(combined.df),]
-combined.df.sum <- doBy::summaryBy(Leaf15N + green + red + 
-                                     blue +nir +swir1+swir2~lon+lat+date.obs,
-                                   data = combined.df,
-                                   FUN=mean,na.rm=T,keep.names = T)
-
-# data from 
-# Hengl, T.(2018). Global mapping of potential natural vegetation: 
-# An assessment of machine learning algorithms for estimating land potential. 
-# https://doi.org/10.7717/peerj.5457
-
-# biome.ra <- landCover.ra#raster('data/pnv_biome.type_biome00k_cf_1km_s0..0cm_2000..2017_v0.1.tif')
-# plot(biome.ra)
-# combined.df.sum$biome.no <- extract(biome.ra,cbind(combined.df.sum$lon,combined.df.sum$lat))
-# met.csv.df <- read.csv('data/pnv_biome.type_biome00k_c_1km_s0..0cm_2000..2017_v0.1.tif.csv')
-combined.df.sum$continent <- find.continent.func(combined.df.sum$lon,
-                                                 combined.df.sum$lat)
-# combined.df.biome <- merge(combined.df.sum,
-#                            name.df,
-#                            by.x = 'biome.no',by.y = 'Value')
-
+# source('r/functions_rf.R')
+source('r/get_evaluate_d15N.R')
+# combined.df <- combined.df[complete.cases(combined.df),]
+# combined.df.sum <- combined.df#doBy::summaryBy(Leaf15N + green + red +
+# #                                      blue +nir +swir1+swir2~lon+lat+date.obs,
+# #                                    data = combined.df,
+# #                                    FUN=mean,na.rm=T,keep.names = T)
 # 
-# fit.all <- readRDS('cache/rf.fit.landsatBand.rds')
-fit.all.kFold <- readRDS('cache/rf.kFold.n15.rds')
-# evaluate all
-df.evaluate <- get.train.eval.func(combined.df.sum,giveTrain=FALSE)
-# df.evaluate <- df.evaluate[df.evaluate$Label %in% c('ENF','EBF','DNF','DBF','FOR','OSH','CSH','WSA','SAV','GRA','WET','PSI','BAR'),]
+# # data from 
+# # Hengl, T.(2018). Global mapping of potential natural vegetation: 
+# # An assessment of machine learning algorithms for estimating land potential. 
+# # https://doi.org/10.7717/peerj.5457
+# 
+# # biome.ra <- landCover.ra#raster('data/pnv_biome.type_biome00k_cf_1km_s0..0cm_2000..2017_v0.1.tif')
+# # plot(biome.ra)
+# # combined.df.sum$biome.no <- extract(biome.ra,cbind(combined.df.sum$lon,combined.df.sum$lat))
+# # met.csv.df <- read.csv('data/pnv_biome.type_biome00k_c_1km_s0..0cm_2000..2017_v0.1.tif.csv')
+# combined.df.sum$continent <- find.continent.func(combined.df.sum$lon,
+#                                                  combined.df.sum$lat)
+# # combined.df.biome <- merge(combined.df.sum,
+# #                            name.df,
+# #                            by.x = 'biome.no',by.y = 'Value')
+# 
 # # 
-# 
-df.evaluate$pred.all <- predict(fit.all.kFold, df.evaluate)
+# # fit.all <- readRDS('cache/rf.fit.landsatBand.rds')
+# fit.all.kFold <- readRDS('cache/rf.kFold.n15.rds')
+# # evaluate all
+# df.evaluate <- get.train.eval.func(combined.df.sum,giveTrain=FALSE)
+# # df.evaluate <- df.evaluate[df.evaluate$Label %in% c('ENF','EBF','DNF','DBF','FOR','OSH','CSH','WSA','SAV','GRA','WET','PSI','BAR'),]
+# # # 
+# # 
+# df.evaluate$pred.all <- predict(fit.all.kFold, df.evaluate)
+df.evaluate$continent <- find.continent.func(df.evaluate$lon,
+                                                 df.evaluate$lat)
 biome.vec <- unique(df.evaluate$continent)
 df.evaluate$plot.f <- as.factor(df.evaluate$continent)
 
@@ -62,7 +66,7 @@ for (i.bio in seq_along(biome.vec)) {
   coord.df <- coord.df[!duplicated(coord.df),]
   
   if(nrow(coord.df)>5){
-    plot.fit.region.func(df.plot,use.diff.col=F)
+    plot.fit.region.func.old(df.plot,use.diff.col=F)
     legend('topleft',legend = sprintf('(%s) %s',letters[i.letter],biome.vec[i.bio]),bty='n')
     i.letter <- i.letter + 1
   }

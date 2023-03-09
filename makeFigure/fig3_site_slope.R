@@ -68,7 +68,7 @@ par(mfrow=c(2,1))
 plot(red~x, data = plot.df,
      # xlim = c(as.POSIXct("1/1/1980", format = "%m/%d/%Y"),as.POSIXct("12/31/2018", format = "%m/%d/%Y")),
      ylim=c(-4,4),xlab='',xaxt='n',pch=NA,
-     ylab=expression(Derived~delta^15*N~of~each~site~('‰')))
+     ylab=expression(Landsat~derived~delta^15*N~by~site~('‰')))
 for (i in 1:nrow(landsat.df.narm)) {
   x.df <-landsat.df.narm[i,]
   
@@ -115,7 +115,7 @@ par(mar=c(5,5,1,1))
 plot(dn15.smooth~yr,
      data = landsat.annual.df.global,
      pch=16,xlab='',
-     ylab=expression(Global~mean~of~derived~delta^15*N~('‰')),
+     ylab=expression(Global~mean~of~Landsat~derived~delta^15*N~('‰')),
      xlim=c(1980,2020),ylim=c(-0.4,0.4))
 
 arrows(x0=landsat.annual.df.global$yr, 
