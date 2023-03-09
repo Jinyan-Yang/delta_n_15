@@ -105,7 +105,7 @@ for (i.bio in 1:length(biome.vec)) {
   n.rmse <- sqrt(mean((sub.df$Leaf15N - sub.df$pred.all)^2,na.rm=T)) / 
     (quantile(sub.df$Leaf15N,probs = 0.95,na.rm=T) - 
        quantile(sub.df$Leaf15N,probs = 0.05,na.rm=T))
-  slope.vec[i.bio] <- unname(n.rmse)
+  slope.vec[i.bio] <- format(unname(n.rmse), digits = 2)
   # lab.slope = bquote(NRMSE == .(format(unname(n.rmse), digits = 2)))
   n.vec[i.bio] = nrow(sub.df)
   
