@@ -7,6 +7,7 @@ library(grid)
 library(ggplot2)
 library(gtable)
 library(raster)
+library(patchwork)
 source('r/functions_rf.R')
 source('r/get_evaluate_d15N.R')
 # pft.chosen.vec <- c('ENF','DNF','EBF','DBF','FOR','WSA','SAV','GRA','CSH','OSH','BAR')
@@ -117,15 +118,31 @@ tt <- ttheme_default(colhead=list(fg_params = list(parse=TRUE),
 pb <- tableGrob(table.df, theme=tt,rows=NULL) 
       
 pb <- gtable_add_grob(pb,
-                     grobs = rectGrob(gp = gpar(fill = NA, lwd = 2)),
-                     t = 2, b = nrow(pb), l = 1, r = ncol(pb))
+                      grobs = rectGrob(gp = gpar(fill = NA, lwd = 2)),
+                      t = 2, b = nrow(pb), l = 1, r = ncol(pb))
 pb <- gtable_add_grob(pb,
-                     grobs = rectGrob(gp = gpar(fill = NA, lwd = 2)),
-                     t = 1, l = 1, r = ncol(pb))
+                      grobs = rectGrob(gp = gpar(fill = NA, lwd = 2)),
+                      t = 1, l = 1, r = ncol(pb))
+
+pb$vp <- viewport(x = 0.5,
+                  y = unit(5.6,"cm"))
+
+# pb$widths <- unit(rep(0.9, ncol(pb)), "null")#unit(rep(0.5, ncol(pb)), "null")
+pb$heights <- unit(rep(8.6/11, nrow(pb)), "cm")
+# grid.draw(pb)
+
+
+
+#####
 pdf('figures/fig1_bioeval.pdf',width = 7,height = 4)
 
-grid.arrange(arrangeGrob(pa, pb, ncol=2,as.table = F,
-                         layout_matrix  = matrix(rep(c(1,1,1,1,2,2,2),4),nrow=4,byrow = T)))
+grid.arrange(arrangeGrob(pa, pb, 
+                         ncol=2,as.table = F,
+                         layout_matrix  = matrix(rep(c(1,1,1,1,2,2,2),4),
+                                                 nrow=4,byrow = T)))
+
+# pa + annotation_custom(pb)+ plot_layout(ncol = 2, widths = c(4, 3))
+# grid.table(pb)
 # par(mar=c(5,1,1,1))
 # plot(0,pch='',ann=F,axes=F)
 # legend('topleft',legend = paste0(biome.vec,
@@ -252,4 +269,5 @@ dev.off()
 # 
 # # p.dots
 # dev.off()
+
 

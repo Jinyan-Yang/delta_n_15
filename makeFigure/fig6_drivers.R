@@ -186,6 +186,7 @@ plot.resi.func <- function(dat,
                            y.range = c(-5e-4,5e-4)){
   # dat = d15n.trend.df[,c("soilN.log","resi.n")]
   # 
+  y.lab <- expression(Residual~('‰'~yr^-1))#expression(Residual~of~delta^15*N~trend~('‰'~yr^-1))
 if(is.null(x.range)){
   smoothScatter(dat,nbin = 256,
                 colramp = colorRampPalette(c('white','grey')),#"#B47846"
@@ -195,7 +196,7 @@ if(is.null(x.range)){
                 # ylab = expression(Derived~delta^15*N~('‰')),
                 pch = '',
                 xlab=x.nm,yaxt='n',
-                ylab = expression(Residual~of~delta^15*N~trend~('‰'~yr^-1)))
+                ylab = y.lab)
   
   axis(2,at = seq(-5e-4,5e-4, by=1e-4),labels = seq(-5e-4,5e-4, by=1e-4))
   axis(2,at = seq(-5e-4,5e-4, by=5e-5),labels=NA, tck=-0.01)
@@ -207,7 +208,8 @@ if(is.null(x.range)){
                 # xlab = 'NDVI (-)',
                 # ylab = expression(Derived~delta^15*N~('‰')),
                 pch = '',
-                xlab=x.nm,ylab = expression(Residual~of~delta^15*N~trend~('‰'~yr^-1)))
+                xlab=x.nm,
+                ylab = y.lab)
 }
   # fit.rsi <- lm(dat[,2]~dat[,1])
   # abline(fit.rsi,col='#B4AF46',lwd = 3)
@@ -239,16 +241,21 @@ if(is.null(x.range)){
   legend('topleft',legend = legend.nm,bty='n')
 }
 #plot####
-pdf('figures/fig6.driver.pdf',width = 7,height = 3.5*4)
-par(mar=c(5,5,1,1),
-    mfrow=c(4,2))
-
+pdf('figures/fig6.driver.pdf',width = 7,height = 8)
+# par(mar=c(5,5,1,1),
+#     mfrow=c(4,2))
+par(mar=c(5,5,1,1))
+layout(matrix(c(rep(1,6),2:7),ncol=3,byrow = T))
 # abline(lm(d15n.trend.df[,c("soilN.log","resi.n")]),col='grey',lwd = 6)
 
 plot.resi.func(dat = d15n.trend.df[,c("slope.ndvi","resi.ndvi",'Label')],
                x.nm = expression(Trend~of~NDVI~(yr^-1)),
                legend.nm = '(a)',
                x.range = c(-1e-4,1e-4))
+
+legend('bottomleft',legend = pft.chosen.vec,lty='solid',lwd=3,
+       col=palette(),bty='n',ncol=2,title = 'LCT')
+
 plot.resi.func(dat = d15n.trend.df[,c("mat.c","resi.mat",'Label')],
                x.nm = expression(MAT~(degree*C)),
                legend.nm = '(b)')
@@ -270,9 +277,9 @@ plot.resi.func(dat = d15n.trend.df[,c("soilN.log","resi.n",'Label')],
 plot.resi.func(dat = d15n.trend.df[,c("ndepo.log","resi.nDepo",'Label')],
                x.nm = expression(log(N[deposition])~(mg~N~m^-2~yr^-1)),
                legend.nm = '(g)')
-plot(0,pch='',ann=F,axes=F)
-legend('topleft',legend = pft.chosen.vec,lty='solid',lwd=3,
-       col=palette(),bty='n',ncol=1,title = 'LCT')
+# plot(0,pch='',ann=F,axes=F)
+# legend('topleft',legend = pft.chosen.vec,lty='solid',lwd=3,
+#        col=palette(),bty='n',ncol=1,title = 'LCT')
 
 dev.off()
 # 

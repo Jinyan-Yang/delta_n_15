@@ -1,4 +1,4 @@
-source('r/functions_plot.R')
+source('r/functions_json.R')
 # source('r/get_vic_shape.R')
 get.small.area.func <- function(ra.in,p = p){
   r2 <- crop(ra.in, extent(p))
@@ -33,7 +33,7 @@ save.tif.func <- function(yr.in,
   # dir.create('outputs/rcp85_long')
   out.nm <- sprintf('outputs/%s/%s_Map_%s.tif',y.short,y.short,yr.in)
   print(out.nm)
-  writeRaster(dn15.ra,out.nm,options=c('TFW=YES'))
+  writeRaster(dn15.ra,out.nm,options=c('TFW=YES'),overwrite=TRUE)
 }
 # d15N
 landsat.g.ts.df <- readRDS('cache/ls.annual.ts.rds')
