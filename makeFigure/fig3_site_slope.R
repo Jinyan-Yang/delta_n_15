@@ -62,13 +62,13 @@ plot.df <- landsat.ls[[1]]#fromJSON(sample.yr.df$timeseries[1])
 plot.df$x <- plot.df$date - as.Date('1980-1-1')
 
 # make plot scatter #####
-pdf('figures/fig3_trendBysite.pdf',width = 3.5,height = 2*3.5*.618)
+pdf('figures/fig3_trendBysite.pdf',width = 7,height = 7)
 par(mar=c(1,5,5,1))
 par(mfrow=c(2,1))
 plot(red~x, data = plot.df,
      # xlim = c(as.POSIXct("1/1/1980", format = "%m/%d/%Y"),as.POSIXct("12/31/2018", format = "%m/%d/%Y")),
      ylim=c(-4,4),xlab='',xaxt='n',pch=NA,
-     ylab=expression(Landsat~derived~delta^15*N~by~site~('‰')))
+     ylab=expression(Landsat*' '*derived~delta^15*N~('‰')))
 for (i in 1:nrow(landsat.df.narm)) {
   x.df <-landsat.df.narm[i,]
   
@@ -115,7 +115,7 @@ par(mar=c(5,5,1,1))
 plot(dn15.smooth~yr,
      data = landsat.annual.df.global,
      pch=16,xlab='',
-     ylab=expression(Global~mean~of~Landsat~derived~delta^15*N~('‰')),
+     ylab=expression(Global~site~mean~('‰')),
      xlim=c(1980,2020),ylim=c(-0.4,0.4))
 
 arrows(x0=landsat.annual.df.global$yr, 
