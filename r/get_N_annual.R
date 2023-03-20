@@ -21,13 +21,17 @@ if(!file.exists('cache/ls.n.annual.ts.rds')){
   system.time({
     n_cores <- 15#detectCores(logical=FALSE)
     cl <- makeCluster(n_cores)
+    clusterEvalQ(cl, {
+      library(doBy)
+      library(lubridate)
+    })
     landsat.g.ts.ls.mean <- parLapply(cl , landsat.g.ts.ls, function(df){
       if(!is.null(df)){
         if(length(nrow(df))>0){
-          df$yr <- lubridate::year(df$date)
-          df <- ls5_ls8_correct.func(df)
+          df$yr <- year(df$date)
+          # df <- ls5_ls8_correct.func(df)
           # df <- df[order(df$ndvi),]
-          return(doBY::summaryBy(dn15.pred+ndvi~yr + lon + lat,
+          return(summaryBy(dn15.pred+ndvi~yr + lon + lat,
                            data = df,
                            FUN = median,na.rm=T,keep.names = T))
           
