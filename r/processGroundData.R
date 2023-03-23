@@ -40,12 +40,22 @@ names(trait.df.d15.sub) <- c('id','lon','lat','date','d15n')
 trait.df.d15.sub$id <- 'au'
 trait.df.d15.sub <- trait.df.d15.sub[complete.cases(trait.df.d15.sub),]
 trait.df.d15.sub$leafN <- NA
+# 
+mongol.df.d15$id <- 'mongol'
+mongol.df.d15 <- mongol.df.d15[complete.cases(mongol.df.d15),]
+names(mongol.df.d15)[names(mongol.df.d15) == 'Leaf15N'] <- 'd15n'
+mongol.df.d15$leafN <- NA
+mongol.df.d15 <- mongol.df.d15[,names(trait.df.d15.sub)]
 # change date to year
 trait.df.d15.sub$date[grep('Laliberte',trait.df.d15.sub$id)] <- 2012
 trait.df.d15.sub$date[grep('Schmidt',trait.df.d15.sub$id)] <- 1998
 trait.df.d15.sub$date[grep('Schulze',trait.df.d15.sub$id)] <- 2010
 # ######
-all.df <- do.call(rbind,list(neon_15N.sub,n15.china.df.sub,trait.df.d15.sub,craine.df.sub))
+all.df <- do.call(rbind,list(neon_15N.sub,
+                             mongol.df.d15,
+                             n15.china.df.sub,
+                             trait.df.d15.sub,
+                             craine.df.sub))
 all.df$date <- as.numeric(all.df$date)
 
 all.df$lon <- as.numeric(all.df$lon)
@@ -53,7 +63,7 @@ all.df$lat <- as.numeric(all.df$lat)
 
 
 
-all.df <- all.df[complete.cases(all.df),]
+# all.df <- all.df[complete.cases(all.df),]
 all.df <- all.df[all.df$date >= 1984,]
 write.csv(all.df,'cache/groundData.csv',row.names = F)
 # gps.all.df <- all.df[,c('lon','lat','date','id')]
@@ -64,8 +74,8 @@ write.csv(all.df,'cache/groundData.csv',row.names = F)
 # # 
 # #read data#### 
 # all.df <- read.csv('additionalEvaluation.csv')
-# reflectance.df.sub <- read.csv('craine.csv')
-# reflectance.df.sub <- reflectance.df.sub[reflectance.df.sub$ndvi>0.3,]
+reflectance.df.sub <- read.csv('craine.csv')
+# reflectance.df.sub <- reflectance.df.sub[reflectance.df.sub$ndvi>0.2,]
 
 # can bands evaluation 
 neon.sc.aus.df <- read.csv('landsat_bands_additionalEvaluation.csv',na.strings = 'n/a')
