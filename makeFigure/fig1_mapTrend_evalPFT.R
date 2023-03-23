@@ -125,10 +125,10 @@ pb <- gtable_add_grob(pb,
                       t = 1, l = 1, r = ncol(pb))
 
 pb$vp <- viewport(x = 0.5,
-                  y = unit(5.6,"cm"))
+                  y = unit(5.65,"cm"))
 
 # pb$widths <- unit(rep(0.9, ncol(pb)), "null")#unit(rep(0.5, ncol(pb)), "null")
-pb$heights <- unit(rep(8.6/11, nrow(pb)), "cm")
+pb$heights <- unit(rep(8.65/11, nrow(pb)), "cm")
 # grid.draw(pb)
 
 
