@@ -4,16 +4,16 @@ library(ggplot2)
 colnames(df.biome.plot) <- c('pft','x', 'y', 'vals','p','se','ndvi','Label')
 # hist(df.biome.plot$p)
 df.biome.plot$Trend <- NA
-df.biome.plot$Trend[df.biome.plot$p >=0.05] <- 'Stable'
+df.biome.plot$Trend[df.biome.plot$p >=0.05] <- 'Non-significant'
 df.biome.plot$Trend[df.biome.plot$p == 10000] <- 'Filtered'
 df.biome.plot$Trend[df.biome.plot$p < 0.05 & df.biome.plot$vals > 0] <- 'Increase'
 df.biome.plot$Trend[df.biome.plot$p < 0.05 & df.biome.plot$vals < 0] <- 'Decline'
 df.biome.plot$Trend <- factor(df.biome.plot$Trend,
-                              levels = c('Increase' ,'Stable','Decline','Filtered' ))
+                              levels = c('Increase' ,'Non-significant','Decline','Filtered' ))
 
 d.den <- density(df.biome.plot$y[df.biome.plot$Trend == 'Decline'])
 i.den <- density(df.biome.plot$y[df.biome.plot$Trend == 'Increase'])
-n.den <- density(df.biome.plot$y[df.biome.plot$Trend == 'Stable'])
+n.den <- density(df.biome.plot$y[df.biome.plot$Trend == 'Non-significant'])
 # plot(d.den)
 
 # points(i.den,type='l',col='red')

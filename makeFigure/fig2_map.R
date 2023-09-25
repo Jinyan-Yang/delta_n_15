@@ -2,7 +2,23 @@ library(dplyr)
 library(maps)
 library(ggplot2)
 library(raster)
+t_col <- function(color, percent = 50, name = NULL) {
+  #      color = color name
+  #    percent = % transparency
+  #       name = an optional name for the color
 
+## Get RGB values for named color
+rgb.val <- col2rgb(color)
+
+## Make new color using input color as base and alpha set by transparency
+t.col <- rgb(rgb.val[1], rgb.val[2], rgb.val[3],
+             max = 255,
+             alpha = (100 - percent) * 255 / 100,
+             names = name)
+
+## Save the color
+invisible(t.col)
+}
 source('r/getModisLandCover.R')
 ny <- map_data('world') %>% filter(region != "Antarctica") %>% fortify
 
@@ -29,7 +45,7 @@ for (i in 1:nrow(landsat.df.narm)) {
     
     if(x.df$slope.p>0.05){
       # col.plot = rgb(0.1,0.1,0.1,0.5)
-      col.plot = 'Stable'
+      col.plot = 'Non-significant'
       pch.plot = 1
     }else{
       if(x.df$slope.fit<0){
@@ -57,19 +73,19 @@ for (i in 1:nrow(landsat.df.narm)) {
   }
 }
 plot.ls.df <- do.call(rbind,plot.ls)
-plot.ls.df$Trends <- factor(plot.ls.df$col.val,levels = c("Increase","Stable","Decline"))
+plot.ls.df$Trends <- factor(plot.ls.df$col.val,levels = c("Increase","Non-significant","Decline"))
 
 col.tran <- sapply(palette(),t_col,percent=20)
-
+names(col.tran) <- c("Increase","Non-significant","Decline",'NA')
 plot1 <-  p + 
   geom_point(data=plot.ls.df, 
              aes(x=lon,y=lat,col = Trends),
              # col = Trends,#plot.ls.df$col.val,
              size=plot.ls.df$cex.val+2,pch=1) +
   scale_color_manual(values = col.tran, 
-                     breaks = c("Increase","Stable","Decline"),
+                     breaks = c("Increase","Non-significant","Decline"),
                      na.value = NA,
-                     labels = levels(plot.ls.df$Trends),
+                     labels = c("Increase","Non-significant","Decline"),
                      name = "Trend")+
   theme(legend.justification=c(0.05,0.05),legend.position=c(0.05,0.05),
         # plot.title = element_text(size = 12, face = "bold"),
@@ -87,12 +103,12 @@ source('r/readSlopeGlobal.R')
 colnames(df.biome.plot) <- c('pft','x', 'y', 'vals','p','se','ndvi','Label')
 # hist(df.biome.plot$p)
 df.biome.plot$Trend <- NA
-df.biome.plot$Trend[df.biome.plot$p >=0.05] <- 'Stable'
-df.biome.plot$Trend[df.biome.plot$p == 10000] <- 'Filtered'
+df.biome.plot$Trend[df.biome.plot$p >=0.05] <- 'Non-significant'
+df.biome.plot$Trend[df.biome.plot$p == 10000] <- 'NA'
 df.biome.plot$Trend[df.biome.plot$p < 0.05 & df.biome.plot$vals > 0] <- 'Increase'
 df.biome.plot$Trend[df.biome.plot$p < 0.05 & df.biome.plot$vals < 0] <- 'Decline'
 df.biome.plot$Trend <- factor(df.biome.plot$Trend,
-                              levels = c('Increase' ,'Stable','Decline','Filtered' ))
+                              levels = c('Increase' ,'Non-significant','Decline','NA' ))
 df.biome.plot$trendVal <- as.numeric(df.biome.plot$Trend)
 
 
