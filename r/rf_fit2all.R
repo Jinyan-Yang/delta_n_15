@@ -27,12 +27,11 @@ predictor.vec <- c("blue","green","red","nir","swir1","swir2")
 
 # k fold####
 train.df <- get.train.eval.func(combined.df)
-trcontrol = trainControl(method='cv', number=10, savePredictions = T,allowParallel=TRUE)
 # 
 library(parallel) 
 # Calculate the number of cores
 print(Sys.time())
-no_cores <- 10
+no_cores <- 20
 
 library(doParallel)
 # create the cluster for caret to use
@@ -40,7 +39,9 @@ cl <- makePSOCKcluster(no_cores)
 registerDoParallel(cl)
 # 
 trcontrol = trainControl(method='cv', number=10, savePredictions = T,allowParallel=TRUE)
-rf.kfolde.n15 <- train(Leaf15N~.,data = train.df[,c(predictor.vec,'Leaf15N')], method = "rf",
+rf.kfolde.n15 <- train(Leaf15N~.,
+                       data = train.df[,c(predictor.vec,'Leaf15N')], 
+                       method = "rf",
                        trControl = trcontrol)
 
 stopCluster(cl)
@@ -48,3 +49,4 @@ registerDoSEQ()
 print(Sys.time())
 # 
 saveRDS(rf.kfolde.n15,'cache/rf.kFold.n15.rds')
+

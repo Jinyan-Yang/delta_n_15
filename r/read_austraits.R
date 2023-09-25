@@ -18,7 +18,9 @@ trait.df.d15 <- (trait.df.dn15.2 %>% join_all)$traits
 trait.df.d15 <- trait.df.d15[trait.df.d15$collection_type=='field',]
 trait.df.d15$lon <- as.numeric(trait.df.d15$`longitude (deg)`)
 trait.df.d15$lat <- as.numeric(trait.df.d15$`latitude (deg)`)
-
+nrow(trait.df.d15[!duplicated(trait.df.d15[,c('longitude (deg)','latitude (deg)')]),])
+nrow(trait.df.d15)
+trait.df.d15$
 saveRDS(trait.df.d15,'cache/austrait.dn15.rds')
 
 library(maps)

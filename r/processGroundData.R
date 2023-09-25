@@ -4,8 +4,8 @@ library(doBy)
 craine.df <- read.csv('data/craine/InputData.csv')
 craine.df$id <- paste0('craine',craine.df$ObservationID)
 craine.df$year.round <- trunc(craine.df$Year)
-craine.df.sub <- craine.df[,c("id","year.round","Longitude","Latitude","Leaf15N",'LeafN')]
-names(craine.df.sub) <- c('id','date','lon','lat','d15n','leafN')
+craine.df.sub <- craine.df[,c("id","year.round","Longitude","Latitude","Leaf15N",'LeafN','Species')]
+names(craine.df.sub) <- c('id','date','lon','lat','d15n','leafN','Species')
 # CAN dn15####
 neon_15N <- read.csv("cache/neon_15N_data.csv")
 
@@ -27,16 +27,16 @@ trait.df.d15$id <- trait.df.d15$observation_id
 
 # setup consistent format####
 library(lubridate)
-neon_15N.sub <- neon_15N[,c('id','decimalLongitude','decimalLatitude','collectDate','d15N')]
-names(neon_15N.sub) <- c('id','lon','lat','date','d15n')
+neon_15N.sub <- neon_15N[,c('id','decimalLongitude','decimalLatitude','collectDate','d15N','scientificName')]
+names(neon_15N.sub) <- c('id','lon','lat','date','d15n','Species')
 neon_15N.sub$id <- 'neon'
 neon_15N.sub$date <- year(neon_15N.sub$date)
 neon_15N.sub$leafN <- NA
-n15.china.df.sub <- n15.china.df[,c('id','Lon','Lat','Year','N15','N')]
-names(n15.china.df.sub) <- c('id','lon','lat','date','d15n','leafN')
+n15.china.df.sub <- n15.china.df[,c('id','Lon','Lat','Year','N15','N',"Species")]
+names(n15.china.df.sub) <- c('id','lon','lat','date','d15n','leafN',"Species")
 n15.china.df.sub$id <- 'sc'
-trait.df.d15.sub <- trait.df.d15[,c('id','longitude (deg)','latitude (deg)','date','value')]
-names(trait.df.d15.sub) <- c('id','lon','lat','date','d15n')
+trait.df.d15.sub <- trait.df.d15[,c('id','longitude (deg)','latitude (deg)','date','value','taxon_name')]
+names(trait.df.d15.sub) <- c('id','lon','lat','date','d15n','Species')
 trait.df.d15.sub$id <- 'au'
 trait.df.d15.sub <- trait.df.d15.sub[complete.cases(trait.df.d15.sub),]
 trait.df.d15.sub$leafN <- NA
@@ -52,7 +52,7 @@ trait.df.d15.sub$date[grep('Schmidt',trait.df.d15.sub$id)] <- 1998
 trait.df.d15.sub$date[grep('Schulze',trait.df.d15.sub$id)] <- 2010
 # ######
 all.df <- do.call(rbind,list(neon_15N.sub,
-                             mongol.df.d15,
+                             # mongol.df.d15,
                              n15.china.df.sub,
                              trait.df.d15.sub,
                              craine.df.sub))
@@ -60,7 +60,7 @@ all.df$date <- as.numeric(all.df$date)
 
 all.df$lon <- as.numeric(all.df$lon)
 all.df$lat <- as.numeric(all.df$lat)
-
+length(unique(all.df$Species))
 
 
 # all.df <- all.df[complete.cases(all.df),]

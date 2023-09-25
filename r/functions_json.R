@@ -237,7 +237,7 @@ get.slope.new.func <- function(land.sat.df,lon.col = 9,lat.col=10){
   }
 }
 # 
-get.dn154ts.new.func <- function(df){
+get.dn154ts.new.func <- function(df,ndvi.threshold = 0.2){
 
   if(length(nrow(df))>0){
     df.ori <- df
@@ -249,7 +249,7 @@ get.dn154ts.new.func <- function(df){
     df <- df[df$blue > 0,]
     df <- df[df$swir1 > 0,]
     df <- df[df$swir2 > 0,]
-    df <- df[df$ndvi > 0.2,]
+    df <- df[df$ndvi > ndvi.threshold,]
     
     
     tmp.val <- try(predict(fit.rf.n15,df))
