@@ -35,11 +35,11 @@ plot.fit.region.func <- function(df.evaluate,x.range = c(-15,15),y.range = c(-15
 
   
   if(use.diff.col){
-    col.trans.vec <- c()
+    col.trans.vec <- palette()#c()
     
-    for (i in seq_along(palette())) {
-      col.trans.vec[i] <- t_col(palette()[i],percent = 85)
-    }
+    # for (i in seq_along(palette())) {
+    #   col.trans.vec[i] <- t_col(palette()[i],percent = 85)
+    # }
   }else{
     col.trans.vec <- rep(rgb(0.9,0.1,0.1,0.8),20)
   }
@@ -60,19 +60,33 @@ plot.fit.region.func <- function(df.evaluate,x.range = c(-15,15),y.range = c(-15
   lab.slope = bquote(NRMSE == .(format(unname(n.rmse), digits = 2)))
   n.obs = bquote(n == .(format(nrow(df.evaluate), digits = 1)))#format(nrow(df.evaluate), digits = 1)
   # make plot
-  ggplot(df.evaluate,aes(x = Leaf15N,y = pred.all,col = plot.f))+
-    geom_point()+
+  sd.er<- function(x,...) sd(x,...)/sqrt(length(x))
+  library(doBy)
+  df.evaluate.sum <- summaryBy(Leaf15N+pred.all~plot.f,
+                               data = df.evaluate,
+                               FUN = c(mean,sd),na.rm=T)
+  ggplot(df.evaluate.sum, 
+         aes(y=pred.all.mean, x=Leaf15N.mean, col=plot.f)) +  
+    geom_point(size=3)+
+    geom_abline(intercept = 0, slope = 1,col=t_col('grey80',percent = 0),size=1) + 
+    geom_errorbar(aes(ymin=Leaf15N.mean-Leaf15N.sd, 
+                      ymax=Leaf15N.mean+Leaf15N.sd)) + 
+    geom_errorbarh(aes(xmin = pred.all.mean - pred.all.sd,
+                       xmax = pred.all.mean + pred.all.sd)) +
     scale_color_manual(values=col.trans.vec)+
-    xlim(x.range[1], x.range[2])+
-    ylim(y.range[1], y.range[2])+
-    geom_abline(intercept = 0, slope = 1) +
+    # xlim(x.range[1], x.range[2])+
+    # ylim(y.range[1], y.range[2])+
+    xlim(-8, 8)+
+    ylim(-8, 8)+
+    # geom_abline(intercept = 0, slope = 1) +
     theme_bw()+
     theme(legend.position="none" ,
+          text = element_text(size=14),
           panel.grid.major = element_blank(),
           panel.grid.minor = element_blank())+
     labs(y= expression(Landsat~derived~delta^15*N~('\u2030')), 
          x = expression(Observed~delta^15*N~('\u2030')))+
-
+    
     annotate(geom="text",x = 10, y = -5, 
              label = mylabel,
              size = 12/.pt,
@@ -85,6 +99,34 @@ plot.fit.region.func <- function(df.evaluate,x.range = c(-15,15),y.range = c(-15
              label = n.obs,
              size = 12/.pt,
              color="black")
+  
+  
+  # ggplot(df.evaluate,aes(x = Leaf15N,y = pred.all,col = plot.f))+
+  #   geom_point()+
+  #   scale_color_manual(values=col.trans.vec)+
+  #   xlim(x.range[1], x.range[2])+
+  #   ylim(y.range[1], y.range[2])+
+  #   geom_abline(intercept = 0, slope = 1) +
+  #   theme_bw()+
+  #   theme(legend.position="none" ,
+  #         text = element_text(size=14),
+  #         panel.grid.major = element_blank(),
+  #         panel.grid.minor = element_blank())+
+  #   labs(y= expression(Landsat~derived~delta^15*N~('\u2030')), 
+  #        x = expression(Observed~delta^15*N~('\u2030')))+
+  # 
+  #   annotate(geom="text",x = 10, y = -5, 
+  #            label = mylabel,
+  #            size = 12/.pt,
+  #            color="black")+
+  #   annotate(geom="text",x = 10, y = -6.5, 
+  #            label = lab.slope,
+  #            size = 12/.pt,
+  #            color="black") + 
+  #   annotate(geom="text",x = 10, y = -8, 
+  #            label = n.obs,
+  #            size = 12/.pt,
+  #            color="black")
 
   
   

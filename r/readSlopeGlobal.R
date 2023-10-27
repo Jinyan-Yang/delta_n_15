@@ -48,4 +48,5 @@ if(file.exists('cache/ls.d15n.slope.global.rds')){
 #      xlab="NDVI Trend", ylab="d15N")
 
 
-
+print(mean(df.biome$slope.fit))
+# sd(df.biome$slope.fit)

@@ -8,6 +8,7 @@ fit.rf.n15 <- readRDS('cache/rf.kFold.n.rds')
 
 # 
 landsat.g.ts.ls <- readRDS('cache/landsat.ts.n15.noDup.rds')
+
 landsat.g.ts.ls[[1]]
 # 
 landsat.g.ts.ls.n <- lapply(landsat.g.ts.ls,get.dn154ts.new.func)
@@ -23,3 +24,11 @@ landsat.ts.slope.g.df$lat <- as.numeric(landsat.ts.slope.g.df$lat)
 saveRDS(landsat.ts.slope.g.df,'cache/ls.n.slop.rds')
 
 # get.dn154ts.new.func(landsat.g.ts.ls[[1]])
+
+landsat.ts.slope.g.df <- readRDS('cache/ls.n.slop.rds')
+
+landsat.ts.slope.g.df$lon <- round(landsat.ts.slope.g.df$lon,digits = 1) 
+landsat.ts.slope.g.df$lat <- round(landsat.ts.slope.g.df$lat,digits = 1) 
+library(terra)
+n.ra <- rast(landsat.ts.slope.g.df[,c('lon','lat','slope.fit')])
+plot(n.ra,breaks = seq(-4e-6,4e-6,by = 1e-6),col=rainbow(8))

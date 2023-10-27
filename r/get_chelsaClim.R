@@ -1,4 +1,5 @@
 library(raster)
+library(terra)
 rasterOptions(maxmemory = 2e11)
 
 # functions ####
@@ -46,8 +47,10 @@ process.para.raster.func <- function(pr.ra.stack,
   end_time <- Sys.time()
   end_time - start_time
   
-  saveRDS(pr.trend.ra,out.nm.slope)
-  saveRDS(pr.mean.ra,out.nm.mean)
+  writeRaster(pr.trend.ra,out.nm.slope,overwrite=T)
+  writeRaster(pr.mean.ra,out.nm.mean,overwrite=T)
+  # saveRDS(pr.trend.ra,out.nm.slope)
+  # saveRDS(pr.mean.ra,out.nm.mean)
   print('finished para computing')
 }
 # download met #####
@@ -107,12 +110,12 @@ for(yr.i in 1984:2018){
 # get trend
 ppt.annual.vec <- list.files('data/met/annual',pattern = 'pr',full.names = T)
 
-pr.yr.ls <- sapply(ppt.annual.vec, raster)
+# pr.yr.ls <- sapply(ppt.annual.vec, raster)
 
-pr.ra.stack <- stack(pr.yr.ls)
+pr.ra.stack <- stack(ppt.annual.vec)
 process.para.raster.func(pr.ra.stack,
-                         out.nm.mean = 'cache/ppt.mean.rds',
-                         out.nm.slope = 'cache/ppt.trend.rds')
+                         out.nm.mean = 'cache/ppt.mean.tif',
+                         out.nm.slope = 'cache/ppt.trend.tif')
 
 # pr.ra.stack <- readAll(pr.ra.stack)
 # 
@@ -149,13 +152,13 @@ for(yr.i in 1984:2018){
 # 
 t.fn.vec <- list.files('data/met/annual/',pattern = 'tmean',full.names = T)
 
-t.ls <- lapply(t.fn.vec, raster)
+# t.ls <- lapply(t.fn.vec, raster)
 
-t.ra.stack <- stack(t.ls)
+t.ra.stack <- stack(t.fn.vec)
 # t.ra.stack <- readAll(t.ra.stack)
 process.para.raster.func(t.ra.stack,
-                         out.nm.mean = 'cache/tmean.mean.rds',
-                         out.nm.slope = 'cache/tmean.trend.rds')
+                         out.nm.mean = 'cache/tmean.mean.tif',
+                         out.nm.slope = 'cache/tmean.trend.tif')
 remove(pr.ra.stack)
 # t.trend.ra <- calc(t.ra.stack,function(ts){
 #   if(sum(ts,na.rm=T)==0){
