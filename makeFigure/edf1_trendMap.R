@@ -77,7 +77,7 @@ df.biome.plot.sub$Trend[df.biome.plot.sub$Trend < -0.1] <- -0.1
 # names(df.biome.plot.sub)
 # hist(df.biome.plot.sub$Trend)
 
-trend.ra <- raster::rasterFromXYZ(df.biome.plot.sub[,c('x','y','Trend')])
+# trend.ra <- raster::rasterFromXYZ(df.biome.plot.sub[,c('x','y','Trend')])
 # trend.ra$vals
 # plot(trend.ra)
 plot1 <-  p + 

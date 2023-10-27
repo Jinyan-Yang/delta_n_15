@@ -1,3 +1,96 @@
+# d15n.trend.df <- readRDS('cache/ls.d15n.slope.global.rds')
+library(terra)
+d15n.trend.df <- readRDS('cache/trendsNGlobal.rds')
+
+mat.mean.ra <- rast('cache/tmean.mean.tif')
+mat.trend.ra <- rast('cache/tmean.trend.tif')
+map.mean.ra <- rast('cache/ppt.mean.tif')
+map.trend.ra <- rast('cache/ppt.trend.tif')
+# plot(mat.mean.ra)
+library(raster)
+rasterOptions(maxmemory = 2e5)
+get.raster.data.func <- function(ra.in,df.in,col.nm){
+  df.in[,col.nm] <- terra::extract(ra.in,cbind(df.in$lon,df.in$lat))[,1]
+  return(df.in)
+}
+soil.fn <- list.files('data/soil/',pattern = '.tif',full.names = T)
+
+get.soil.func <- function(df.in,soil.fn){
+  
+  soil.ls <- lapply(soil.fn, raster)
+  
+  soil.ls <- lapply(soil.ls, readAll)
+  
+  fn.pattern <- "soil_15_35_lon%s_lat%s.tif"
+  
+  apply(df.in, 1,simplify = TRUE, function(vec){
+    # vec <- c(101,59)
+    x <- as.integer(vec[1])
+    y <- as.integer(vec[2])
+    
+    if(x%%2 == 0){
+      if(x>0){
+        x <- x 
+      }else{
+        x <- x - 2
+      }
+      
+    }else{
+      x <- x - x%%2 
+    }
+    
+    if(y%%2 == 0){
+      if(y>0){
+        y <- y 
+      }else{
+        y <- y - 2
+      }
+    }else{
+      y <- y - y%%2 
+    }
+    # 
+    # if(y>0){
+    #   y <- y - y%%2 
+    # }else{
+    #   y <- y - y%%2 - 2
+    # }
+    
+    fn <- sprintf(fn.pattern,x,y)
+    fn.i <- grep(pattern = fn,x = soil.fn)
+    if(length(fn.i)==0){
+      return(NA)
+    }else{
+      # x.ra <- raster(soil.fn[fn.i])
+      # plot(x.ra)
+      # points(x = vec[1],y=vec[2])
+      return(raster::extract(soil.ls[[fn.i]],cbind(vec[1],vec[2])))
+    }
+  })
+}
+# hist(d15n.trend.df$mat.trend)
+d15n.trend.df <- get.raster.data.func(mat.mean.ra,d15n.trend.df,'mat.mean')
+d15n.trend.df <- get.raster.data.func(mat.trend.ra,d15n.trend.df,'mat.trend')
+# d15n.trend.df$mat.mean <- d15n.trend.df$mat.mean * .1 - 273.15
+# d15n.trend.df$mat.trend <- d15n.trend.df$mat.trend #* .1 #- 273.15
+
+hist(d15n.trend.df$mat.trend)
+# hist(d15n.trend.df$mat.mean + 273.15)
+d15n.trend.df <- get.raster.data.func(map.mean.ra,d15n.trend.df,'map.mean')
+d15n.trend.df <- get.raster.data.func(map.trend.ra,d15n.trend.df,'map.trend')
+
+# d15n.trend.df$map.mean <- d15n.trend.df$map.mean * .1
+# d15n.trend.df$map.trend <- d15n.trend.df$map.trend #* .1
+hist(d15n.trend.df$map.trend)
+
+# d15n.trend.df <- get.raster.data.func(map.trend.ra,d15n.trend.df,'soilN')
+# 
+d15n.trend.df$soilN <- get.soil.func(df.in = d15n.trend.df,soil.fn)
+
+saveRDS(d15n.trend.df,'cache/NTrend.met.soil.rds')
+# d15n.trend.df <- readRDS('cache/NTrend.met.soil.rds')
+
+
+########
 source('r/getModisLandCover.R')
 source('r/color.R')
 source('r/get_N_Depo.R')
@@ -249,128 +342,3 @@ if(is.null(x.range)){
   }
   legend('topleft',legend = legend.nm,bty='n')
 }
-#plot####
-pdf('figures/fig6.driver.pdf',width = 7,height = 7)
-# par(mar=c(5,5,1,1),
-#     mfrow=c(4,2))
-par(mar=c(5,5,1,1))
-layout(matrix(c(rep(1,6),2:7),ncol=3,byrow = T))
-# abline(lm(d15n.trend.df[,c("soilN.log","resi.n")]),col='grey',lwd = 6)
-d15n.trend.df$slope.ndvi.104 <- d15n.trend.df$slope.ndvi *1e4
-d15n.trend.df$resi.ndvi.104 <- d15n.trend.df$resi.ndvi *1e4
-plot.resi.func(dat = d15n.trend.df[,c("slope.ndvi.104","resi.ndvi.104",'Label')],
-               x.nm = expression(Trend~of~NDVI~(10^-4~yr^-1)),
-               legend.nm = '(a)',
-               x.range = c(-1,1),
-               y.range = c(-5,5))
-
-legend('bottomleft',legend = pft.chosen.vec,lty='solid',lwd=3,
-       col=palette(),bty='n',ncol=2,title = 'LCT')
-
-d15n.trend.df$resi.mat.104 <- d15n.trend.df$resi.mat *1e4
-plot.resi.func(dat = d15n.trend.df[,c("mat.c","resi.mat.104",'Label')],
-               x.nm = expression(MAT~(degree*C)),
-               legend.nm = '(b)')
-
-d15n.trend.df$resi.map.104 <- d15n.trend.df$resi.map *1e4
-plot.resi.func(dat = d15n.trend.df[,c("map.log","resi.map.104",'Label')],
-               x.nm = expression(log[10](MAP)~(mm~yr^-1)),
-               legend.nm = '(c)')
-# plot.resi.func(dat = d15n.trend.df[,c("mat.trend","resi.matTrend",'Label')],
-#                x.nm = expression(Trend~of~MAT~(K~yr^-1)),
-#                legend.nm = '(d)')
-d15n.trend.df$resi.mapTrend.104 <- d15n.trend.df$resi.mapTrend *1e4
-plot.resi.func(dat = d15n.trend.df[,c("map.trend","resi.mapTrend.104",'Label')],
-               x.nm = expression(Trend~of~MAP~(mm~yr^-2)),
-               legend.nm = '(d)')
-
-d15n.trend.df$resi.ele.104 <- d15n.trend.df$resi.ele *1e4
-plot.resi.func(dat = d15n.trend.df[,c("ele.log","resi.ele.104",'Label')],
-               x.nm = expression(log[10]*(Elevation+1000)~(m)),
-               legend.nm = '(e)')
-
-d15n.trend.df$resi.n.104 <- d15n.trend.df$resi.n *1e4
-plot.resi.func(dat = d15n.trend.df[,c("soilN.log","resi.n.104",'Label')],
-               x.nm = expression(log[10](N[soil])~(cg~kg^1)),
-               legend.nm = '(f)')
-
-d15n.trend.df$resi.nDepo.104 <- d15n.trend.df$resi.nDepo *1e4
-plot.resi.func(dat = d15n.trend.df[,c("ndepo.log","resi.nDepo.104",'Label')],
-               x.nm = expression(log[10](N[deposition])~(mg~N~m^-2~yr^-1)),
-               legend.nm = '(g)')
-# plot(0,pch='',ann=F,axes=F)
-# legend('topleft',legend = pft.chosen.vec,lty='solid',lwd=3,
-#        col=palette(),bty='n',ncol=1,title = 'LCT')
-
-dev.off()
-# 
-
-
-
-
-# old code no use######
-# smoothScatter(d15n.trend.df[,c("soilN.log","resi.n")],nbin = 512,
-#               colramp = colorRampPalette(c('white',"red")),
-#               # xlim = c(0.2,1),
-#               ylim = c(-0.001,0.001),
-#               # xlab = 'NDVI (-)',
-#               # ylab = expression(Derived~delta^15*N~('‰')),
-#               pch = '',
-#               xlab=expression(log(N[soil])~(cg~kg^1)),ylab = 'Residual')
-# abline(lm(resi.n~soilN.log,data = d15n.trend.df),col='grey',lwd = 3)
-# # 
-# # 
-# smoothScatter(d15n.trend.df[,c("soilN.log","resi.n")],nbin = 512,
-#               colramp = colorRampPalette(c('white',"red")),
-#               # xlim = c(0.2,1),
-#               ylim = c(-0.001,0.001),
-#               # xlab = 'NDVI (-)',
-#               # ylab = expression(Derived~delta^15*N~('‰')),
-#               pch = '',
-#               xlab=expression(log(N[soil])~(cg~kg^1)),ylab = 'Residual')
-# abline(lm(resi.n~soilN.log,data = d15n.trend.df),col='grey',lwd = 3)
-# # 
-# # 
-# smoothScatter(d15n.trend.df[,c("soilN.log","resi.n")],nbin = 512,
-#               colramp = colorRampPalette(c('white',"red")),
-#               # xlim = c(0.2,1),
-#               ylim = c(-0.001,0.001),
-#               # xlab = 'NDVI (-)',
-#               # ylab = expression(Derived~delta^15*N~('‰')),
-#               pch = '',
-#               xlab=expression(log(N[soil])~(cg~kg^1)),ylab = 'Residual')
-# abline(lm(resi.n~soilN.log,data = d15n.trend.df),col='grey',lwd = 3)
-# 
-# # 
-# 
-# 
-# # 
-# # library(car)
-# # crPlots(fit.mat)
-# # 
-# # 
-# # fit.resi.climate.soil <- lm(mat.map.resi~soilN,data = d15n.trend.df)
-# # summary(fit.resi.climate.soil)
-# # 
-# # fit.resi.soil.climate <- lm(soilN.resi ~ mat.trend + map.trend,
-# #                             data = d15n.trend.df)
-# # summary(fit.resi.climate.soil)
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# smoothScatter(d15n.trend.df[,c("map.mean","slope.fit")],
-#               colramp = colorRampPalette(c('white',"grey")),
-#               # xlim = c(0.2,1),
-#               ylim = c(-0.001,0.001),
-#               # xlab = 'NDVI (-)',
-#               # ylab = expression(Derived~delta^15*N~('‰')),
-#               pch = '')
-# 
-# # x.ra <- raster('data/soil/soil_15_35_lon38_lat24.tif')
-# # plot(x.ra)

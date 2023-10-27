@@ -98,6 +98,8 @@ colnames(df.biome) <- c('pft','x', 'y', 'vals','p','se','slope.ndvi','Label','pl
 df.biome.plot.sub <- df.biome[df.biome$p <10000,]
 df.biome.plot.sub$biome.factor <- factor(df.biome.plot.sub$Label,
                                         levels = c(pft.chosen.vec))
+
+biome.frac.df.plot <- biome.frac.df.plot[complete.cases(biome.frac.df.plot),]
 # # # create a raster object
 # r_obj <- raster(xmn=-180, xmx=180, ymn=-90, ymx=90, resolution=c(0.1,0.1))
 # # 

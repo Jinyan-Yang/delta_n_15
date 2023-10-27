@@ -6,18 +6,18 @@ t_col <- function(color, percent = 50, name = NULL) {
   #      color = color name
   #    percent = % transparency
   #       name = an optional name for the color
-
-## Get RGB values for named color
-rgb.val <- col2rgb(color)
-
-## Make new color using input color as base and alpha set by transparency
-t.col <- rgb(rgb.val[1], rgb.val[2], rgb.val[3],
-             max = 255,
-             alpha = (100 - percent) * 255 / 100,
-             names = name)
-
-## Save the color
-invisible(t.col)
+  
+  ## Get RGB values for named color
+  rgb.val <- col2rgb(color)
+  
+  ## Make new color using input color as base and alpha set by transparency
+  t.col <- rgb(rgb.val[1], rgb.val[2], rgb.val[3],
+               max = 255,
+               alpha = (100 - percent) * 255 / 100,
+               names = name)
+  
+  ## Save the color
+  invisible(t.col)
 }
 source('r/getModisLandCover.R')
 ny <- map_data('world') %>% filter(region != "Antarctica") %>% fortify
@@ -99,9 +99,11 @@ plot1 <-  p +
 
 #read global #####
 # source('r/readSlopeGlobal.R')
-df.biome.plot <- n.slope.df
+
 # df.biome.plot
-colnames(df.biome.plot) <- c('pft','x', 'y', 'vals','p','se','ndvi','Label')
+
+df.biome.plot <- readRDS('cache/trendsNGlobal.rds')
+colnames(df.biome.plot) <- c('vals','p','se','r2','intcpt','x', 'y')
 # hist(df.biome.plot$p)
 df.biome.plot$Trend <- NA
 df.biome.plot$Trend[df.biome.plot$p >=0.05] <- 'Non-significant'
@@ -134,7 +136,7 @@ palette(c(rgb(0.25,0.8784,0.81569,1),
           rgb(250/255,235/255,215/255,1)))
 # 250,235,215
 #######
-plot2 <- p +
+plot1 <- p +
   geom_tile(data=gplot_dist1, 
             aes(x=x, y=y, fill=trendVal), 
             alpha=1)+
@@ -153,57 +155,51 @@ plot2 <- p +
   # scale_color_manual(values=palette(), name = "Trend")+
   # scale_size_manual(values = rep(10, 4)) + 
   guides(colour = guide_legend(override.aes = list(size=7/.pt)))+
-
+  
   annotate(geom="text", x=-180, y=80, 
            label="(b)",
            size = 7/.pt,
            color="black")
+#p2#####
 
+df.biome.plot$Trend <- NA
+df.biome.plot$Trend[df.biome.plot$p >=0.05] <- 'Stable'
+df.biome.plot$Trend[df.biome.plot$p == 10000] <- 'Filtered'
+df.biome.plot$Trend[df.biome.plot$p < 0.05 & df.biome.plot$vals > 0] <- 'Increase'
+df.biome.plot$Trend[df.biome.plot$p < 0.05 & df.biome.plot$vals < 0] <- 'Decline'
+df.biome.plot$Trend <- factor(df.biome.plot$Trend,
+                              levels = c('Increase' ,'Stable','Decline','Filtered' ))
+df.biome.plot$trendVal <- as.numeric(df.biome.plot$Trend)
+df.biome.plot.sub <- df.biome.plot[df.biome.plot$Trend != 'Filtered',]
+df.biome.plot.sub$Trend <- df.biome.plot.sub$vals 
+df.biome.plot.sub$Trend[df.biome.plot.sub$Trend > 0.01] <- 0.01
+df.biome.plot.sub$Trend[df.biome.plot.sub$Trend < -0.01] <- -0.01
 
+increase.fol <- colorRampPalette(c(rgb(0.25,0.8784,0.81569,1),'blue'))
+decrease.fol <- colorRampPalette(c('red',rgb(0.854902,0.6470588,0.1254902,1)))
+plot2 <-  p + 
+  geom_tile(data=df.biome.plot.sub, 
+            aes(x=x,y=y,fill = Trend)) +
+  scale_fill_gradientn(colours = c(decrease.fol(4),
+                                   increase.fol(4)), 
+                       breaks = seq(-0.01,0.01,by=0.0025),
+                       na.value = NA,
+                       labels = seq(-0.01,0.01,by=0.0025),
+                       name = "Trend")+
+  theme(legend.justification=c(0.05,0.05),legend.position=c(0.05,0.05),
+        # plot.title = element_text(size = 12, face = "bold"),
+        legend.title=element_text(size=7), 
+        legend.text=element_text(size=7))+
+  guides(colour = guide_legend(override.aes = list(size=7/.pt)))
 
-#plot together######
-require(gridExtra)
-# png('figures/fig2Maps.png',width = 3600,height = 3600)
-# grid.arrange(plot1, plot2, nrowC=2)
+# hist(df.biome.plot.sub$Trend)
+# #plot together######
+# require(gridExtra)
+# pdf('figures/fig2Maps.pdf',width = 7,height = 7)
+# grid.arrange(plot1, plot2, nrow=2)
 # dev.off()
-
-pdf('figures/fig2Maps.pdf',width = 7,height = 7)
-grid.arrange(plot1, plot2, nrow=2)
+pdf('figures/NMaps.pdf',width = 7,height = 3.5)
+plot2
 dev.off()
-#########
-df.biome.plot$Uncertainty <- abs(df.biome.plot$se / df.biome.plot$vals) * 100
-df.biome.plot$Uncertainty[df.biome.plot$Uncertainty>100] <- 100
 
-df.biome.plot.sub <- df.biome.plot[df.biome.plot$p < 0.05,]
-hist(df.biome.plot.sub$Uncertainty)
-plot3 <- p +
-  geom_tile(data=df.biome.plot.sub, aes(x=x,y=y,fill = Uncertainty))+
-  scale_fill_gradientn(colors = rev(hcl.colors(20, "RdYlGn")))
 
-  # geom_point(data=sig.df, aes(x=x,y=y),
-  #            col=sig.df$col.in,size=0.0001,pch=15)  + 
-  # theme(legend.justification=c(0.05,0.05),legend.position=c(0.05,0.05),
-  #       # plot.title = element_text(size = 12, face = "bold"),
-  #       legend.title=element_text(size=7), 
-  #       legend.text=element_text(size=7)) #+
-  # guides(colour = guide_legend(override.aes = list(size=10)))
-  # scale_color_manual(values=palette(), name = "Trend")+
-  # scale_size_manual(values = rep(10, 4)) + 
-  # guides(colour = guide_legend(override.aes = list(size=7/.pt)))+
-  
-  # annotate(geom="text", x=-180, y=80, 
-  #          label="(b)",
-  #          size = 7/.pt,
-  #          color="black")
-
-##########
-pdf('figures/SI_mapGlobalTrendSE.pdf',height = 3,width = 6)
-par(mar=c(3,3,1,1))
-# col.vec <- c('lightskyblue','blue','navy')
-# plot(r_slope,col='grey',legend=F)
-# plot(r_se.frac,breaks = seq(0,0.0015,length.out=4),col=col.vec,legend=F,add=T)
-# legend('bottom',legend = c('<0.0005','<0.001','<0.0015','NS'),pch=15,col=c(col.vec,'grey'),horiz = T,bty='n',cex=2)
-# plot3 <- p +
-#   geom_tile(data=df.biome.plot, aes(x=x,y=y,fill = Uncertainty))
-plot3
-dev.off()

@@ -46,7 +46,7 @@ source('r/get_evaluate_d15N.R')
 # rsme.func(obs = df.evaluate$Leaf15N,prd = df.evaluate$pred.all)
 
 df.evaluate$plot.f <- factor(df.evaluate$Label,levels = pft.chosen.vec )
-df.evaluate$plot.f <- droplevels(df.evaluate$plot.f)
+# df.evaluate$plot.f <- droplevels(df.evaluate$plot.f)
 biome.vec <- levels(df.evaluate$plot.f)
 
 df.evaluate.lonLat <- df.evaluate[,c('lon','lat')]
@@ -67,6 +67,7 @@ df.evaluate.lonLat <- df.evaluate.lonLat[!duplicated(df.evaluate.lonLat),]
 # 
 pa <- plot.fit.region.func(df.evaluate = df.evaluate)
 
+
 # df.evaluate$plot.f
 slope.vec <- c()
 r2.vec <- c()
@@ -74,21 +75,28 @@ n.vec <- c()
 for (i.bio in 1:length(biome.vec)) {
   
   sub.df <- df.evaluate[df.evaluate$plot.f == biome.vec[i.bio],]
-  # fit.lm <- lm(Leaf15N~pred.all,data = sub.df)
-  fit.lm <- lm(pred.all~Leaf15N,data = sub.df)
-  coord.df <- sub.df[,c("lon",'lat')]
-  coord.df <- coord.df[!duplicated(coord.df),]
-  
-  r2.vec[i.bio] = format(summary(fit.lm)$r.squared, digits = 2)
-  # slope.vec[i.bio] = format(coef(fit.lm)[[2]], digits = 2)
-  
-  # rmse <- sqrt(mean((sub.df$Leaf15N - sub.df$pred.all)^2))
-  n.rmse <- sqrt(mean((sub.df$Leaf15N - sub.df$pred.all)^2,na.rm=T)) / 
-    (quantile(sub.df$Leaf15N,probs = 0.95,na.rm=T) - 
-       quantile(sub.df$Leaf15N,probs = 0.05,na.rm=T))
-  slope.vec[i.bio] <- format(n.rmse, digits = 2)
-  n.vec[i.bio] = nrow(sub.df)
-  
+  if(nrow(sub.df)==0){
+    slope.vec[i.bio] <- NA
+    n.vec[i.bio] = NA
+    r2.vec[i.bio] = NA
+  }else{
+    # fit.lm <- lm(Leaf15N~pred.all,data = sub.df)
+    fit.lm <- lm(pred.all~Leaf15N,data = sub.df)
+    coord.df <- sub.df[,c("lon",'lat')]
+    coord.df <- coord.df[!duplicated(coord.df),]
+    
+    r2.vec[i.bio] = format(summary(fit.lm)$r.squared, digits = 2)
+    # slope.vec[i.bio] = format(coef(fit.lm)[[2]], digits = 2)
+    
+    # rmse <- sqrt(mean((sub.df$Leaf15N - sub.df$pred.all)^2))
+    n.rmse <- sqrt(mean((sub.df$Leaf15N - sub.df$pred.all)^2,na.rm=T)) / 
+      (quantile(sub.df$Leaf15N,probs = 0.95,na.rm=T) - 
+         quantile(sub.df$Leaf15N,probs = 0.05,na.rm=T))
+    slope.vec[i.bio] <- format(n.rmse, digits = 2)
+    n.vec[i.bio] = nrow(sub.df)
+    
+    
+  }
   rm(sub.df)
 }
 
@@ -107,12 +115,16 @@ table.df <- data.frame(LCTs = biome.vec,
                        R2 = r2.vec,
                        NRMSE = slope.vec,
                        n = n.vec)
+
+na.index <- which(is.na(table.df$NRMSE))
+table.df <- table.df[complete.cases(table.df),]
 colnames(table.df) <- c("LCTs",
                  "R^2", 'NRMSE','n')
 
-plot.col.vec <- sapply(palette(), t_col,percent=40)
+plot.col.vec <- sapply(palette()[-na.index], t_col,percent=40)
 tt <- ttheme_default(colhead=list(fg_params = list(parse=TRUE),
                                   bg_params=list(fill="white")),
+                     text = element_text(size=12),
                      core=list(bg_params = list(fill = plot.col.vec, col=NA)))
 # pb <- grid.table(table.df, theme=tt,rows=NULL)
 pb <- tableGrob(table.df, theme=tt,rows=NULL) 
@@ -124,11 +136,18 @@ pb <- gtable_add_grob(pb,
                       grobs = rectGrob(gp = gpar(fill = NA, lwd = 2)),
                       t = 1, l = 1, r = ncol(pb))
 
+# pb$vp <- viewport(x = 0.5,
+#                   y = unit(5.65,"cm"),
+#                   height = unit(12, "cm"),
+#                   just='top')
+
 pb$vp <- viewport(x = 0.5,
-                  y = unit(5.65,"cm"))
+                  y = unit(5.65,"cm"),
+                  # height = unit(15, "cm"),
+                  just='center')
 
 # pb$widths <- unit(rep(0.9, ncol(pb)), "null")#unit(rep(0.5, ncol(pb)), "null")
-pb$heights <- unit(rep(8.65/11, nrow(pb)), "cm")
+# pb$heights <- unit(rep(8.65/11, nrow(pb)), "cm")
 # grid.draw(pb)
 
 
@@ -141,19 +160,7 @@ grid.arrange(arrangeGrob(pa, pb,
                          layout_matrix  = matrix(rep(c(1,1,1,1,2,2,2),4),
                                                  nrow=4,byrow = T)))
 
-# pa + annotation_custom(pb)+ plot_layout(ncol = 2, widths = c(4, 3))
-# grid.table(pb)
-# par(mar=c(5,1,1,1))
-# plot(0,pch='',ann=F,axes=F)
-# legend('topleft',legend = paste0(biome.vec,
-#                                  ': ',
-#                                  slope.vec,', ',
-#                                  r2.vec,', ',
-#                                  n.vec),
-#        col=palette(),
-#        bty='n',ncol=1,
-#        title = expression('LCT: Slope,'~R^2*', n'),
-#        xpd=T,pch=16)
+
 dev.off()
 # 
 # layout(matrix(c(1,1,1,1,1,1,1,1,1,

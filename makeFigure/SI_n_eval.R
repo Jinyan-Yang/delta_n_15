@@ -2,6 +2,12 @@ source('r/getModisLandCover.R')
 source('r/color.R')
 library(raster)
 library(maps)
+library(gridExtra)
+library(grid)
+library(ggplot2)
+library(gtable)
+library(raster)
+library(patchwork)
 # get ground data and dn15 and pft######
 # source('r/evaluation_process.R')
 if(!file.exists('cache/groundDN15.rds')){
@@ -57,36 +63,75 @@ n.rmse <- sqrt(mean((df.evaluate$Leaf15N - df.evaluate$pred.all)^2,na.rm=T)) /
 lab.slope = bquote(NRMSE == .(format(unname(n.rmse), digits = 2)))
 n.obs = bquote(n == .(format(nrow(df.evaluate), digits = 1)))#format(nrow(df.evaluate), digits = 1)
 # make plot
-col.trans.vec <- c()
+col.trans.vec <- palette()
 
-for (i in seq_along(palette())) {
-  col.trans.vec[i] <- t_col(palette()[i],percent = 85)
-}
-pa <- ggplot(df.evaluate,aes(x = leafN.log,y = pred.all,col = plot.f))+
-  geom_point()+
+# for (i in seq_along(palette())) {
+#   col.trans.vec[i] <- t_col(palette()[i],percent = 85)
+# }
+df.evaluate$leafN <- df.evaluate$lea
+library(doBy)
+df.evaluate$pred.all <- exp(df.evaluate$pred.all)
+df.evaluate.sum <- summaryBy(leafN+pred.all~plot.f,
+                             data = df.evaluate,
+                             FUN = c(mean,sd),na.rm=T)
+pa <- ggplot(df.evaluate.sum,aes(x = leafN.mean,y = pred.all.mean,col = plot.f)) +  
+  geom_point(size=3)+
+  geom_abline(intercept = 0, slope = 1,col=t_col('grey80',percent = 0),size=1) + 
+  geom_errorbar(aes(ymin=leafN.mean-leafN.sd, 
+                    ymax=leafN.mean+leafN.sd)) + 
+  geom_errorbarh(aes(xmin = pred.all.mean - pred.all.sd,
+                     xmax = pred.all.mean + pred.all.sd)) +
   scale_color_manual(values=col.trans.vec)+
-  xlim(0, 5)+
-  ylim(0, 5)+
-  geom_abline(intercept = 0, slope = 1) +
+  # xlim(x.range[1], x.range[2])+
+  # ylim(y.range[1], y.range[2])+
+  xlim(5, 35)+
+  ylim(5, 35)+
+  # geom_abline(intercept = 0, slope = 1) +
   theme_bw()+
   theme(legend.position="none" ,
+        text = element_text(size=14),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank())+
-  labs(y= expression(Landsat~derived~'[N]'~('%')), 
+  labs(y= expression(Landsat~derived~'[N]'~('%')),
        x = expression(Observed~'[N]'~('%')))+
-  
-  annotate(geom="text",x = 4, y = 2, 
+
+  annotate(geom="text",x = 29, y = 10,
            label = mylabel,
            size = 12/.pt,
-           color="black")+
-  annotate(geom="text",x = 4, y = 1.5, 
+           color="black") +
+  annotate(geom="text",x = 29, y = 12,
            label = lab.slope,
            size = 12/.pt,
-           color="black") + 
-  annotate(geom="text",x = 4, y = 1, 
+           color="black") +
+  annotate(geom="text",x = 29, y = 14,
            label = n.obs,
            size = 12/.pt,
            color="black")
+# pa <- ggplot(df.evaluate,aes(x = leafN.log,y = pred.all,col = plot.f))+
+#   geom_point()+
+#   scale_color_manual(values=col.trans.vec)+
+#   xlim(0, 5)+
+#   ylim(0, 5)+
+#   geom_abline(intercept = 0, slope = 1) +
+#   theme_bw()+
+#   theme(legend.position="none" ,
+#         panel.grid.major = element_blank(),
+#         panel.grid.minor = element_blank())+
+#   labs(y= expression(Landsat~derived~'[N]'~('%')), 
+#        x = expression(Observed~'[N]'~('%')))+
+#   
+#   annotate(geom="text",x = 4, y = 2, 
+#            label = mylabel,
+#            size = 12/.pt,
+#            color="black")+
+#   annotate(geom="text",x = 4, y = 1.5, 
+#            label = lab.slope,
+#            size = 12/.pt,
+#            color="black") + 
+#   annotate(geom="text",x = 4, y = 1, 
+#            label = n.obs,
+#            size = 12/.pt,
+#            color="black")
 
 # df.evaluate$plot.f
 slope.vec <- c()
@@ -125,14 +170,18 @@ r2.vec[which(n.vec<5)] <- NA
 
 table.df <- data.frame(LCTs = biome.vec,
                        R2 = r2.vec,
-                       slope = slope.vec,
+                       NRMSE = slope.vec,
                        n = n.vec)
+
+na.index <- which(is.na(table.df$NRMSE))
+table.df <- table.df[complete.cases(table.df),]
 colnames(table.df) <- c("LCTs",
                         "R^2", 'NRMSE','n')
 
 plot.col.vec <- sapply(palette(), t_col,percent=40)
 tt <- ttheme_default(colhead=list(fg_params = list(parse=TRUE),
                                   bg_params=list(fill="white")),
+                     text = element_text(size=14),
                      core=list(bg_params = list(fill = plot.col.vec, col=NA)))
 # pb <- grid.table(table.df, theme=tt,rows=NULL)
 pb <- tableGrob(table.df, theme=tt,rows=NULL) 
