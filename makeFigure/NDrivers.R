@@ -15,18 +15,19 @@ get.raster.data.func <- function(ra.in,df.in,col.nm){
 }
 soil.fn <- list.files('data/soil/',pattern = '.tif',full.names = T)
 
+library(terra)
+# soil.ls <- lapply(soil.fn, rast)
 get.soil.func <- function(df.in,soil.fn){
-  
-  soil.ls <- lapply(soil.fn, raster)
-  
-  soil.ls <- lapply(soil.ls, readAll)
   
   fn.pattern <- "soil_15_35_lon%s_lat%s.tif"
   
   apply(df.in, 1,simplify = TRUE, function(vec){
     # vec <- c(101,59)
-    x <- as.integer(vec[1])
-    y <- as.integer(vec[2])
+    x <- lon <- as.integer(vec[1])
+    y <- lat <- as.integer(vec[2])
+    
+    # x <- as.integer(df.in$lon[1])
+    # y <- as.integer(df.in$lat[2])
     
     if(x%%2 == 0){
       if(x>0){
@@ -60,10 +61,12 @@ get.soil.func <- function(df.in,soil.fn){
     if(length(fn.i)==0){
       return(NA)
     }else{
+      
+      soil.tmp.ra <- rast(soil.fn[fn.i])
       # x.ra <- raster(soil.fn[fn.i])
       # plot(x.ra)
       # points(x = vec[1],y=vec[2])
-      return(raster::extract(soil.ls[[fn.i]],cbind(vec[1],vec[2])))
+      return(extract(soil.tmp.ra,cbind(lon,lat))[1,])
     }
   })
 }
@@ -84,19 +87,23 @@ hist(d15n.trend.df$map.trend)
 
 # d15n.trend.df <- get.raster.data.func(map.trend.ra,d15n.trend.df,'soilN')
 # 
-d15n.trend.df$soilN <- get.soil.func(df.in = d15n.trend.df,soil.fn)
+d15n.trend.df$soilN <- get.soil.func(df.in = d15n.trend.df,
+                                     soil.fn=soil.fn)
 
 saveRDS(d15n.trend.df,'cache/NTrend.met.soil.rds')
 # d15n.trend.df <- readRDS('cache/NTrend.met.soil.rds')
 
+# get.soil.func(df.in = d15n.trend.df[1,],soil.fn)
 
 ########
 source('r/getModisLandCover.R')
-source('r/color.R')
-source('r/get_N_Depo.R')
-source('r/get_ele.R')
+# source('r/color.R')
+# source('r/get_N_Depo.R')
+# source('r/get_ele.R')
 # 
-d15n.trend.df <- readRDS('d15Trend.met.soil.rds')
+d15n.trend.df <- readRDS('cache/NTrend.met.soil.rds')
+d15n.tmp.df <- readRDS('d15Trend.met.soil.rds')
+d15n.trend.df <- merge(d15n.trend.df,d15n.tmp.df[,c('lon','lat',"slope.ndvi")])
 d15n.trend.df <- d15n.trend.df[!is.na(d15n.trend.df$soilN),]
 
 # fit.climate.mean <- lm(slope.fit~ mat.mean + log(map.mean*.1) + mat.trend + map.trend + soilN,data = d15n.trend.df)
@@ -126,18 +133,21 @@ d15n.trend.df <- d15n.trend.df[d15n.trend.df$map.trend > -10 &
 
 # range(d15n.trend.df$map.trend)
 d15n.trend.df$soilN.log <- log10(d15n.trend.df$soilN)
-d15n.trend.df <- d15n.trend.df[d15n.trend.df$soilN>0,]
+d15n.trend.df <- d15n.trend.df[!is.na(d15n.trend.df$soilN.log),]
+d15n.trend.df <- d15n.trend.df[is.finite(d15n.trend.df$soilN.log),]
 # 
 d15n.trend.df$lct <- extract(landCover.ra.new,cbind(d15n.trend.df$lon,
                                                     d15n.trend.df$lat))
-d15n.trend.df <- merge(d15n.trend.df,
+d15n.trend.df.m <- merge(d15n.trend.df,
                              name.df,
                              by.x = 'lct',by.y = 'Value')
 
+d15n.trend.df <- d15n.trend.df.m
 d15n.trend.df <- d15n.trend.df[d15n.trend.df$Label %in% pft.chosen.vec,]
 # get n depo
-d15n.trend.df$ndepo <- extract(nDepo.ra,cbind(d15n.trend.df$lon,
-                                              d15n.trend.df$lat))
+ndepo.m <- extract(nDepo.ra,cbind(d15n.trend.df$lon,
+                                  d15n.trend.df$lat))[,1]
+d15n.trend.df$ndepo <- 1
 
 d15n.trend.df$ndepo.log <- log10(d15n.trend.df$ndepo)
 # get elevation 
@@ -173,9 +183,13 @@ d15n.trend.df$ele.log <- log10(d15n.trend.df$ele+1000)
 # plot(pr, residuals = TRUE)
 
 # get partial residual####
-fit.full <- lm(slope.fit~ slope.ndvi  +
+
+fit.full <- lm(slope.fit~ 
+                 slope.ndvi  +
                 map.log + 
-                mat.c + soilN.log + map.trend + ndepo.log + ele.log,
+                mat.c + 
+                 soilN.log +
+                 map.trend + ndepo.log + ele.log,
               data = d15n.trend.df)
 
 summary(fit.full)
@@ -183,7 +197,8 @@ summary(fit.full)
 fit.leave.ndvi <- lm(slope.fit~ 
                       map.log +  
                       mat.c + 
-                      soilN.log + map.trend + ndepo.log + ele.log,
+                      soilN.log +
+                       map.trend + ndepo.log + ele.log,
                     data = d15n.trend.df)
 summary(fit.leave.ndvi)
 
@@ -193,7 +208,8 @@ d15n.trend.df$resi.ndvi <- d15n.trend.df$slope.fit - coef(fit.leave.ndvi)["(Inte
 fit.leave.map <- lm(slope.fit~ slope.ndvi + 
                        # map.log +  
                        mat.c + 
-                       soilN.log+map.trend + ndepo.log + ele.log,
+                       soilN.log+
+                      map.trend + ndepo.log + ele.log,
                      data = d15n.trend.df)
 summary(fit.leave.map)
 
@@ -202,13 +218,14 @@ d15n.trend.df$resi.map <- d15n.trend.df$slope.fit - coef(fit.leave.map)["(Interc
 fit.leave.mat <- lm(slope.fit~ slope.ndvi + 
                       map.log +
                       # mat.c + 
-                      soilN.log+map.trend+ ndepo.log + ele.log,
+                      soilN.log+
+                      map.trend+ ndepo.log + ele.log,
                     data = d15n.trend.df)
 summary(fit.leave.mat)
 
 d15n.trend.df$resi.mat <- d15n.trend.df$slope.fit - coef(fit.leave.mat)["(Intercept)"]
-# 
-fit.leave.n <- lm(slope.fit~ slope.ndvi + 
+# # 
+fit.leave.n <- lm(slope.fit~ slope.ndvi +
                       map.log +
                     # +
                     # soilN.log
@@ -265,7 +282,7 @@ d15n.trend.df$resi.nDepo <- d15n.trend.df$slope.fit - coef(fit.leave.ndepo)["(In
 summary(lm(resi.ndvi~slope.ndvi,data = d15n.trend.df))
 summary(lm(resi.mat~mat.c,data = d15n.trend.df))
 summary(lm(resi.map~map.log,data = d15n.trend.df))
-summary(lm(resi.n~soilN.log,data = d15n.trend.df))
+# summary(lm(resi.n~soilN.log,data = d15n.trend.df))
 # summary(lm(resi.matTrend~mat.trend,data = d15n.trend.df))
 summary(lm(resi.mapTrend~map.trend,data = d15n.trend.df))
 summary(lm(resi.nDepo~log10(ndepo),data = d15n.trend.df))
@@ -284,7 +301,7 @@ plot.resi.func <- function(dat,
                            ){
   # dat = d15n.trend.df[,c("soilN.log","resi.n")]
   # 
-  y.lab <- expression(Residual~(10^-4~'‰'~yr^-1))#expression(Residual~of~delta^15*N~trend~('‰'~yr^-1))
+  y.lab <- expression(Residual~(10^-2~'%'~yr^-1))#expression(Residual~of~delta^15*N~trend~('‰'~yr^-1))
 if(is.null(x.range)){
   smoothScatter(dat,nbin = 256,
                 colramp = colorRampPalette(c('white','grey')),#"#B47846"
@@ -297,8 +314,8 @@ if(is.null(x.range)){
                 yaxt='n',
                 ylab = y.lab)
   
-  axis(2,at = seq(-5,5, by=1),labels = seq(-5,5, by=1))
-  axis(2,at = seq(-5,5, by=5e-1),labels=NA, tck=-0.01)
+  axis(2,at = pretty(y.range,n=10),labels = pretty(y.range,n=10))
+  axis(2,at = pretty(y.range,n=20),labels=NA, tck=-0.01)
 }else{
   smoothScatter(dat,nbin = 256,
                 colramp = colorRampPalette(c('white','grey')),#"#B47846"
@@ -310,8 +327,10 @@ if(is.null(x.range)){
                 xlab=x.nm,
                 ylab = y.lab,
                 yaxt='n')
-  axis(2,at = seq(-5,5, by=1),labels = seq(-5,5, by=1))
-  axis(2,at = seq(-5,5, by=0.5),labels=NA, tck=-0.01)
+  axis(2,at = pretty(y.range,n=10),labels = pretty(y.range,n=10))
+  axis(2,at = pretty(y.range,n=20),labels=NA, tck=-0.01)
+  # axis(2,at = seq(-5,5, by=1),labels = seq(-5,5, by=1))
+  # axis(2,at = seq(-5,5, by=0.5),labels=NA, tck=-0.01)
 }
   # fit.rsi <- lm(dat[,2]~dat[,1])
   # abline(fit.rsi,col='#B4AF46',lwd = 3)
@@ -342,3 +361,61 @@ if(is.null(x.range)){
   }
   legend('topleft',legend = legend.nm,bty='n')
 }
+#plot####
+pdf('figures/Ndriver.pdf',width = 7,height = 7)
+# par(mar=c(5,5,1,1),
+#     mfrow=c(4,2))
+par(mar=c(5,5,1,1))
+layout(matrix(c(rep(1,6),2:7),ncol=3,byrow = T))
+# par(mfrow=c(4,2))
+# abline(lm(d15n.trend.df[,c("soilN.log","resi.n")]),col='grey',lwd = 6)
+d15n.trend.df$slope.ndvi.104 <- d15n.trend.df$slope.ndvi *1e2
+d15n.trend.df$resi.ndvi.104 <- d15n.trend.df$resi.ndvi *1e2
+plot.resi.func(dat = d15n.trend.df[,c("slope.ndvi.104","resi.ndvi.104",'Label')],
+               x.nm = expression(Trend~of~NDVI~(10^-2~yr^-1)),
+               legend.nm = '(a)',
+               x.range = c(-.02,.02),
+               y.range = c(-10,10))
+
+legend('bottomleft',legend = pft.chosen.vec,lty='solid',lwd=3,
+       col=palette(),bty='n',ncol=4,title = 'LCT')
+
+d15n.trend.df$resi.mat.104 <- d15n.trend.df$resi.mat *1e2
+plot.resi.func(dat = d15n.trend.df[,c("mat.c","resi.mat.104",'Label')],
+               x.nm = expression(MAT~(degree*C)),
+               legend.nm = '(b)'
+               # x.range = c(-.02,.02)
+               )
+
+d15n.trend.df$resi.map.104 <- d15n.trend.df$resi.map *1e2
+plot.resi.func(dat = d15n.trend.df[,c("map.log","resi.map.104",'Label')],
+               x.nm = expression(log[10](MAP)~(mm~yr^-1)),
+               legend.nm = '(c)',
+               y.range = c(-10,10))
+# plot.resi.func(dat = d15n.trend.df[,c("mat.trend","resi.matTrend",'Label')],
+#                x.nm = expression(Trend~of~MAT~(K~yr^-1)),
+#                legend.nm = '(d)')
+d15n.trend.df$resi.mapTrend.104 <- d15n.trend.df$resi.mapTrend *1e2
+plot.resi.func(dat = d15n.trend.df[,c("map.trend","resi.mapTrend.104",'Label')],
+               x.nm = expression(Trend~of~MAP~(mm~yr^-2)),
+               legend.nm = '(d)')
+
+d15n.trend.df$resi.ele.104 <- d15n.trend.df$resi.ele *1e2
+plot.resi.func(dat = d15n.trend.df[,c("ele.log","resi.ele.104",'Label')],
+               x.nm = expression(log[10]*(Elevation+1000)~(m)),
+               legend.nm = '(e)')
+# hist(d15n.trend.df$soilN.log)
+d15n.trend.df$resi.n.104 <- d15n.trend.df$resi.n *1e2
+plot.resi.func(dat = d15n.trend.df[,c("soilN.log","resi.n.104",'Label')],
+               x.nm = expression(log[10](N[soil])~(cg~kg^1)),
+               legend.nm = '(f)')
+
+d15n.trend.df$resi.nDepo.104 <- d15n.trend.df$resi.nDepo *1e2
+plot.resi.func(dat = d15n.trend.df[,c("ndepo.log","resi.nDepo.104",'Label')],
+               x.nm = expression(log[10](N[deposition])~(mg~N~m^-2~yr^-1)),
+               legend.nm = '(e)')
+# plot(0,pch='',ann=F,axes=F)
+# legend('topleft',legend = pft.chosen.vec,lty='solid',lwd=3,
+#        col=palette(),bty='n',ncol=1,title = 'LCT')
+
+dev.off()

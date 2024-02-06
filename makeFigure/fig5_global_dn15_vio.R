@@ -14,14 +14,24 @@ slope.dn15.df.sum <- readRDS('cache/global.slope.d15n.rds')
 # get biome
 slope.dn15.df.sum$biome.factor <- factor(slope.dn15.df.sum$biome.factor,
                                          levels = pft.chosen.vec)
+slope.dn15.df.sum$slope.fit
 # get continent
 slope.dn15.df.sum$continent <- find.continent.func(slope.dn15.df.sum$lon,
                                                    slope.dn15.df.sum$lat)
 # split by continent
 dn15.ls <- split(slope.dn15.df.sum,slope.dn15.df.sum$continent)
+dn15.ls <- dn15.ls[c(5,4,2,6,1,3)]
+col.plot.vec <- which(levels(slope.dn15.df.sum$biome.factor) %in% slope.dn15.df.sum$biome.factor )
 
+png('figures/trendViolin.png',height = 12,width = 18,units = 'cm',res = 2400)
+# par(mar=c(4,5,1,1))
+# vioplot(dn15.pred~biome.factor,data = slope.dn15.df.sum,
+#         las=2,pch='',xlab='',col = col.plot.vec,
+#         ylab=expression(Landsat~derived~delta^15*N~('‰')),ylim=c(-4,6))
+# abline(h=mean(slope.dn15.df.sum$dn15.pred,na.rm=T),lty='dashed',col='coral',lwd=2)
+# dev.off()
 #plot######################
-pdf('figures/fig5_dn15ByPFT.pdf',width = 7,height = 7)
+# pdf('figures/fig5_dn15ByPFT.pdf',width = 7,height = 7)
 # all.df.biome$biome.factor <- as.factor(all.df.biome$Label)
 # all.df.biome.dn15$biome.factor <- as.factor(all.df.biome.dn15$Label)
 # global.dn15.df$biome.factor <- as.factor(global.dn15.df$Label)
@@ -31,7 +41,7 @@ pdf('figures/fig5_dn15ByPFT.pdf',width = 7,height = 7)
 #                 7,7,8,
 #                 7,7,8),ncol = 3,byrow = T))
 layout(matrix(c(1,2,3,
-                4,5,6),ncol = 2,byrow = T))
+                4,5,6),ncol = 3,byrow = T))
 
 # plot a-f as violin
 par(mar=c(5,5,1,1))
@@ -41,12 +51,13 @@ for (i.len in 1:length(dn15.ls)) {
 
   plot.df$biome.factor <- droplevels(plot.df$biome.factor)
   # plot.df <- plot.df[complete.cases(plot.df),]
-  vioplot(dn15.pred~biome.factor,data = plot.df,
+  vioplot(slope.fit~biome.factor,data = plot.df,
           las=2,pch='',xlab='',col = col.plot.vec,
-          ylab=expression(Landsat~derived~delta^15*N~('‰')),ylim=c(-5,10))
+          ylab=expression(Landsat~derived~delta^15*N~('‰')),ylim=c(-5,5))
   
   abline(h=0,lty='dashed',col='coral',lwd=2)
-  legend('topleft',legend = sprintf('(%s) %s',letters[i.len],names(dn15.ls)[i.len]),bty='n')
+  # legend('topleft',legend = sprintf('(%s) %s',letters[i.len],names(dn15.ls)[i.len]),bty='n')
+  legend('topleft',legend = sprintf('%s',names(dn15.ls)[i.len]),bty='n')
 }
 slope.dn15.df.sum$slope.yr <- slope.dn15.df.sum$slope.fit*365.25
 # # g####
