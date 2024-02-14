@@ -10,5 +10,6 @@ c.f <- tableau_color_pal(
   type = "regular",
   direction = 1
 )
-palette(c(c.f(10),col.df$cityNight[4])[c(1,4,5,9,10,8,3,7,6,2,11)])
+c.vec <- c(c.f(10),col.df$cityNight[4])[c(1,4,5,9,10,8,3,7,6,2,11)]
+palette(c.vec)
 plot(1:11,pch=15,col=palette(),cex=6)
