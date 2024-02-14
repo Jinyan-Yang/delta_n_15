@@ -111,6 +111,10 @@ d15n.ra <- rast('outputs/d15N/d15N_Map_2022.tif')
 
 # a
 d15n.df <- as.data.frame(d15n.ra,xy=T)
+hist(d15n.df$layer,breaks = 100,freq = F,
+     xlab=expression(delta^15*N~('\u2030')),
+     main='')
+abline(v = mean(d15n.df$layer,na.rm=T),col='coral',lty='dashed')
 d15n.df$layer[d15n.df$layer < -5] <- -5
 d15n.df$layer[d15n.df$layer > 5] <- 5
 # 
